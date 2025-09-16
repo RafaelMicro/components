@@ -1,0 +1,6 @@
+if (CONFIG_HOSAL_SOC_IDLE_SLEEP)
+sdk_add_static_library(zboss_port_rfd)
+else()
+sdk_add_static_library(zboss_port_ffd)
+endif()
+sdk_add_include_directories(include)
