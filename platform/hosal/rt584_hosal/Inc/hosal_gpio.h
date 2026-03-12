@@ -115,7 +115,7 @@ uint32_t hosal_gpio_pin_toggle(uint32_t pin_number);
  *                  pin input value,0 is low level, 1 is high level
  * \return          Function status, STATUS_SUCCESS, STATUS_INVALID_PARAM
  */
-uint32_t hosal_gpio_pin_get(uint32_t pin_numbe, uint32_t* value);
+uint32_t hosal_gpio_pin_get(uint32_t pin_number, uint32_t* value);
 
 /**
  * \brief           Enable gpio pin interrupt

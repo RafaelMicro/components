@@ -67,7 +67,12 @@ mp_sector_valid_t mp_sector_valid = MP_SECTOR_INVALID;
 
 #define  CHECK_RESULT(X)   (X)<=4?0:1
 
-
+#if defined(CONFIG_RT584HA4)
+static uint8_t MpSectorAry[4096] __attribute__((aligned(4)));
+static uint8_t use_ram_buffer_4096k = 0;
+#else
+uint8_t MpSectorAry[4096];
+#endif
 /**
 * \ingroup mp_sector_group
 * \brief  Otp to mp pmu value check
@@ -530,9 +535,68 @@ uint32_t getmpsectorinfo(mp_sector_inf_t *MpSectorInf)
 #else
         //need to use nsc function
 #endif
-    }
-    else
-    {
+    } else if (flash_size_id == FLASH_4096K) {
+
+            #if defined(CONFIG_RT584HA4)
+				uint32_t i;
+				for (i = 0; i < 16; i++) {
+					uint32_t page_addr = 0x103FF000u + (i * 256u);
+					
+					flash_read_page((uint32_t)(MpSectorAry + (i * 256u)),page_addr);
+				}
+				
+				use_ram_buffer_4096k = 1;
+        
+				if (use_ram_buffer_4096k) {
+					uint8_t *base = (uint8_t *)MpSectorAry;
+					MpSectorInf->ver  = *(volatile uint32_t *)(base + 0x0FF8u);
+					MpSectorInf->size = *(volatile uint32_t *)(base + 0x0FFCu);
+					MpSectorInf->cal  = *(volatile uint32_t *)(base + 0x0FF4u);
+					MpSectorInf->cal_data_sector_size = *(volatile uint32_t *)(base + 0x0FC4u);
+					/* MP sector stores offset -> convert to absolute */
+					MpSectorInf->cal_data_sector_addr = *(volatile uint32_t *)(base + 0x0FC0u);
+					MpSectorInf->cal_data_sector_addr += FLASH_SECURE_MODE_BASE_ADDR;
+					
+					//printf("MpSectorInf->ver=0x%.8X\r\n",MpSectorInf->ver);
+					//printf("MpSectorInf->size=0x%.8X\r\n",MpSectorInf->size);
+					//printf("cal=0x%.8X\r\n\r\n",MpSectorInf->cal);
+					//printf("cal_data_sector_size=0x%.8X\r\n",MpSectorInf->cal_data_sector_size);
+					//printf("cal_data_sector_addr=0x%.8X\r\n",MpSectorInf->cal_data_sector_addr);
+				} else {
+					MpSectorInf->ver  = MP_SECTOR_INFO_4096K->MP_SECTOR_VERSION;
+					MpSectorInf->size = MP_SECTOR_INFO_4096K->MP_SECTOR_SIZE;
+					MpSectorInf->cal  = MP_SECTOR_INFO_4096K->MP_SECTOR_CALIBRATION;
+					MpSectorInf->cal_data_sector_size = MP_SECTOR_INFO_4096K->CAL_DATA_SECTOR_SIZE;
+				}
+
+				{
+					uint32_t expected = MP_SECTOR_CAL_ADDR_4096K;
+					if (MpSectorInf->cal_data_sector_addr != expected) {
+						MpSectorInf->cal_data_sector_addr = 0;
+						return STATUS_INVALID_PARAM;
+					}
+				}
+
+            #else
+
+                    #if defined(CONFIG_FLASHCTRL_SECURE_EN)
+                            MpSectorInf->ver = MP_SECTOR_INFO_4096K->MP_SECTOR_VERSION;
+                            MpSectorInf->size = MP_SECTOR_INFO_4096K->MP_SECTOR_SIZE;
+                            MpSectorInf->cal = MP_SECTOR_INFO_4096K->MP_SECTOR_CALIBRATION;
+                            MpSectorInf->cal_data_sector_size = MP_SECTOR_INFO_4096K->CAL_DATA_SECTOR_SIZE;
+                            MpSectorInf->cal_data_sector_addr = MP_SECTOR_INFO_4096K->CAL_DATA_SECTOR_ADDR + FLASH_SECURE_MODE_BASE_ADDR;
+                    
+                            if (MpSectorInf->cal_data_sector_addr != MP_SECTOR_CAL_ADDR_4096K)
+                            {
+                                MpSectorInf->cal_data_sector_addr = (uint32_t)NULL;
+                                return STATUS_INVALID_PARAM;
+                            }
+                    #else
+                            //need to use nsc function
+                    #endif 
+
+            #endif 
+    } else {
         return STATUS_INVALID_PARAM;
     }
 
@@ -560,11 +624,11 @@ void mpcaldcdcinit(mp_cal_regulator_t *mp_cal_reg)
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal =  target_vosel[0];
 
 
-#if defined(SUPPORT_TX_PWR_14DBM) || defined(SUPPORT_TX_PWR_20DBM) || defined(SUPPORT_TX_PWR_0DBM)
+#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 
-#if defined(SUPPORT_TX_PWR_14DBM)
+#if defined(CONFIG_RF_POWER_14DBM)
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[2];
-#elif defined(SUPPORT_TX_PWR_0DBM) || defined(SUPPORT_TX_PWR_20DBM)
+#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
 #else
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
@@ -624,11 +688,11 @@ void mpcalldomvinit(mp_cal_regulator_t *mp_cal_reg)
 
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal =  target_vosel[0];    //1250mv
 
-#if defined(SUPPORT_TX_PWR_14DBM) || defined(SUPPORT_TX_PWR_20DBM) || defined(SUPPORT_TX_PWR_0DBM)
+#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 
-#if defined(SUPPORT_TX_PWR_14DBM)
+#if defined(CONFIG_RF_POWER_14DBM)
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[2];      //1600mv
-#elif defined(SUPPORT_TX_PWR_0DBM) || defined(SUPPORT_TX_PWR_20DBM)
+#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
 #else
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
@@ -882,9 +946,9 @@ uint32_t mpcalbodread(mp_cal_regulator_t *mp_cal_bod)
     if ((mp_cal_bod_flag == 1) || (mp_cal_bod_flag == 2))
     {
         mp_cal_bod->voltage_1 = mp_cal_bod_v1;
-        mp_cal_bod->vosel_1 = mp_cal_ana_vosel1;
+        mp_cal_bod->vosel_1 = mp_cal_bod_vosel1;
         mp_cal_bod->voltage_2 = mp_cal_bod_v2;
-        mp_cal_bod->vosel_2 = mp_cal_ana_vosel2;
+        mp_cal_bod->vosel_2 = mp_cal_bod_vosel2;
 
         read_status = STATUS_SUCCESS;
     }
@@ -1009,7 +1073,7 @@ void mpcalagcreadinit(mp_cal_agc_adc_t *mp_cal_agc)
 uint8_t mpsectorreadtxpwrcfg()
 {
 
-    uint32_t read_addr = 0, i = 0;
+    uint32_t read_addr = 0;
     uint8_t txpwrlevel = 0;
     if (flash_size() == FLASH_1024K)
     {
@@ -1027,24 +1091,37 @@ uint8_t mpsectorreadtxpwrcfg()
         read_addr = 0x001FFFD8;
 #endif
     }
-
-    i = (read_addr + 7); //FD8~FDF, 8bytes
-
-    for (read_addr = read_addr; read_addr < i; read_addr++)
+    else if (flash_size() == FLASH_4096K)
     {
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        read_addr = 0x103FFFD8;
+#else
+        read_addr = 0x003FFFD8;
+#endif
+    }
 
-        txpwrlevel = (*(uint8_t *)(read_addr));
-
-        if ((txpwrlevel == TX_POWER_20DBM_DEF) || (txpwrlevel == TX_POWER_14DBM_DEF) || (txpwrlevel == TX_POWER_0DBM_DEF))
+    uint32_t start = read_addr;      // FD8
+    uint32_t limit = start + 8;      // one-past-end: FD8~FDF 共 8 bytes
+    uint32_t addr;
+    
+    for (addr = start; addr < limit; addr++)
+    {
+        txpwrlevel = flash_read_byte(addr);
+    
+        if ((txpwrlevel == TX_POWER_20DBM_DEF) ||
+            (txpwrlevel == TX_POWER_14DBM_DEF) ||
+            (txpwrlevel == TX_POWER_0DBM_DEF))
         {
-
-            break;
+            break;  // find data
         }
         else
         {
-
-            txpwrlevel = TX_POWER_14DBM_DEF;
+            txpwrlevel = TX_POWER_14DBM_DEF; // 
         }
+    }
+    
+    if (addr >= limit) {
+        txpwrlevel = TX_POWER_14DBM_DEF;
     }
 
     set_sys_txpower_default(txpwrlevel);
@@ -1059,7 +1136,7 @@ uint32_t mpsectorwritetxpwrcfg(uint8_t updatetxpwrlevel)
 
     uint32_t read_addr = 0, i = 0;
     uint8_t txpwrlevel = 0;
-
+	uint8_t buf[8];
     if ((updatetxpwrlevel == TX_POWER_20DBM_DEF) || (updatetxpwrlevel == TX_POWER_14DBM_DEF) || (updatetxpwrlevel == TX_POWER_0DBM_DEF))
     {
 
@@ -1079,45 +1156,62 @@ uint32_t mpsectorwritetxpwrcfg(uint8_t updatetxpwrlevel)
             read_addr = 0x001FFFD8;
 #endif
         }
-
-        i = (read_addr + 7); //FD8~FDF, 8bytes
-
-        for (read_addr = read_addr; read_addr < i; read_addr++)
+        else if (flash_size() == FLASH_4096K)
         {
+#if FLASHCTRL_SECURE_EN==1
+            read_addr = 0x103FFFD8;
+#else
+            read_addr = 0x003FFFD8;
+#endif
+        }
+        uint32_t start = read_addr;      // start addres FD8
+        uint32_t limit = start + 8;      // FD8~FDF 共 8 bytes
+        txpwrlevel = 0xFF;
+        uint32_t addr;
 
-            txpwrlevel = (*(uint8_t *)(read_addr));
-
+        /* scan 8 bytes */
+        for (addr = start; addr < limit; addr++)
+        {
+            txpwrlevel = flash_read_byte(addr);
+        
+            /* find value */
             if (txpwrlevel == updatetxpwrlevel)
             {
                 return STATUS_INVALID_PARAM;
             }
-
-            if ((txpwrlevel == 0xFF))
+        
+            /* new address */
+            if (txpwrlevel == 0xFF)
             {
                 break;
             }
         }
 
+        /* New address */
         if (txpwrlevel == 0xFF)
         {
-            if (read_addr <= i)
+            if (addr < limit)
             {
-                flash_write_mpsector_txpwrcfgbyte((read_addr), updatetxpwrlevel);
-                if (read_addr != (i - 7))
+         
+                flash_write_mpsector_txpwrcfgbyte(addr, updatetxpwrlevel);
+        
+                if (addr != start)
                 {
-                    flash_write_mpsector_txpwrcfgbyte((read_addr - 1), 0x00);
+                    flash_write_mpsector_txpwrcfgbyte(addr - 1, 0x00);
                 }
-
+				
                 set_sys_txpower_default(updatetxpwrlevel);
+        
+                return STATUS_SUCCESS;
             }
             else
             {
-                return STATUS_INVALID_REQUEST; //over address ;
+                return STATUS_INVALID_REQUEST;   // over address
             }
         }
         else
         {
-            return STATUS_ERROR; //record fuall;
+            return STATUS_ERROR;                 // record full
         }
     }
     else   //unknow tx power type;
@@ -1167,14 +1261,48 @@ uint32_t mpcalrftrimwrite(uint32_t mp_id, MPK_RF_TRIM_T *mp_cal_rf)
 
     mp_sector_head_t *valid_rf_trim;
     valid_rf_trim = getspecvalidmpid(mp_id);
-
-
+	if (valid_rf_trim == NULL || mp_cal_rf == NULL) {
+	    return STATUS_INVALID_REQUEST;
+	}
+	
     pWriteByte = (uint8_t *)mp_cal_rf;
 
     //write_cnt = mp_cal_rf->head.mp_cnt;
     write_cnt = sizeof(MPK_RF_TRIM_T);
     write_addr = (uint32_t)valid_rf_trim;
+	
+	#if defined(CONFIG_RT584HA4)
+	    /* RT584HA4: valid_rf_trim is a pointer into MpSectorAry (RAM),
+	     * must convert to flash absolute address by offset mapping.
+	     */
+	    {
+	        mp_sector_inf_t MpInf;
+	        uint32_t offset;
+	
+	        memset(&MpInf, 0, sizeof(MpInf));
+			if (getmpsectorinfo(&MpInf) != STATUS_SUCCESS || MpInf.cal_data_sector_addr == 0) {
+			    return STATUS_ERROR;
+			}
 
+	        /* Calculate offset within MpSectorAry */
+	        offset = (uint32_t)((uint8_t *)valid_rf_trim - (uint8_t *)MpSectorAry);
+	
+	        /* Bounds check: must stay within MP sector 4KB */
+	        if (offset >= sizeof(MpSectorAry)) {
+	            return STATUS_ERROR;
+	        }
+	        if ((offset + write_cnt) > sizeof(MpSectorAry)) {
+	            return STATUS_INVALID_PARAM; /* would overflow MP sector */
+	        }
+	
+	        /* Flash address to write */
+	        write_addr = MpInf.cal_data_sector_addr + offset;
+	    }
+	#else
+	    /* Non-RT584HA4: valid_rf_trim is a pointer in flash memory map already */
+	    write_addr = (uint32_t)valid_rf_trim;
+	#endif
+	
     if (write_addr == 0)
     {
         return STATUS_ERROR;
@@ -1212,35 +1340,84 @@ uint32_t mpcalrftrimwrite(uint32_t mp_id, MPK_RF_TRIM_T *mp_cal_rf)
 
 uint32_t mpcalrftrimread(uint32_t mp_id, uint32_t byte_cnt, uint8_t *mp_sec_data)
 {
-    uint32_t i;
-    uint32_t read_status = STATUS_SUCCESS;
-    uint8_t *pValidByte;
-    uint8_t *pReadByte;
-
-    mp_sector_head_t *valid_mp_sec;
-    valid_mp_sec =  getspecvalidmpid(mp_id);
-
-    do
-    {
-        if (valid_mp_sec == NULL)
-        {
-            read_status = STATUS_INVALID_REQUEST;
-            break;
-        }
-
-        pValidByte = (uint8_t *)valid_mp_sec;
-        pReadByte = (uint8_t *)mp_sec_data;
-
-        for (i = 0; i < byte_cnt; i++)
-        {
-            *pReadByte = *pValidByte;
-            pValidByte++;
-            pReadByte++;
-        }
-
-    } while (0);
-
-    return read_status;
+	    uint32_t i;
+	    uint32_t read_status = STATUS_SUCCESS;
+	
+	    uint8_t *pValidByte;
+	    uint8_t *pReadByte;
+	
+	    mp_sector_head_t *valid_mp_sec;
+	    valid_mp_sec = getspecvalidmpid(mp_id);
+	
+	    do
+	    {
+	        if (mp_sec_data == NULL || byte_cnt == 0U)
+	        {
+	            read_status = STATUS_INVALID_PARAM;
+	            break;
+	        }
+	
+	        if (valid_mp_sec == NULL)
+	        {
+	            read_status = STATUS_INVALID_REQUEST;
+	            break;
+	        }
+	
+	#if defined(CONFIG_RT584HA4)
+	        {
+	            mp_sector_inf_t MpInf;
+	            uint32_t offset;
+	            uint32_t flash_addr;
+	
+	            memset(&MpInf, 0, sizeof(MpInf));
+	            if (getmpsectorinfo(&MpInf) != STATUS_SUCCESS || MpInf.cal_data_sector_addr == 0U)
+	            {
+	                read_status = STATUS_ERROR;
+	                break;
+	            }
+	
+	            /* valid_mp_sec points into MpSectorAry (RAM) on RT584HA4 */
+	            offset = (uint32_t)((uint8_t *)valid_mp_sec - (uint8_t *)MpSectorAry);
+	
+	            /* Bounds check within 4KB MP sector buffer */
+	            if (offset >= sizeof(MpSectorAry))
+	            {
+	                read_status = STATUS_ERROR;
+	                break;
+	            }
+	            if ((offset + byte_cnt) > sizeof(MpSectorAry))
+	            {
+	                read_status = STATUS_INVALID_PARAM;
+	                break;
+	            }
+	
+	            flash_addr = MpInf.cal_data_sector_addr + offset;
+	
+	            /* Read from flash to ensure latest data (not stale RAM snapshot) */
+	            for (i = 0; i < byte_cnt; i++)
+	            {
+	#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+	                mp_sec_data[i] = flash_read_byte(flash_addr + i);
+	#else
+	                /* need to use nsc function */
+	                mp_sec_data[i] = 0xFF;
+	#endif
+	            }
+	        }
+	#else
+	        /* Non-RT584HA4: valid_mp_sec is already mapped to flash region */
+	        pValidByte = (uint8_t *)valid_mp_sec;
+	        pReadByte  = (uint8_t *)mp_sec_data;
+	
+	        for (i = 0; i < byte_cnt; i++)
+	        {
+	            *pReadByte++ = *pValidByte++;
+	        }
+	#endif
+	
+	    } while (0);
+	
+	    return read_status;
 }
 /*
 mp_sector_head_t * GetFirstValidMpId(mp_sector_head_t *pMpHead)
@@ -1365,9 +1542,13 @@ mp_sector_head_t *getspecvalidmpid(uint32_t spec_mp_id)
     memset(&MpInf, '\0', sizeof(mp_sector_inf_t));
 
     getmpsectorinfo(&MpInf);
-
-    pMpHead = (mp_sector_head_t *)((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
-
+	
+	#if defined(CONFIG_RT584HA4)
+	pMpHead = (mp_sector_head_t *)(MpSectorAry);
+	#else
+	pMpHead = (mp_sector_head_t *)((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
+	#endif
+   
     while (pMpHead != NULL)
     {
         if (pMpHead->mp_id == spec_mp_id)
@@ -1394,8 +1575,11 @@ mp_sector_head_t *getnullmpid(void)
     memset(&MpInf, '\0', sizeof(mp_sector_inf_t));
 
     getmpsectorinfo(&MpInf);
-
-    pMpHead = (mp_sector_head_t *)((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
+	#if defined(CONFIG_RT584HA4)
+	pMpHead = (mp_sector_head_t *)(MpSectorAry);
+	#else
+	pMpHead = (mp_sector_head_t *)((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
+	#endif
 
     while (pMpHead != NULL)
     {
@@ -1512,8 +1696,9 @@ uint32_t mpsectorinit(void)
             if (((MpInf.ver == MP_SECTOR_VERSION_ID_V1) && (MpInf.cal == MP_SECTOR_CALIBRATION_SW_V1)) ||
                     (MpInf.cal == MP_SECTOR_CALIBRATION_SW_V2))
             {
-
+                #if 0 //need default layout
                 status = mpsectorcalswupdate();
+                #endif
                 mp_sector_valid = MP_SECTOR_VALID_SWDEFAULT;
                 break;
             }
@@ -1536,8 +1721,12 @@ uint32_t mpsectorinit(void)
     case MP_SECTOR_VALID_MPTOOL:
     case MP_SECTOR_VALID_SWDEFAULT:
 
-        mpcalibrationinit((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
-
+		#if defined(CONFIG_RT584HA4)
+        mpcalibrationinit((mp_sector_cal_t *)(MpSectorAry));
+		#else
+		mpcalibrationinit((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
+		#endif
+        
         break;
 
     case MP_SECTOR_VALID_SWCAL:
@@ -1662,9 +1851,13 @@ void mpcaladcinit(void)
     {
     case MP_SECTOR_VALID_MPTOOL:
     case MP_SECTOR_VALID_SWDEFAULT:
-
-        mpcalibrationadcinit((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
-
+        
+		#if defined(CONFIG_RT584HA4)
+        mpcalibrationadcinit((mp_sector_cal_t *)(MpSectorAry));
+		#else
+		mpcalibrationadcinit((mp_sector_cal_t *)(MpInf.cal_data_sector_addr));
+		#endif
+        
         break;
 
     case MP_SECTOR_VALID_SWCAL:
@@ -1693,7 +1886,7 @@ uint32_t mpsectorcheckft(uint8_t ft_offset)
     return ft_filed_flag;
 }
 
-uint8_t MpSectorAry[4096];
+
 uint32_t mpsectorcalswupdate()
 {
 
@@ -1720,7 +1913,10 @@ uint32_t mpsectorcalswupdate()
     memset(&MpInf, '\0', sizeof(mp_sector_inf_t));
     getmpsectorinfo(&MpInf);
 
-    memcpy(MpSectorAry, (uint32_t *)(MpInf.cal_data_sector_addr), sizeof(MpSectorAry));
+	#if !defined(CONFIG_RT584HA4)
+	memcpy(MpSectorAry, (uint32_t *)(MpInf.cal_data_sector_addr), sizeof(MpSectorAry));
+	#endif
+	
     MpCal = (mp_sector_cal_t *)MpSectorAry;
     MpInfp = (mp_sector_info_t *)(MpSectorAry + 0xFC0);
 
@@ -1984,11 +2180,11 @@ uint32_t mpsectorcalswupdate()
             MpCal->BOD_ADC.target_voltage_2 =  mp_cal_adc.target_voltage_2;
             MpCal->BOD_ADC.target_voltage_3 =  mp_cal_adc.target_voltage_3;
 
-            result = fttoanabodvoselcal(MP_ID_ANA_COM, 2000, &ft_pmu_temp);
+            result = fttoanabodvoselcal(MP_ID_BOD, 2000, &ft_pmu_temp);
             MpCal->BOD_ADC.target_vosel_1 =  GET_BYTE0(result);
-            result = fttoanabodvoselcal(MP_ID_ANA_COM, 2100, &ft_pmu_temp);
+            result = fttoanabodvoselcal(MP_ID_BOD, 2100, &ft_pmu_temp);
             MpCal->BOD_ADC.target_vosel_2 =  GET_BYTE0(result);
-            result = fttoanabodvoselcal(MP_ID_ANA_COM, 2200, &ft_pmu_temp);
+            result = fttoanabodvoselcal(MP_ID_BOD, 2200, &ft_pmu_temp);
             MpCal->BOD_ADC.target_vosel_3 =  GET_BYTE0(result);
         }
         else if ((ft_pmu_temp.flag > 1))
@@ -2090,7 +2286,8 @@ uint32_t fttompcalibration()
     mp_temp_k_t                 mp_temp_k;
     mp_cal_agc_adc_t            mp_agc;
 
-#if defined(SUPPORT_TX_PWR_14DBM) || defined(SUPPORT_TX_PWR_20DBM) || defined(SUPPORT_TX_PWR_0DBM)
+#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM)
+#elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 #else
     txpower_default_cfg_t       txpwrlevel;
     txpwrlevel = sys_txpower_getdefault();
@@ -2114,13 +2311,13 @@ uint32_t fttompcalibration()
         result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal =  GET_BYTE0(result);
 
-#if defined(SUPPORT_TX_PWR_14DBM) || defined(SUPPORT_TX_PWR_20DBM) || defined(SUPPORT_TX_PWR_0DBM)
+#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 
-#if defined(SUPPORT_TX_PWR_14DBM)
+#if defined(CONFIG_RF_POWER_14DBM)
         result = fttovoselcal(MP_ID_DCDC, 1600, &ft_pmu_temp); //Target volatge 1250;
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
 
-#elif defined(SUPPORT_TX_PWR_0DBM) || defined(SUPPORT_TX_PWR_20DBM)
+#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
         result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
 #else
@@ -2162,12 +2359,12 @@ uint32_t fttompcalibration()
         result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal =  GET_BYTE0(result);
 
-#if defined(SUPPORT_TX_PWR_14DBM) || defined(SUPPORT_TX_PWR_20DBM) || defined(SUPPORT_TX_PWR_0DBM)
+#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 
-#if defined(SUPPORT_TX_PWR_14DBM)
+#if defined(CONFIG_RF_POWER_14DBM)
         result = fttovoselcal(MP_ID_LDOMV, 1600, &ft_pmu_temp); //Target volatge 1250;
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-#elif defined(SUPPORT_TX_PWR_0DBM) || defined(SUPPORT_TX_PWR_20DBM)
+#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
         result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1250;
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
 #else
@@ -2342,3 +2539,5 @@ uint32_t fttompcalibration()
     return STATUS_SUCCESS;
 
 }
+
+

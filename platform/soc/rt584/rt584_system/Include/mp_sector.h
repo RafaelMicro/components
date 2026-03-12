@@ -117,6 +117,27 @@ extern "C" {
 #define MP_SECTOR_BLE_2048K             ((mp_sector_ble_t *) MP_SECTOR_BLE_ADDR_2048K)
 #define MP_SECTOR_CAL_2048K             ((mp_sector_cal_t *) MP_SECTOR_CAL_ADDR_2048K)
 #define MP_SECTOR_INFO_2048K            ((mp_sector_info_t *) MP_SECTOR_INFO_ADDR_2048K)
+
+
+
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+#define MP_SECTOR_BASE_4096K             (0x103F0000UL)
+#else
+#define MP_SECTOR_BASE_4096K    (0x003F0000UL)
+#endif
+
+
+#define MP_SECTOR_RESERVED_ADDR_4096K   (MP_SECTOR_BASE_4096K + 0x0000UL)
+#define MP_SECTOR_ZIGBEE_ADDR_4096K     (MP_SECTOR_BASE_4096K + 0x4000UL)
+#define MP_SECTOR_BLE_ADDR_4096K        (MP_SECTOR_BASE_4096K + 0xC000UL)
+#define MP_SECTOR_CAL_ADDR_4096K        (MP_SECTOR_BASE_4096K + 0xF000UL)
+#define MP_SECTOR_INFO_ADDR_4096K       (MP_SECTOR_BASE_4096K + 0xFFC0UL)
+
+#define MP_SECTOR_RESERVED_4096K        ((mp_sector_reserved_t *) MP_SECTOR_RESERVED_ADDR_4096K)
+#define MP_SECTOR_ZIGBEE_4096K          ((mp_sector_zigbee_t *) MP_SECTOR_RESERVED_ADDR_4096K)
+#define MP_SECTOR_BLE_4096K             ((mp_sector_ble_t *) MP_SECTOR_BLE_ADDR_4096K)
+#define MP_SECTOR_CAL_4096K             ((mp_sector_cal_t *) MP_SECTOR_CAL_ADDR_4096K)
+#define MP_SECTOR_INFO_4096K            ((mp_sector_info_t *) MP_SECTOR_INFO_ADDR_4096K)
 /*
 #define MP_SECTOR_RESERVED_SIZE     (sizeof(mp_sector_reserved_t))
 #define MP_SECTOR_ZIGBEE_SIZE       (sizeof(mp_sector_zigbee_t))

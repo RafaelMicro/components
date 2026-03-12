@@ -38,6 +38,8 @@
 
 #define UART_CACHE_SIZE 256
 
+volatile uart0_mode_t g_uart0_mode = UART0_MODE_CLI;
+
 typedef struct uart_io {
     volatile uint32_t wr_idx;
     volatile uint32_t rd_idx;
@@ -89,17 +91,29 @@ static void cli_task(void* pvParameters) {
     shell_init((sh_io_desc_t*)&g_sh_std_io, &sh_set);
     g_sh_args.is_blocking = 0;
     while (1) {
-        cnt = uart_stdio_read(g_uart_rx_io.uart_cache, 0);
-        if (cnt) {
-            g_uart_rx_io.wr_idx = (g_uart_rx_io.wr_idx + cnt) % UART_CACHE_SIZE;
-            while (cnt--)
-                shell_proc(&g_sh_args);
-            g_uart_rx_io.rd_idx = 0;
-            g_uart_rx_io.wr_idx = 0;
+        if (g_uart0_mode == UART0_MODE_CLI) {
+
+            cnt = uart_stdio_read(g_uart_rx_io.uart_cache, 0);
+            if (cnt) {
+                g_uart_rx_io.wr_idx = (g_uart_rx_io.wr_idx + cnt)
+                                      % UART_CACHE_SIZE;
+                while (cnt--)
+                    shell_proc(&g_sh_args);
+                g_uart_rx_io.rd_idx = 0;
+                g_uart_rx_io.wr_idx = 0;
+            }
+        } else {
+            //UART0_MODE_HEX_RX
         }
         vTaskDelay(10);
     }
 }
+
+void cli_mode_switch_function(uart0_mode_t uart0_mode) {
+    g_uart0_mode = uart0_mode;
+}
+
+uart0_mode_t cli_mode_get_function() { return g_uart0_mode; }
 
 static int _cli_cmd_ps(int argc, char** argv, cb_shell_out_t log_out,
                        void* pExtra) {

@@ -12,19 +12,27 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 
 __STACK_SIZE = DEFINED(__STACK_SIZE) ? __STACK_SIZE : 2K;
+__STACK_SIZE_ALIGNED = (__STACK_SIZE + 7) & ~7;
 __CACHE_SIZE = DEFINED(__CACHE_SIZE) ? __CACHE_SIZE : 4K;
 
 MEMORY
 {
-	/* LMA regions*/
-	LMA_BOOT	(rx) : ORIGIN = 0x00000000, LENGTH = 32K
-	LMA_CORE	(rx) : ORIGIN = 0x00008000, LENGTH = 928K
-	LMA_USER	(rx) : ORIGIN = 0x000F0000, LENGTH = 32K
-	LMA_MP		(rx) : ORIGIN = 0x000F8000, LENGTH = 32K
+	/**
+	* 1MB Flash Layout (1024KB)
+	* 0x00000000 - 0x00007FFF : Bootloader      (32KB)
+	* 0x00008000 - 0x000EFFFF : App Code        (928KB)
+	* 0x000F0000 - 0x000FDFFF : User Data       (56KB)
+	* 0x000FE000 - 0x000FFFFF : Cal / MP Sector (8KB)
+	*/
+
+    LMA_BOOT (rx)    : ORIGIN = 0x00000000, LENGTH = 32K
+    LMA_CORE (rx)    : ORIGIN = 0x00008000, LENGTH = 928K 
+    LMA_USER (rx)    : ORIGIN = 0x000F0000, LENGTH = 56K
+    LMA_MPSC (rx)    : ORIGIN = 0x000FE000, LENGTH = 8K
 
 	/* VMA regions */
-	VMA_DATA	(rwx) : ORIGIN = 0x20000000, LENGTH = 144K - __STACK_SIZE
-	VMA_STACK	(rwx) : ORIGIN = ORIGIN(VMA_DATA) + LENGTH(VMA_DATA), LENGTH = __STACK_SIZE
+	VMA_DATA	(rwx) : ORIGIN = 0x20000000, LENGTH = 144K - __STACK_SIZE_ALIGNED
+	VMA_STACK	(rwx) : ORIGIN = ORIGIN(VMA_DATA) + LENGTH(VMA_DATA), LENGTH = __STACK_SIZE_ALIGNED
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -60,6 +68,7 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.isr_vector))
+		KEEP(*(.build_info))	
 		*(.text*)
 
 		KEEP(*(.init))

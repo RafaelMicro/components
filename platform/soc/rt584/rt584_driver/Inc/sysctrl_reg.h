@@ -61,7 +61,8 @@ typedef union sysctrl_clk_ctl1_s {
         uint32_t uart1_clk_sel    : 2;          /*!< uart1 clock selection */
         uint32_t uart2_clk_sel    : 2;          /*!< uart2 clock selection */
         uint32_t reserved0        : 2;          /*!< reserved bits */
-        uint32_t ext_slow_clk_sel : 6;          /*!< external slow clock selection  */
+        uint32_t ext_slow_clk_sel : 5;          /*!< select external slow clock source */
+        uint32_t ext_slow_clk_en  : 1;          /*!< select external slow clock enable */
         uint32_t reserved1        : 2;          /*!< reserved bits */
         uint32_t pwm0_clk_sel     : 2;          /*!< pwm0 clock selection */
         uint32_t pwm1_clk_sel     : 2;          /*!< pwm1 clock selection */

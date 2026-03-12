@@ -28,6 +28,7 @@
 #include "zigbee_platform.h"
 #include "fota_define.h"
 #include "flashctl.h"
+#include "hosal_flash.h"
 
 //=============================================================================
 //                Private Definitions of const value
@@ -67,51 +68,26 @@ uint8_t SystemReadyToSleep(void)
 {
     return zboss_start_run;
 }
-uint32_t crc32(uint32_t flash_addr, uint32_t data_len)
-{
-    uint8_t RemainLen = (data_len & (0x3));
+uint32_t crc32(uint32_t flash_addr, uint32_t data_len) {
     uint32_t i;
     uint16_t j, k;
     uint32_t ChkSum = ~0;
-    uint32_t Len = (data_len >> 2), Read;
-    uint32_t *FlashPtr = (uint32_t *)flash_addr;
+    uint8_t Read;
 
-    for (i = 0; i < Len; i ++)
-    {
-        //get 32 bits at one time
-        Read = FlashPtr[i];
-        //get the CRC of 32 bits
-        for (j = 0; j < 32; j += 8)
-        {
-            //get the CRC of 8 bits
-            ChkSum ^= ((Read >> j) & 0xFF);
-            for (k = 0; k < 8; k ++)
-            {
-                ChkSum = (ChkSum & 1) ? (ChkSum >> 1) ^ 0xedb88320 : ChkSum >> 1;
-            }
-        }
-    }
-
-    /*if data_len not align 4 bytes*/
-    if (RemainLen > 0)
-    {
-        Read = FlashPtr[i];
-
-        //get the CRC of 32 bits
-        for (j = 0; j < (RemainLen << 3); j += 8)
-        {
-            //get the CRC of 8 bits
-            ChkSum ^= ((Read >> j) & 0xFF);
-            for (k = 0; k < 8; k ++)
-            {
-                ChkSum = (ChkSum & 1) ? (ChkSum >> 1) ^ 0xedb88320 : ChkSum >> 1;
-            }
+    for (i = 0; i < data_len; i++) {
+        //get 8 bits at one time
+        Read = flash_read_byte((flash_addr + i));
+        while (flash_check_busy()) {}
+        //get the CRC of 8 bits
+        ChkSum ^= Read;
+        for (k = 0; k < 8; k++) {
+            ChkSum = (ChkSum & 1) ? (ChkSum >> 1) ^ 0xedb88320
+                                    : ChkSum >> 1;
         }
     }
     ChkSum = ~ChkSum;
     return ChkSum;
 }
-
 uint32_t file_offset_process = 0;
 uint32_t file_version_tmp = 0x01010101;
 uint32_t file_len = 0;
@@ -143,10 +119,10 @@ void raf_device_cb(zb_uint8_t param)
     zb_zcl_attr_t *attr_desc;
     zb_uint8_t imgstatus = ZB_ZCL_OTA_UPGRADE_IMAGE_STATUS_NORMAL;
     zb_uint8_t manuf;
+    static uint32_t flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
 
     endpoint = get_endpoint_by_cluster(ZB_ZCL_CLUSTER_ID_OTA_UPGRADE, ZB_ZCL_CLUSTER_CLIENT_ROLE);
 
-    static uint32_t flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS;
     zb_uint32_t i;
 
     switch (device_cb_param->device_cb_id)
@@ -187,7 +163,9 @@ void raf_device_cb(zb_uint8_t param)
                 file_offset_process = 0;
                 file_version_tmp = ota_upgrade_value->upgrade.start.file_version;
                 file_len = ota_upgrade_value->upgrade.start.file_length;
-                flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS;
+
+                flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
+
                 for (i = 0; i < 0x74; i++)
                 {
                     // Page erase (4096 bytes)
@@ -346,12 +324,14 @@ void raf_device_cb(zb_uint8_t param)
             ZB_ZCL_SET_DIRECTLY_ATTR_VAL16(attr_desc, 0xFFFF);
 
             log_info("FINISH");
-            flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS;
+
+
+            flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
 
             memcpy(&t_bootloader_ota_info, (uint8_t *)FOTA_UPDATE_BANK_INFO_ADDRESS, sizeof(t_bootloader_ota_info));
 
             t_bootloader_ota_info.fotabank_ready = FOTA_IMAGE_READY;
-            t_bootloader_ota_info.fotabank_startaddr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS;
+            t_bootloader_ota_info.fotabank_startaddr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
             t_bootloader_ota_info.fota_image_info = 0;
             t_bootloader_ota_info.signature_len = 0;
             t_bootloader_ota_info.target_startaddr = APP_START_ADDRESS;

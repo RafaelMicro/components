@@ -108,5 +108,6 @@ bool rf_common_tx_pwr_ch_comp_set(int8_t offset0, int8_t offset1,
                                   int8_t modemType);
 bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select,
                           COMM_SUBSYSTEM_ISR_t isr_func);
+void rf_common_radio_reg_dump (void);
 
 #endif //_RF_COMMON_INIT_H__

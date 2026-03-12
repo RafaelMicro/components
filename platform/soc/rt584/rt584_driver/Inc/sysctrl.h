@@ -66,8 +66,11 @@ extern "C" {
  */
 #define PLL_WAIT_PERIOD              1600
 #define PLL_DELAY_PERIOD             400
-
-
+/**
+ * \brief           Slow clock source select
+ *                  
+ */
+#define EXT_GPIO_RCO32K              3
 /**
  * \brief           RT584 output pin mux register value definitions
  */
@@ -272,10 +275,10 @@ extern "C" {
 /**
  * \brief           Define pin driver option
  */
-#define DRV_4MA             0                   /*!< set pin for 4mA driver   */
-#define DRV_10MA            1                   /*!< set pin for 10mA driver  */
-#define DRV_14MA            2                   /*!< set pin for 14mA driver  */
-#define DRV_20MA            3                   /*!< set pin for 20mA driver  */
+#define DRV_6MA             0                   /*!< set pin for 6mA driver   */
+#define DRV_15MA            1                   /*!< set pin for 15mA driver  */
+#define DRV_20MA            2                   /*!< set pin for 20mA driver  */
+#define DRV_30MA            3                   /*!< set pin for 30mA driver  */
 
 /**
  * \brief           Define IC chip id  and chip revision information
@@ -535,15 +538,7 @@ uint32_t change_peri_clk(perclk_clk_sel_t sys_clk_mode);
  */
 uint32_t get_peri_clk(void);
 
-/**
- * \brief           Select Slow clock source.
- * \param[in]       mode:
- *                  SLOW_CLOCK_INTERNAL   --- default value.
- *                      If system don't call this function, then slow clock source is from internal RCO by default.
- *                  SLOW_CLOCK_FROM_GPIO ---
- *                      If system set this mode, system should use an external 32K source from GPIO.
- */
-void set_slow_clock_source(uint32_t mode);
+
 
 /**
  * \brief           Check IC version
@@ -686,6 +681,21 @@ void pin_disable_filter(uint32_t pin_number);
  * \brief           Disable pin filter
  */
 void slow_clock_calibration(slow_clock_select_t rco_select);
+/**
+ * \brief           Select Slow clock source.
+ * \param[in]       mode:
+ *                  SLOW_CLOCK_INTERNAL   --- default value.
+ *                      If system don't call this function, then slow clock source is from internal RCO by default.
+ *                  SLOW_CLOCK_FROM_GPIO ---
+ *                      If system set this mode, system should use an external 32K source from GPIO.
+ */
+void set_slow_clock_source(uint32_t mode);
+/**
+ * \brief           Set Slow clock source gpio.
+ * \param[in]       pin_number: gpio pin number
+ *   
+ */
+void set_ext32k_pin(uint32_t pin_number);
 
 /*@}*/ /* end of RT584_DRIVER SYSCTRL */
 

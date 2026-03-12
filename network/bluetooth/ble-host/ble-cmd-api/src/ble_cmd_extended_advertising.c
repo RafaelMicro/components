@@ -668,7 +668,7 @@ ble_err_t ble_cmd_periodic_adv_receive_enable(uint16_t sync_handle)
 ble_err_t ble_cmd_periodic_adv_receive_disable(uint16_t sync_handle)
 {
     ble_err_t status;
-    ble_hci_set_periodic_adv_receive_en_param_t hci_param;
+    ble_hci_cmd_periodic_adv_terminate_sync_param_t hci_param;
 
     status = BLE_ERR_OK;
     do {
@@ -687,9 +687,8 @@ ble_err_t ble_cmd_periodic_adv_receive_disable(uint16_t sync_handle)
         }
 
         hci_param.sync_handle = sync_handle;
-        hci_param.enable = 0;
         // issue HCI cmd
-        if (hci_le_set_periodic_adv_receive_enable_cmd(&hci_param) != BLE_ERR_OK)
+        if (hci_le_set_periodic_terminate_sync_cmd(&hci_param) != BLE_ERR_OK)
         {
             status = BLE_ERR_HCI_TX_CMD_QUEUE_FULL;
             log_info("<PADV_RECEIVE_DISABLE> HCI TX CMD QUEUE FULL.\n");
@@ -1217,6 +1216,7 @@ ble_err_t ble_evt_periodic_adv_handler(void *p_param)
         status = g_ble_event_cb(p_evt_param);
         log_info("ADV set terminated status %d\n", p_adv_set_terminated->status);
         extended_adv_status_set(EXTENDED_ADV_DISABLED, p_adv_set_terminated->adv_handle);
+        status = g_ble_event_cb(p_evt_param);
     }
     break;
 

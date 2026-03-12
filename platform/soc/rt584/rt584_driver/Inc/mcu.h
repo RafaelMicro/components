@@ -58,8 +58,8 @@ typedef enum IRQn_Type
     Timer0_IRQn                   = 1,       /*!< TIMER 0 Interrupt                                */
     Timer1_IRQn                   = 2,       /*!< TIMER 1 Interrupt                                */
     Timer2_IRQn                   = 3,       /*!< TIMER 2 Interrupt                                */
-    SlowTimer0_IRQn               = 5,       /*!< SLOW TIMER 1 Interrupt                           */
-    SlowTimer1_IRQn               = 4,       /*!< SLOW TIMER 0 Interrupt                           */
+    SlowTimer0_IRQn               = 4,       /*!< SLOW TIMER 0 Interrupt                           */
+    SlowTimer1_IRQn               = 5,       /*!< SLOW TIMER 1 Interrupt                           */
     Wdt_IRQn                      = 6,       /*!< WatchDog Interrupt                               */
     Rtc_IRQn                      = 7,       /*!< RTC Interrupt                                    */
 

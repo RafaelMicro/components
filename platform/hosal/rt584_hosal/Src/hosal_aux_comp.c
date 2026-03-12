@@ -17,7 +17,10 @@
 
 uint32_t hosal_aux_comp_open(hosal_aux_comp_config_t cfg, void* hosal_aux_comp_callback) {
 
-    aux_comp_config_t aux_cfg = {
+    uint32_t step_value, rval;
+
+    aux_comp_config_t aux_cfg =
+    {
         .debounce_en = cfg.debounce_en,
         .debounce_sel = cfg.debounce_sel,
         .counter_mode_en = cfg.counter_mode_en,
@@ -27,7 +30,8 @@ uint32_t hosal_aux_comp_open(hosal_aux_comp_config_t cfg, void* hosal_aux_comp_c
         .falling_edge_int_en = cfg.falling_edge_int_en,
         .counter_mode_threshold = cfg.counter_mode_threshold,
     };
-    uint32_t rval;
+    aux_voltage_threshold_calibration(cfg.voltage_threshold,&step_value);
+    aux_cfg.voltage_step = step_value;
 
     rval = aux_comp_open(aux_cfg, hosal_aux_comp_callback);
 

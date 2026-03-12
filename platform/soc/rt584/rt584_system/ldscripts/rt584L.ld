@@ -1,4 +1,4 @@
-/* Library configurations */
+ /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 
@@ -9,15 +9,22 @@ __DATA_SIZE  = __RAM_SIZE - __STACK_SIZE - __HEAP_SIZE - 8;
 
 MEMORY
 {
+    /**
+    * 2MB Flash Layout (2048KB) 
+    * 0x10000000 - 0x1000FFFF : Bootloader      (64KB)
+    * 0x10010000 - 0x101EFFFF : App Code        (1920KB)
+    * 0x101F0000 - 0x101FDFFF : User Data       (56KB)
+    * 0x101FE000 - 0x101FFFFF : Cal / MP Sector (8KB)
+    **/
+
     LMA_BOOT (rx)  : ORIGIN = 0x10000000, LENGTH = 64K
-    LMA_CORE (rx)  : ORIGIN = 0x10010000, LENGTH = 1952K
-    LMA_USER (rx)  : ORIGIN = 0x101F8000, LENGTH = 28K
-    LMA_MPSC(rx)  : ORIGIN = 0x101FF000, LENGTH = 4K
+    LMA_CORE (rx)  : ORIGIN = 0x10010000, LENGTH = 1920K
+    LMA_USER (rx)  : ORIGIN = 0x101F0000, LENGTH = 56K
+    LMA_MPSC (rx)  : ORIGIN = 0x101FE000, LENGTH = 8K
 	/* VMA (RAM) */
     VMA_DATA  (rwx) : ORIGIN = 0x30000000, LENGTH = __DATA_SIZE
     VMA_HEAP  (rwx) : ORIGIN = ORIGIN(VMA_DATA) + LENGTH(VMA_DATA), LENGTH = __HEAP_SIZE
     VMA_STACK (rwx) : ORIGIN = ORIGIN(VMA_HEAP) + LENGTH(VMA_HEAP), LENGTH = __STACK_SIZE + 8
-  
 }
 
 /* 定義程式區段（PHDRS）屬性 */
@@ -37,8 +44,12 @@ SECTIONS
     {
         KEEP(*(.vectors))
         __Vectors_End = .;
-        __Vectors_Size = __Vectors_End - __Vectors;        
-        __end__ = .;        
+        __Vectors_Size = __Vectors_End - __Vectors;
+        __build_info_start = .;
+        KEEP(*(.build_info))
+        __build_info_end = .;
+        __build_info_size = __build_info_end - __build_info_start;
+        __end__ = .;
         *(.text*)
 
         KEEP(*(.init))
@@ -193,8 +204,9 @@ SECTIONS
         . = ALIGN(4);
         __bss_end__ = .;
     } > VMA_DATA  :rw
-    PROVIDE(end = .);
 
+    PROVIDE(end = .);
+    
     bss_size = __bss_end__ - __bss_start__;
 
 	/* first Heap region： RAM end */

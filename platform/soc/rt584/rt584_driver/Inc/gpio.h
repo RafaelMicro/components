@@ -390,6 +390,20 @@ __STATIC_INLINE uint32_t gpio_set_debounce_time(uint32_t time) {
 }
 
 /**
+ * \brief           Get gpio output state.
+ * \param[in]       pin_number: specifies the pin number
+ * \param[out]      value: the pointer to get gpio input value
+ *                  1 for input pin is high, 0 for input is low.
+ * \return          Function status, STATUS_SUCCESS, STATUS_INVALID_PARAM
+ */
+__STATIC_INLINE uint32_t gpio_get_output_state(uint32_t* value) {
+
+    *value = GPIO->output_state;
+    return STATUS_SUCCESS;
+}
+
+
+/**
  * \brief           Disable gpio callback.
  * \param[in]       pin_number: specifies the pin number
  * \return          Function status, STATUS_SUCCESS

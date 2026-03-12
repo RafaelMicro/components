@@ -168,7 +168,7 @@ __STATIC_INLINE uint32_t SEC_ClearIADUState(SEC_IADU_Type SecIADUn)
 __STATIC_INLINE void TZ_SAU_Setup (void)
 {
 
-    uint32_t  flash_model_info, flash_size;
+    uint32_t  flash_model_info, flash_size,flash_size_id;
     uint32_t  chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
 
 #if defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U)
@@ -202,22 +202,31 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
     SEC_CTRL->sec_peri_attr[2] = 0x0;
 
     flash_model_info =  inp32(FLASH_SIZE_INFO);
+    flash_size_id = ((flash_model_info >> 16) & 0xFF);
     flash_size = (1 << ((flash_model_info >> 16) & 0xFF));
     flash_size = (flash_size >> 5);     /*32 bytes uints*/
     
     /*set all flash in secure mode*/
-    if(chip_id==0x0584)
+    if(flash_size_id==0x14)	//1MB
     {
         SEC_CTRL->sec_flash_sec_size = 0x8000;
         SEC_CTRL->sec_flash_nsc_start = 0x8000;
         SEC_CTRL->sec_flash_nsc_stop = 0x8000;
         SEC_CTRL->sec_flash_ns_stop = flash_size;
     }
-    else
+    else if(flash_size_id==0x15)//2MB
     {
         SEC_CTRL->sec_flash_sec_size = 0x10000;
         SEC_CTRL->sec_flash_nsc_start = 0x10000;
         SEC_CTRL->sec_flash_nsc_stop = 0x10000;
+        SEC_CTRL->sec_flash_ns_stop = flash_size;
+    }   
+    else //4MB
+    {
+
+        SEC_CTRL->sec_flash_sec_size = 0x20000;
+        SEC_CTRL->sec_flash_nsc_start = 0x20000;
+        SEC_CTRL->sec_flash_nsc_stop = 0x20000;        
         SEC_CTRL->sec_flash_ns_stop = flash_size;
     }
 

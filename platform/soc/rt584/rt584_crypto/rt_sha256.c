@@ -13,7 +13,7 @@
 
 #include "rt_sha256.h"
 #include "rt_crypto.h"
-
+#include "flashctl.h"
 
 #if defined(CONFIG_CRYPTO_INT_ENABLE)
 extern volatile uint32_t  sha_finish;
@@ -81,6 +81,7 @@ static void restore_temp_hash_value(uint32_t *buffer)
     crypto_copy( (uint32_t *) (CRYPTO_BASE + 0x1900), buffer, 8);
 }
 
+/* pointer version */
 void sha256(uint8_t *input, uint32_t length, uint8_t *digest)
 {
     sha256_context sha_cnxt;
@@ -104,6 +105,40 @@ void sha256(uint8_t *input, uint32_t length, uint8_t *digest)
         sha256_update(&sha_cnxt, input, sha256_verify_size);
 
         input = input + 0x10000;
+        length = length - sha256_verify_size;
+
+    } while (length > 0);
+
+    sha256_finish(&sha_cnxt, sha256_digest);
+
+
+    buffer_endian_exchange((uint32_t *) digest, (uint32_t *) sha256_digest, (32 >> 2));
+}
+
+/* read flash version */
+void sha256_flash(uint32_t input_address, uint32_t length, uint8_t *digest)
+{
+    sha256_context sha_cnxt;
+    uint32_t sha256_verify_size;
+    uint8_t sha256_digest[32];
+
+    sha256_init(&sha_cnxt);
+    sha256_starts(&sha_cnxt, 0);
+
+    do
+    {
+        if (length >= 0x100)
+        {
+            sha256_verify_size = 0x100;
+        }
+        else
+        {
+            sha256_verify_size = length;
+        }
+
+        sha256_update_flash(&sha_cnxt, input_address, sha256_verify_size);
+
+        input_address = input_address + 0x100;
         length = length - sha256_verify_size;
 
     } while (length > 0);
@@ -279,6 +314,7 @@ static void sha256_process(uint32_t* state, uint8_t *data, uint32_t length)
     /*Notice: We don't wait SHA256 finish here.*/
 }
 
+/* pointer version */
 uint32_t sha256_update(sha256_context *ctx, uint8_t *input, uint32_t length)
 {
     uint32_t  left, fill;
@@ -329,6 +365,67 @@ uint32_t sha256_update(sha256_context *ctx, uint8_t *input, uint32_t length)
     if (length)
     {
         memcpy((void *) (ctx->buffer + left), (void *) input, length);
+    }
+
+    return STATUS_SUCCESS;
+}
+
+/* read flash version */
+uint32_t sha256_update_flash(sha256_context *ctx, uint32_t input_address, uint32_t length)
+{
+    uint32_t  left, fill;
+    uint32_t  temp;
+
+    if (!length)
+    {
+        return STATUS_ERROR;
+    }
+
+    left = ctx->total[0] & 0x3F;
+    fill = 64 - left;
+
+    /* 2024/02/16 update overflow check...
+     * it is almost impossible for sha data
+     * over 4GB...malicious attack?
+     */
+    ctx->total[0] += length;
+
+    if (ctx->total[0] < length)
+    {
+        ctx->total[1]++;    /*overflow for 32 bits... almost impossible*/
+    }
+    if (left && length >= fill)
+    {
+        flash_read_n_bytes(input_address, (uint32_t)(ctx->buffer + left), fill);
+        
+        sha256_process(ctx->state, ctx->buffer, 64);
+        length -= fill;
+        input_address += fill;
+        left = 0;
+    }
+
+    /* in fact, length could not be more than 65536 bytes..
+     * if length is more than 64KB.. separate the length several times...
+     * but in real, using 64KB data for sha256 is not a good idea.
+     */
+    if (length >= 64)
+    {   
+        temp = (length & ~63);       /*caculate block count.*/
+        uint8_t temp_data[temp];
+
+        memset(temp_data, 0 ,temp);
+
+        flash_read_n_bytes(input_address, (uint32_t)temp_data, temp);
+
+        sha256_process(ctx->state, temp_data, temp);
+        length -= temp;
+        input_address += temp;
+    }
+
+    if (length)
+    {
+        flash_read_n_bytes(input_address, (uint32_t)(ctx->buffer + left), length);
+        //memcpy((void *) (ctx->buffer + left), (void *) input_address, length);
     }
 
     return STATUS_SUCCESS;

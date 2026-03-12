@@ -267,6 +267,13 @@ void lmac15p4_ack_pending_bit_set(uint32_t pan_idx,
                                   uint32_t pending_bit_enable);
 
 /**
+ * \brief           Start/stop TX continuous wave
+ * \param[in]       tx_enable: [0: stop; 1: start]
+ * \return          None
+ */
+void lmac15p4_tx_continuous_wave_send(uint32_t tx_enable);
+
+/**
  * \brief           Enable/disable source matching function
  * \param[in]       pan_idx: 0 ~ 1, usually set to 0, set to 1 only when using Multi-PAN function
  * \param[in]       enable: whether to enable source matching function

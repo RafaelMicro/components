@@ -13,9 +13,12 @@
  * Author:          Kc.tseng
  */
 
-#include "wdt.h"
 #include "mcu.h"
 
+/**
+ * \brief           Record reset cause enable or not
+ */
+uint32_t record_reset_cause_en = 0;
 
 static wdt_cb_fn user_wdt_isr = NULL;
 
@@ -59,6 +62,9 @@ uint32_t wdt_start(wdt_config_mode_t wdt_mode, wdt_config_tick_t wdt_cfg_ticks,
 
     if (wdt_mode.reset_enable) {
         controller.bit.reset_en = 1; /*Lock*/
+        if( record_reset_cause_en ){
+            set_wdt_reset_cause();
+        }
     }
 
     if (wdt_mode.lock_enable) {

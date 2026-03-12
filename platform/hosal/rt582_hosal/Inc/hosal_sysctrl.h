@@ -97,18 +97,23 @@ extern "C" {
 #define HOSAL_PULL_UP_100K   PULLUP_100K
 #define HOSAL_PULL_UP_1M     PULLUP_1M
 
-#define HOSAL_SYSCTRL_DELAY_INIT                1       
-#define HOSAL_SYSCTRL_DELAY_UNINIT              2       
-#define HOSAL_SYSCTRL_TIMEOUT_START             3
-#define HOSAL_SYSCTRL_TIMEOUT_CHECK             4 
-#define HOSAL_SYSCTRL_GET_TIMEOUT_REMAINING     5 
+/**
+ * \brief           system control const define
+ */
+typedef enum {
+    HOSAL_SYSCTRL_TIMEOUT_INIT = 1,
+    HOSAL_SYSCTRL_TIMEOUT_UNINIT,
+    HOSAL_SYSCTRL_TIMEOUT_START,
+    HOSAL_SYSCTRL_TIMEOUT_CHECK,
+    HOSAL_SYSCTRL_TIMEOUT_GET_REMAINING,
+} hosal_sysctrl_cmd_t;
 
-#define HOSAL_DWT_TIMEOUT_UNIT_US     0
-#define HOSAL_DWT_TIMEOUT_UNIT_MS     1
-
-typedef struct {
-    dwttimeout_t tmo;
-} hosal_sys_dwt_t;
+typedef struct{
+    TimeoutTimer tmo;
+    TimeoutCallback_t cb;  /* callback function */
+    void *arg;             /* callback paramater */
+    bool period;
+}hosal_sys_tmo_t;
 
 /**
  * \brief           hosal_delay_us
@@ -185,7 +190,7 @@ int hosal_get_rco_clock_tick(uint32_t* rco_tick);
  * \return          Function status, STATUS_SUCCESS, STATUS_INVALID_PARAM, 
  *                  STATUS_INVALID_REQUEST
  */
-int hosal_sysctrl_ioctrl(hosal_sys_dwt_t *sys_dwt,int ctl, void* para);
+int hosal_sysctrl_ioctrl(hosal_sys_tmo_t *sys_tmo,int ctl, void* para);
 
 /*@}*/ /* end of RT58X_HOSAL HOSAL_SYSCTRL */
 

@@ -18,126 +18,80 @@
 #ifndef ___DWT_H__
 #define ___DWT_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+/* ---  --- */
+/* Environment Detection for FreeRTOS */
+#if defined(CONFIG_FREERTOS)
+    #include "FreeRTOS.h"
+    #include "task.h"
+    #define _IS_RTOS_ACTIVE() (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+#else
+    #define _IS_RTOS_ACTIVE() (false)
+#endif
 
-/**
- * \defgroup DWT Dwt
- * \ingroup RT584_DRIVER
- * \brief  Define Dwt comp definitions, structures, and functions
- * @{
- */
+/* Timer structure for tracking elapsed time */
+/* --- Callback Type Definition --- */
+typedef void (*TimeoutCallback_t)(void *arg);
 
-#define     DWT_CR_TRCENA           (1<<24)
-#define     DWT_CR_CYCCNTENA        (1<<0)
-
-
-/**
- * \brief           Timeout unit
- */
-typedef enum {
-    DWT_TIMEOUT_UNIT_US = 0,   /**< microsecond */
-    DWT_TIMEOUT_UNIT_MS        /**< millisecond */
-} dwt_timeout_unit_t;
-
-
-/**
- * \brief           DWT timeout structure
- */
+/* --- Timer Structure --- */
 typedef struct {
-    uint32_t start_cycle;          /**< DWT start cycle */
-    uint32_t timeout_cycle;        /**< DWT timeout cycle */
-    void (*callback)(void);        /**< optional callback on timeout */
-    uint32_t initialized;          /**< is timeout initialized */
-    uint32_t timeout_value;        /**< original timeout value */
-    dwt_timeout_unit_t unit;       /**< timeout unit */
-} dwttimeout_t;
+    uint32_t          start_time;        /* Initial tick or SysTick value */
+    uint32_t          timeout_ms;        /* Target duration in ms */
+    bool              mode_at_start;     /* Track if started in RTOS mode */
+    TimeoutCallback_t callback;          /* Function to call on timeout */
+    void             *callback_arg;      /* Argument for the callback */
+    bool              callback_executed; /* Safeguard for single execution */
+    bool              auto_reload;       // true: repeat, false: one time
+} TimeoutTimer;
+
 
 /**
- * \brief           Initialize DWT counter.
- * \return
- * \retval          STATUS_SUCCESS       DWT initialized successfully.
+ * \brief  Initializes the hardware timer resource.
+ * \return STATUS_SUCCESS
  */
-uint32_t dwt_init(void);
+uint32_t timeout_init(void);
 
 /**
- * \brief           Uninitialize DWT counter.
- * \return
- * \retval          STATUS_SUCCESS       DWT uninitialized successfully.
- * \retval          STATUS_NO_INIT      DWT not initialized.
+ * \brief  De-initializes the timer resource and releases hardware if unused.
+ * \return STATUS_SUCCESS
  */
-uint32_t dwt_uninit(void);
+uint32_t timeout_uninit(void);
+
 
 /**
- * \brief           Start a DWT timeout counter.
- * \param[in]       tmo         Timeout struct pointer.
- * \param[in]       timeout     Timeout value.
- * \param[in]       unit        Timeout unit (us/ms).
- * \param[in]       cb          Callback when timeout occurs (can be NULL).
- * \return
- * \retval          STATUS_NO_INIT       DWT not initialized or tmo already initialized.
- * \retval          STATUS_SUCCESS       Timeout started successfully.
+ * \brief  Starts/Resets a timeout monitoring object.
+ * \param  timer: Pointer to the timer structure.
+ * \param  ms: Duration to wait in milliseconds.
+ * \return STATUS_SUCCESS or STATUS_ERROR
  */
-uint32_t dwt_timeoutstart(dwttimeout_t *tmo, uint32_t timeout, dwt_timeout_unit_t unit, void (*cb)(void));
+uint32_t timeout_start(TimeoutTimer *timer, uint32_t ms, TimeoutCallback_t cb, void *arg, bool periodic);
 
 /**
- * \brief           Check if timeout occurred.
- * \param[in]       tmo         Timeout struct pointer.
- * \return
- * \retval          STATUS_SUCCESS       Timeout not yet occurred.
- * \retval          STATUS_TIMEOUT       Timeout occurred.
- * \retval          STATUS_NO_INIT       DWT or tmo not initialized.
+ * \brief  Checks if the timer has reached the specified timeout.
+ * \param  timer: Pointer to the timer structure.
+ * \return STATUS_TIMEOUT: Time elapsed, STATUS_SUCCESS: Still within time.
  */
-uint32_t dwt_timeoutcheck(dwttimeout_t *tmo);
-
+uint32_t istimeout(TimeoutTimer *timer);
 /**
- * \brief           Get remaining timeout.
- * \param[in]       tmo         Timeout struct pointer.
- * \param[out]      remaining   Remaining time (unit depends on tmo->unit).
- * \return
- * \retval          STATUS_SUCCESS       Timeout not yet occurred.
- * \retval          STATUS_TIMEOUT       Timeout occurred.
- * \retval          STATUS_NO_INIT       DWT or tmo not initialized.
+ * \brief  Calculates the remaining time before the timeout occurs.
+ * \param  timer: Pointer to the timer structure.
+ * \param  remaining_ms: Pointer to store the calculated remaining milliseconds.
+ * \return STATUS_SUCCESS: Calculation successful, STATUS_TIMEOUT: Already expired.
  */
-uint32_t dwt_timeoutremaining(dwttimeout_t *tmo, uint32_t *remaining);
-
+uint32_t timeout_remaining(TimeoutTimer *timer, uint32_t *remaining_ms);
 /**
- * \brief           Blocking delay in microseconds.
- * \param[in]       us          Delay time in microseconds.
- * \return
- * \retval          STATUS_SUCCESS       Delay completed.
+ * \brief  Stop timer
+ * \param  timer: Pointer to the timer structure.
+ * \return STATUS_SUCCESS: Calculation successful.
  */
-uint32_t dwt_delay_us(uint32_t us);
-
-/**
- * \brief           Blocking delay in milliseconds.
- * \param[in]       ms          Delay time in milliseconds.
- * \return
- * \retval          STATUS_SUCCESS       Delay completed.
- */
-uint32_t dwt_delay_ms(uint32_t ms);
-
-/**
- * \brief           Non-blocking delay in microseconds.
- * \param[in]       tmo         Timeout struct pointer.
- * \param[in]       us          Delay time in microseconds.
- * \return
- * \retval          STATUS_SUCCESS       Timeout started successfully.
- */
-uint32_t dwt_delay_us_nonblocking(dwttimeout_t *tmo, uint32_t us);
-
-/**
- * \brief           Non-blocking delay in milliseconds.
- * \param[in]       tmo         Timeout struct pointer.
- * \param[in]       ms          Delay time in milliseconds.
- * \return
- * \retval          STATUS_SUCCESS       Timeout started successfully.
- */
-uint32_t dwt_delay_ms_nonblocking(dwttimeout_t *tmo, uint32_t ms);
-
+uint32_t timeout_stop(TimeoutTimer *timer);
 /*@}*/ /* end of RT584_DRIVER DWT */
 
 #ifdef __cplusplus

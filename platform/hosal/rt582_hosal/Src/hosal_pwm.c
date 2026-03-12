@@ -5,6 +5,7 @@
  *
  */
 
+
 /**
  * \file            hosal_pwm.c
  * \brief           Hosal PWM driver file
@@ -150,7 +151,7 @@ int hosal_pwm_multi_fmt0_count(uint32_t id, hosal_pwm_dev_t* pwm_dev,
 int hosal_pwm_start(uint32_t id) { return (int)pwm_start(id); }
 
 
-int hosal_pwm_sotp(uint32_t id) { return (int)pwm_stop(id); }
+int hosal_pwm_stop(uint32_t id) { return (int)pwm_stop(id); }
 
 
 int hosal_pwm_ioctl(hosal_pwm_dev_t* dev, int ctl, void* p_arg) {

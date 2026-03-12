@@ -25,6 +25,8 @@ extern uint8_t _heap_start;
 extern uint8_t _heap_size;
 extern uint8_t _heap2_start;
 extern uint8_t _heap2_size;
+volatile uint32_t time_remainder, time_ori;
+
 
 static HeapRegion_t xHeapRegions[] = {
     {&_heap_start, (unsigned int)&_heap_size}, //set on runtime
@@ -32,7 +34,6 @@ static HeapRegion_t xHeapRegions[] = {
     {NULL, 0}, /* Terminates the array. */
     {NULL, 0}  /* Terminates the array. */
 };
-
 
 void __attribute__((weak)) vHeapRegionsInt(void) {
                                                          
@@ -164,7 +165,7 @@ void RTOS_Wakeup_timer_Init() {
     rt_slow_timer_tick.timeload_ticks = 0;
     rt_slow_timer_tick.timeout_ticks = 0;
 
-    #if defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+    #if defined(CONFIG_RF1301) || defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L)
     timer_id = RT_SLOW_TIMER - 3;
     #if (CONFIG_HOSAL_SOC_SLEEP_TIMER_ID == 4)
     NVIC_DisableIRQ((IRQn_Type)(SlowTimer1_IRQn));
@@ -187,10 +188,7 @@ void RTOS_Wakeup_timer_Init() {
     hosal_slow_timer_init(timer_id, rt_slow_timer, NULL);
     hosal_slow_timer_stop(timer_id);
 
-    lpm_set_low_power_level(LOW_POWER_LEVEL_SLEEP0);
-    lpm_enable_low_power_wakeup(LOW_POWER_WAKEUP_GPIO);
     lpm_enable_low_power_wakeup(LOW_POWER_WAKEUP_SLOW_TIMER);
-    lpm_enable_low_power_wakeup(LOW_POWER_WAKEUP_RTC_TIMER);
 }
 
 void RTOS_PreSleepProcessing(uint32_t xExpectedIdleTime_ms)
@@ -212,10 +210,11 @@ void RTOS_PreSleepProcessing(uint32_t xExpectedIdleTime_ms)
     rt_slow_timer.user_prescale = 0;
     rt_slow_timer.repeat_delay = 0;
  
+    time_ori = (clock_tick_k * xExpectedIdleTime_ms);
     rt_slow_timer_tick.timeload_ticks = (clock_tick_k * xExpectedIdleTime_ms) - 1;
     rt_slow_timer_tick.timeout_ticks = 0;
 
-    #if defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+    #if defined(CONFIG_RF1301) || defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L)
     timer_id = RT_SLOW_TIMER - 3;
     #if (CONFIG_HOSAL_SOC_SLEEP_TIMER_ID == 4)
     NVIC_EnableIRQ((IRQn_Type)(SlowTimer1_IRQn));
@@ -239,17 +238,26 @@ void RTOS_PostSleepProcessing(uint32_t* xnow_v)
     
     uint32_t clock_tick_k = 0, tick_value;
     uint32_t timer_id = RT_SLOW_TIMER;
+    uint32_t time_dif;
 
-    #if defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+    #if defined(CONFIG_RF1301) || defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L)
     timer_id = RT_SLOW_TIMER - 3;
     #endif
 
     hosal_get_rco_clock_tick(&clock_tick_k);
     hosal_slow_timer_stop(timer_id);
-    hosal_slow_timer_clear_int(timer_id);
+    //hosal_slow_timer_clear_int(timer_id);
     hosal_delay_us(250);
 
     hosal_slow_timer_current_get(timer_id, &tick_value);
+    time_dif = time_ori - tick_value + time_remainder;
+    time_remainder = (time_dif % clock_tick_k);
+
+    if( (time_dif / clock_tick_k) > 0 ) {
+        tick_value = (time_ori - time_dif + time_remainder);
+    } else {
+        tick_value = time_ori;
+    }
 
     *xnow_v = ( tick_value / clock_tick_k);
     

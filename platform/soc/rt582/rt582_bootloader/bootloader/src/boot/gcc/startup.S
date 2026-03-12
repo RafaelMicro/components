@@ -9,6 +9,7 @@
     .syntax unified
     .arch armv7-m
 
+
 /*
 // <h> Stack Configuration
 //   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -112,8 +113,23 @@ __isr_vector:
     .long   sw_handler                  /* 46: Software Handler        */
     .long   trng_handler                /* 47: TRNG    Handler         */
     .long   comp_handler                /* 48: COMP    Handler         */
-
+    .long   0                           /* 49: PADDING                 */
+    .long   0                           /* 50: PADDING                 */
+    .long   0                           /* 51: PADDING                 */
+    .long   0                           /* 52: PADDING                 */
+    .long   0                           /* 53: PADDING                 */
+    .long   0                           /* 54: PADDING                 */
+    .long   0                           /* 55: PADDING                 */
+    .long   0                           /* 56: PADDING                 */
+    .long   0                           /* 57: PADDING                 */
+    .long   0                           /* 58: PADDING                 */
+    .long   0                           /* 59: PADDING                 */
+    .long   0                           /* 60: PADDING                 */
+    .long   0                           /* 61: PADDING                 */
+    .long   0                           /* 62: PADDING                 */
+    .long   0                           /* 63: PADDING                 */
     .size    __isr_vector, . - __isr_vector
+
 
 /* Reset Handler */
     .text

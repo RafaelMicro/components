@@ -526,7 +526,7 @@ uint32_t sw_timer_hw_init(uint32_t u32_timer_id) {
     NVIC_SetPriority((IRQn_Type)(Timer0_IRQn + u32_timer_id), 3);
     #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583)
     timer_start(u32_timer_id, 32000); /*so each tick is 1ms, 1000HZ*/
-    #elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+    #elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RF1301)
     timer_start(u32_timer_id, 32000, 32000); /*so each tick is 1ms, 1000HZ*/
     #endif
     NVIC_EnableIRQ((IRQn_Type)(Timer0_IRQn + u32_timer_id));

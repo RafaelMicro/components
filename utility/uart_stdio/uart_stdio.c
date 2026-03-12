@@ -188,7 +188,8 @@ static void _uint2strhex(char* pStr, unsigned int number,
 
 static int _exp_dump_out(char* pMsg, int len) {
 
-#if defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584_NONE_OS)
+#if defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) || defined(CONFIG_RF1301) \
+    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
     uart_t* table[] = {UART0, UART1, UART2};
     uart_t* pCSR = table[CONFIG_UART_STDIO_PORT];
     while (len) {
@@ -257,7 +258,8 @@ static void _exp_log_out(const char* format, ...) {
 
 static int _exp_dump_init(void) {
 
-#if defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584_NONE_OS)
+#if defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) || defined(CONFIG_RF1301) \
+    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
     uart_t* table[] = {UART0, UART1, UART2};
     uart_t* pCSR = table[CONFIG_UART_STDIO_PORT];
     pCSR->dlx = CONFIG_UART_STDIO_BAUDRATE & 0xFFFF;
@@ -287,6 +289,7 @@ void my_fault_handler_c(uint32_t* sp, uint32_t lr_value) {
 
     _exp_log_out("LR Value= %x\r\n", lr_value);
 
+    NVIC_DisableIRQ(Wdt_IRQn);
     while (1) {}
     NVIC_SystemReset(); //while need change to reset
 }

@@ -124,7 +124,7 @@ extern "C" {
  *                  UP: Up mode / UD: Up-Down mode
  */
 #define HOSAL_PWM_COUNTER_MODE_UP PWM_COUNTER_MODE_UP
-#define HOSAL_PWM_COUNTER_MODE_UD PWM_COUNTER_MODE_UP
+#define HOSAL_PWM_COUNTER_MODE_UD PWM_COUNTER_MODE_UD
 
 /**
  * \brief           pwm output wave invert
@@ -248,7 +248,7 @@ int hosal_pwm_multi_fmt0_count(uint32_t id, hosal_pwm_dev_t *dev, uint32_t eleme
  * \return          function status
  * \details
  */
-int hosal_pwm_sotp(uint32_t id);
+int hosal_pwm_stop(uint32_t id);
 
 /**
  * \brief           Pwm start function.

@@ -1308,7 +1308,6 @@ static void handle_ots_client(uint8_t index, ble_evt_att_param_t *p_param)
 // handle OTS server GATT event
 static void handle_ots_server(uint8_t index, ble_evt_att_param_t *p_param)
 {
-    printf("OTS opcode %d handle 0x%04x\n", p_param->opcode, p_param->handle_num);
     switch (p_param->opcode)
     {
     case OPCODE_ATT_READ_REQUEST:

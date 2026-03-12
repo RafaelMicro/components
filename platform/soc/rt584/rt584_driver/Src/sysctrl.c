@@ -869,7 +869,7 @@ uint32_t get_ahb_system_clk(void) {
     }
     else
     {
-        clk_mode = (SYSCTRL->sys_clk_ctrl.reg & 0x03) + SYS_CLK_OFFSET;
+        clk_mode = (SYSCTRL->sys_clk_ctrl.reg & 0x03);
     }
 
     return clk_mode;
@@ -892,17 +892,6 @@ uint32_t get_peri_clk(void) {
 
     return clk_mode;
 }
-
-void set_slow_clock_source(uint32_t mode) {
-    /*Slow clock selection.*/
-
-    if (mode > 3) {
-        return;    /*Invalid mode*/
-    }
-
-    SYSCTRL->sys_clk_ctrl.bit.slow_clk_sel = mode;
-}
-
 /**
 * \brief set sloc clock source
 */
@@ -1031,6 +1020,28 @@ void slow_clock_calibration(slow_clock_select_t rco_select)
     }
 
     delay_ms(2);
+}
+
+void set_slow_clock_source(uint32_t mode)
+{
+    if (mode != 3)
+    {
+        return;
+    }
+
+    SYSCTRL->sys_clk_ctrl2.bit.en_ck_div_32k = 1;
+    SYSCTRL->sys_clk_ctrl.bit.slow_clk_sel = 2;
+    SYSCTRL->sys_clk_ctrl.bit.slow_clk_sel = mode;
+    delay_us(100);
+    SYSCTRL->sys_clk_ctrl2.bit.en_ck_div_32k = 0;
+
+}
+
+void set_ext32k_pin(uint32_t pin_number)
+{
+    SYSCTRL->sys_clk_ctrl1.bit.ext_slow_clk_sel = pin_number;
+    SYSCTRL->sys_clk_ctrl1.bit.ext_slow_clk_en = 1;
+    return;
 }
 
 

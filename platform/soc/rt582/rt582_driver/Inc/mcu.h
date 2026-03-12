@@ -365,7 +365,7 @@ typedef enum IRQn_Type {
 
 #include "qspi.h"
 #include "wdt.h"
-
+#include "dpd.h"
 #include "dma.h"
 #include "rtc.h"
 

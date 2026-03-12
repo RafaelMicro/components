@@ -5,21 +5,54 @@
  *
  */
 
-#include "version_api.h"
+#include "version_info.h"
 
-void lib_version_init(void)
-{
-    volatile version_entry_t *pt_lib_ver = {0};
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
 
-#if defined(CONFIG_BOOTLOADER_APP)
-    bootloader_ver_get(pt_lib_ver);
-#else
-    ble_lib_ver_get(pt_lib_ver);
-    ble_mesh_lib_ver_get(pt_lib_ver);
-    zigbee_lib_ver_get(pt_lib_ver);
-    thread_lib_ver_get(pt_lib_ver);
-    matter_lib_ver_get(pt_lib_ver);
+#ifndef BUILD_CHIP_INFO
+#define BUILD_CHIP_INFO    RT584_NO
 #endif
-}
 
+#ifndef BUILD_VERSION_INFO
+#define BUILD_VERSION_INFO  0x02000000
+#endif
+
+#ifndef BUILD_HASH_INFO
+#define BUILD_HASH_INFO    0x00000000
+#endif
+
+#ifndef BUILD_DATE_INFO
+#define BUILD_DATE_INFO    0x20251126
+#endif
+
+#ifndef BUILD_MAC_FW_INFO
+#define BUILD_MAC_FW_INFO  0x0
+#endif
+
+#ifndef BUILD_BLE_FW_INFO
+#define BUILD_BLE_FW_INFO    0x0
+#endif
+
+#ifndef BUILD_MULTI_FW_INFO
+#define BUILD_MULTI_FW_INFO    0x0
+#endif
+
+
+/* 放在 .build_info 區段 */
+__attribute__((section(".build_info"), used, aligned(4)))
+const build_info_t BUILD_INFO = {
+    .ic_name    = STR(BUILD_CHIP_INFO),
+    .version    = BUILD_VERSION_INFO,
+    .hash       = BUILD_HASH_INFO,
+    .build_date = BUILD_DATE_INFO,
+    .app_start_address = APP_START_ADDRESS,
+    .length = 0,
+    .sha256 = 0,
+    .mac_fw_ver = BUILD_MAC_FW_INFO,
+    .ble_fw_ver = BUILD_BLE_FW_INFO,
+    .multi_fw_ver = BUILD_MULTI_FW_INFO,
+    .reserved   = { [0 ... (sizeof(((build_info_t*)0)->reserved) - 1)] = 0 }
+};
+_Static_assert(sizeof(build_info_t) == 64, "build_info_t must be 64 bytes");
 

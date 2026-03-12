@@ -5,6 +5,7 @@
  *
  */
 
+
 /**************************************************************************//**
 * @file     rt569mp_fw.c
 * @version
@@ -27,9 +28,26 @@
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
 /* Use top level CHIP_VERSION */
 
+/* RF1301 FW */
+#if defined(CONFIG_RF1301) 
+
+#if (CONFIG_RF_FW_INCLUDE_PCI == TRUE)
+#include "prg_rf1301_mpa_asic_pci_fw.h"
+#endif
+
+#if (CONFIG_RF_FW_INCLUDE_BLE == TRUE)
+#include "prg_rf1301_mpa_asic_ble_fw.h"
+#endif
+
+#if (CONFIG_RF_FW_INCLUDE_MULTI_2P4G == TRUE)
+#warning "rf1301 does not support 2.4G multi-protocol"
+#undef CONFIG_RF_FW_INCLUDE_MULTI_2P4G
+#endif
+
+#endif
 
 /* RT584H FW */
-#if defined(CONFIG_RT584H) 
+#if defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4)
 
 #if (CONFIG_RF_FW_INCLUDE_PCI == TRUE)
 #include "prg_rt584h_mpa_asic_pci_fw.h"
@@ -58,25 +76,6 @@
 
 #if (CONFIG_RF_FW_INCLUDE_MULTI_2P4G == TRUE)
 #include "prg_rt584l_mpa_asic_multi_fw.h"
-#endif
-
-#endif
-
-/* RT584C FW */
-#if defined(CONFIG_RT584C) 
-
-#if (CONFIG_RF_FW_INCLUDE_PCI == TRUE)
-#include "prg_rt584c_mpa_asic_pci_fw.h"
-#endif
-
-#if (CONFIG_RF_FW_INCLUDE_BLE == TRUE)
-#warning "rt584c does not support BLE"
-#undef CONFIG_RF_FW_INCLUDE_BLE
-#endif
-
-#if (CONFIG_RF_FW_INCLUDE_MULTI_2P4G == TRUE)
-#warning "rt584c does not support 2.4G multi-protocol"
-#undef CONFIG_RF_FW_INCLUDE_MULTI_2P4G
 #endif
 
 #endif

@@ -34,7 +34,7 @@
 #define BLE_FOTA_IMAGE_COMPRESS_SUPPORT  (0x01)
 
 #ifndef BLE_VERSION
-#define BLE_VERSION "sys ver 0001"
+#define BLE_VERSION "sys ver 0002"
 #endif
 /**************************************************************************************************
  *    CONSTANTS AND DEFINES
@@ -138,13 +138,13 @@ static void ble_fota_system_reboot(void)
 static uint32_t ble_fota_crc32checksum(uint32_t flash_addr, uint32_t data_len)
 {
     uint16_t k;
-    uint32_t i;
-    uint8_t *p_buf = ((uint8_t *)flash_addr);
-    uint32_t chk_sum = ~0, len = data_len;
+    uint8_t buff;
+    uint32_t i, chk_sum = ~0, len = data_len;
 
     for (i = 0; i < len; i ++ )
     {
-        chk_sum ^= *p_buf++;
+        hosal_flash_read(HOSAL_FLASH_READ_BYTE, flash_addr + i, &buff);
+        chk_sum ^= buff;
         for (k = 0; k < 8; k ++)
         {
             chk_sum = chk_sum & 1 ? (chk_sum >> 1) ^ 0xedb88320 : chk_sum >> 1;
@@ -223,22 +223,9 @@ static void ble_fota_step(fota_step_t action, uint32_t *p_expect_add)
     static uint32_t step_size = 0;
     static uint32_t curr_step = 0;
     uint32_t fota_bank_size;
-    uint32_t flash_size_value;
 
-    hosal_flash_ioctrl(HOSAL_FLASH_GET_INFO, (void *)&flash_size_value);
-    if (flash_size_value == FLASH_512K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_512K;
-    }
-    else if (flash_size_value == FLASH_1024K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_1MB;
-    }
-    else
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_2MB;
-    }
 
+    fota_bank_size = SIZE_OF_FOTA_BANK;
     if (action == OTA_STEP_INIT)
     {
         uint8_t *p_step = 0;
@@ -309,21 +296,8 @@ static void ble_fota_data_program(uint8_t length, uint8_t *data)
 {
     static uint32_t temp_data[FLASH_PROGRAM_SIZE_PAGE >> 2];
     uint32_t fota_update_fw_addr;
-    uint32_t flash_size_value = flash_size();
 
-    if (flash_size_value == FLASH_512K)
-    {
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_512K;
-    }
-    else if (flash_size_value == FLASH_1024K)
-    {
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB;
-    }
-    else
-    {
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB;
-    }
-
+    fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
     /*  ------  here buffering OTA data for flash page programming  ------ */
     if (fota_data_param.buffered_data_len == 0)/* no buffering OTA data */
     {
@@ -406,7 +380,6 @@ void ble_fota_fw_buffer_flash_check(void)
 {
     uint32_t page_idx = 0, fota_bank_size, fota_update_fw_addr;
     uint8_t page_program_cnt_0 = 0, page_program_cnt_1 = 0;
-    uint32_t flash_size_value = flash_size();
     uint32_t read_buf[FLASH_PROGRAM_SIZE_PAGE >> 2];
     uint8_t *p_verify_buf;
 
@@ -419,21 +392,8 @@ void ble_fota_fw_buffer_flash_check(void)
 
         if (p_verify_buf)
         {
-            if (flash_size_value == FLASH_512K)
-            {
-                fota_bank_size = SIZE_OF_FOTA_BANK_512K;
-                fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_512K;
-            }
-            else if (flash_size_value == FLASH_1024K)
-            {
-                fota_bank_size = SIZE_OF_FOTA_BANK_1MB;
-                fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB;
-            }
-            else
-            {
-                fota_bank_size = SIZE_OF_FOTA_BANK_2MB;
-                fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB;
-            }
+            fota_bank_size = SIZE_OF_FOTA_BANK;
+            fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
 
             for (page_idx = 0 ; page_idx < fota_bank_size ; page_idx += FLASH_PROGRAM_SIZE_PAGE)
             {
@@ -533,24 +493,10 @@ void ble_fota_disconnect(void)
     else if (fota_upgrade_state == OTA_STATE_ERASING)
     {
         uint32_t page_idx = 0, fota_bank_size, fota_update_fw_addr;
-        uint32_t flash_size_value = flash_size();
         uint8_t status;
 
-        if (flash_size_value == FLASH_512K)
-        {
-            fota_bank_size = SIZE_OF_FOTA_BANK_512K;
-            fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_512K;
-        }
-        else if (flash_size_value == FLASH_1024K)
-        {
-            fota_bank_size = SIZE_OF_FOTA_BANK_1MB;
-            fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB;
-        }
-        else
-        {
-            fota_bank_size = SIZE_OF_FOTA_BANK_2MB;
-            fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB;
-        }
+        fota_bank_size = SIZE_OF_FOTA_BANK;
+        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
 
         fota_flash_erase(FOTA_UPDATE_BANK_INFO_ADDRESS);
         for (page_idx = 0 ; page_idx < fota_bank_size ; page_idx += SIZE_OF_FLASH_SECTOR_ERASE)
@@ -595,24 +541,10 @@ void ble_fota_cmd(uint8_t host_id, uint8_t length, uint8_t *p_data)
     ble_info_link0_t *p_profile_info;
     ble_gatt_data_param_t param;
     uint32_t fota_bank_size, fota_update_fw_addr;
-    uint32_t flash_size_value = flash_size();
     fota_idc_param_t fota_idc;
 
-    if (flash_size_value == HOSAL_FLASH_512K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_512K;
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_512K;
-    }
-    else if (flash_size_value == HOSAL_FLASH_1024K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_1MB;
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB;
-    }
-    else
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_2MB;
-        fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB;
-    }
+    fota_bank_size = SIZE_OF_FOTA_BANK;
+    fota_update_fw_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
 
     switch (p_fota_cmd->cmd_id)
     {
@@ -811,21 +743,10 @@ void ble_fota_data(uint8_t host_id, uint8_t length, uint8_t *p_data)
     ble_err_t status;
     uint8_t notify_len = sizeof(fota_notify_t);
     uint32_t fota_bank_size;
-    uint32_t flash_size_value = flash_size();
     fota_notify_param_t fota_notify;
 
-    if (flash_size_value == FLASH_512K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_512K;
-    }
-    else if (flash_size_value == FLASH_1024K)
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_1MB;
-    }
-    else
-    {
-        fota_bank_size = SIZE_OF_FOTA_BANK_2MB;
-    }
+
+    fota_bank_size = SIZE_OF_FOTA_BANK;
 
     /* FOTA data format.
     _____________________________________

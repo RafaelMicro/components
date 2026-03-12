@@ -51,76 +51,93 @@ extern "C" {
 #define  DPD_GPIO_LATCH_MASK                        (1)
 #define  DPD_GPIO_NO_LATCH                          (0)
 
+/**
+ * \brief           Cause of the reset
+ */
+#define RESET_BY_POWER_ON                           0x01
+#define RESET_BY_EXT_RESET                          0x02
+#define RESET_BY_DEEP_POWER_DOWN                    0x04
+#define RESET_BY_DEEP_SLEEP                         0x08
+#define RESET_BY_WATCH_DOG                          0x10
+#define RESET_BY_SOFT_RESET                         0x20
+#define RESET_BY_MCU_LOCKUP                         0x40
 
 /**
  * \brief           Get reset all cause.
- * \return          get cause register value
+ * \param[out]      reset_cause: reset cause
  */
-__STATIC_INLINE uint32_t get_all_reset_cause(void) {
-    return (DPD_CTRL->dpd_rst_cause.reg);
+__STATIC_INLINE void get_all_reset_cause(uint32_t *reset_cause) {
+    *reset_cause = (DPD_CTRL->dpd_rst_cause.reg);
 }
 
 /**
  * \brief           Reset by power on or not.
- * \return          0: reset not by power on, 
+ * \param[out]      by_power_on:
+ *                  0: reset not by power on, 
  *                  1: reset by power on
  */
-__STATIC_INLINE uint32_t reset_by_power_on(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_por);
+__STATIC_INLINE void reset_by_power_on(uint32_t *by_power_on) {
+    *by_power_on = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_por);
 }
 
 /**
  * \brief           Reset by external reset or not.
- * \return          0: reset not by external reset, 
+ * \param[out]      by_ext_rst:
+ *                  0: reset not by external reset, 
  *                  1: reset by external reset
  */
-__STATIC_INLINE uint32_t reset_by_external(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_ext);
+__STATIC_INLINE void reset_by_external(uint32_t *by_ext_rst) {
+    *by_ext_rst = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_ext);
 }
 
 /**
  * \brief           Reset by deep power down or not.
- * \return          0: reset not by deep power down, 
+ * \param[out]      by_deep_power_down:
+ *                  0: reset not by deep power down, 
  *                  1: reset by deep power down
  */
-__STATIC_INLINE uint32_t reset_by_deep_power_down(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_dpd);
+__STATIC_INLINE void reset_by_deep_power_down(uint32_t *by_deep_power_down) {
+    *by_deep_power_down = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_dpd);
 }
 
 /**
  * \brief           Reset by deep sleep or not.
- * \return          0: reset not by deep sleep, 
+ * \param[out]      by_deep_sleep:
+ *                  0: reset not by deep sleep, 
  *                  1: reset by deep sleep
  */
-__STATIC_INLINE uint32_t reset_by_deep_sleep(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_ds);
+__STATIC_INLINE void reset_by_deep_sleep(uint32_t *by_deep_sleep) {
+    *by_deep_sleep = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_ds);
 }
 
 /**
  * \brief           Reset by WDT or not.
- * \return          0: reset not by WDT, 
+ * \param[out]      by_wdt:
+ *                  0: reset not by WDT, 
  *                  1: reset by WDT
  */
-__STATIC_INLINE uint32_t reset_by_wdt(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_wdt);
+__STATIC_INLINE void reset_by_wdt(uint32_t *by_wdt) {
+    *by_wdt = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_wdt);
 }
 
 /**
  * \brief           Reset by software or not.
- * \return          0: reset not by software, 
+ * \param[out]      by_soft_rst:
+ *                  0: reset not by software, 
  *                  1: reset by software
  */
-__STATIC_INLINE uint32_t reset_by_software(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_soft);
+__STATIC_INLINE void reset_by_software(uint32_t *by_soft_rst) {
+    *by_soft_rst = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_soft);
 }
 
 /**
  * \brief           Reset by mcu lockup or not.
- * \return          0: reset not by mcu lockup, 
+ * \param[out]      by_lock:
+ *                  0: reset not by mcu lockup, 
  *                  1: reset by mcu lockup
  */
-__STATIC_INLINE uint32_t reset_by_lock(void) {
-    return (DPD_CTRL->dpd_rst_cause.bit.rst_cause_lock);
+__STATIC_INLINE void reset_by_lock(uint32_t *by_lock) {
+    *by_lock = (DPD_CTRL->dpd_rst_cause.bit.rst_cause_lock);
 }
 
 /**

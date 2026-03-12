@@ -50,9 +50,13 @@ typedef enum
 
 typedef struct __attribute__((packed))
 {
+#if !(RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
     int8_t  offset;
     uint8_t poly_gain;
     uint8_t pa_pw_pre;
+#else
+    uint8_t  txp_offset;
+#endif
 }
 tx_pwr_comp_element_t;
 

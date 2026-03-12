@@ -35,6 +35,7 @@ sdk_add_include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/miu_port/include
 )
 
+
 # === version info ===
 if (${CONFIG_CHIP} MATCHES "RT58[123]")
     set(OT_PACKAGE_NAME "OT_RT58X" CACHE STRING "OpenThread Package Name")
@@ -55,13 +56,30 @@ if(GIT_HASH_RESULT EQUAL 0)
     set(GIT_COMMIT_HASH "${GIT_COMMIT_HASH_TMP}")
 endif()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 execute_process(
-    COMMAND python -c
+    COMMAND ${Python3_EXECUTABLE} -c
     "from datetime import datetime; t=datetime.now(); print('{:08X}'.format(((t.year-2000)&0x7F)<<25 | ((t.month)&0x0F)<<21 | ((t.day)&0x1F)<<16 | ((t.hour)&0x1F)<<11 | ((t.minute)&0x3F)<<5 | ((t.second)&0x1F)))"
     OUTPUT_VARIABLE BUILD_TIME_4BYTE
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+if(NOT PYTHON_EXEC_RESULT EQUAL 0)
+    set(BUILD_TIME_HEX "00000000")
+endif()
+
 set(OT_PACKAGE_VERSION "${GIT_COMMIT_HASH}-${BUILD_TIME_4BYTE}" CACHE STRING "OpenThread Package Version")
+
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/miu_port/include/miu_bin_version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/miu_bin_version.h"
+    @ONLY
+)
+
+sdk_add_include_directories(
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
 
 # === mbedTLS setting ===
 add_compile_options(
@@ -73,7 +91,7 @@ add_compile_options(
 )
 
 # === OT config ===
-add_compile_options(-DOPENTHREAD_CONFIG_PLATFORM_INFO="${CONFIG_CHIP}")
+add_compile_options(-DOPENTHREAD_CONFIG_PLATFORM_INFO="${CONFIG_BOARD}")
 
 if(CONFIG_MIU_DEVICE_TYPE_FTD)
     set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/examples/sub-g/mesh-it-up/miu-ftd/include")

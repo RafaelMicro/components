@@ -78,6 +78,7 @@ typedef struct pbkdf2_struct {
 
 } pbkdf2_st;
 
+
 /**
  * \brief           Do SHA-256 and get the SHA-256 final hash digest value.
  * \param[in]       input   point to input buffer for sha256 caculation
@@ -87,6 +88,17 @@ typedef struct pbkdf2_struct {
  * \return          None
  */
  void sha256(uint8_t *input, uint32_t length, uint8_t *digest);
+
+/**
+ * \brief           Do SHA-256 and get the SHA-256 final hash digest value.
+ * \param[in]       input_address   the input data address for sha256 caculation
+ * \param[in]       length  number of input buffer
+ * \param[out]      digest  point to the buffer to get the final hash value, the buffer
+ *                      mute be 32 bytes.
+ * \return          None
+ */
+void sha256_flash(uint32_t input_address, uint32_t length, uint8_t *digest);
+
 
 /**
  * \brief           Set Crypto accelerator to load SHA-256 hash algorithm.
@@ -143,6 +155,24 @@ void sha256_starts(sha256_context *ctx, int is224);
  *
  */
 uint32_t sha256_update(sha256_context *ctx, uint8_t *input, uint32_t length);
+
+/**
+ * \brief           Using Crypto accelerator to caculate SHA-256 hash algorithm for new add data.
+ * \param[in]       ctx     sha256_context
+ * \param[in]       input_address   input data addrss for sha256 caculation
+ * \param[in]       length  number of input buffer
+ * \retval
+ *                  return STATUS_ERROR    for length is zero or accelerator is not in
+ *                                    SHA-256 hash mode
+ *                  return STATUS_SUCCESS
+ *
+ * \details         Caculate SHA-256 hash value for new add data
+ * \remark          hardware accelerator resource will be released in function
+ *                  sha256_finish, so it can NOT call any other secure function before
+ *                  finishing sha256 caculation.
+ *
+ */
+uint32_t sha256_update_flash(sha256_context *ctx, uint32_t input_address, uint32_t length);
 
 /**
  * \brief           Get the SHA-256 final hash digest value.

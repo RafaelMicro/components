@@ -443,7 +443,7 @@ void SystemInit(void) {
 
     rco40k_analog_calibration();
 
-#if defined(CONFIG_EXT32K_GPIO_ENABLE)
+#if defined(CONFIG_EXTRCO32K_ENABLE)
     set_ext32k_pin(
         EXT32K_GPIO7); /* externl slow clock 32.768khz, select input gpio pin, gpio0~gpio7 (0~7) */
     set_slow_clock_source(

@@ -27,8 +27,10 @@ uint32_t hosal_bod_comp_open(hosal_bod_comp_config_t cfg, void* hosal_bod_comp_c
         .falling_edge_int_en = cfg.falling_edge_int_en,
         .counter_mode_threshold = cfg.counter_mode_threshold,
     };
-    uint32_t rval;
+    uint32_t step_value, rval;
 
+    bod_voltage_threshold_calibration(cfg.voltage_threshold,&step_value);
+    bod_cfg.voltage_step = step_value;
     rval = bod_comp_open(bod_cfg, hosal_bod_comp_callback);
 
     return rval;

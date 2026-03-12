@@ -25,9 +25,12 @@ extern "C" {
 #include "shell.h"
 
 #define STATIC_CLI_CMD_ATTRIBUTE __attribute__((used, section("cli_cmd_pool")))
-#define __cli_cmd_pool          __attribute__ ((used, section("cli_cmd_pool")))
+#define __cli_cmd_pool           __attribute__((used, section("cli_cmd_pool")))
 
+typedef enum { UART0_MODE_CLI, UART0_MODE_HEX_RX } uart0_mode_t;
 
+void cli_mode_switch_function(uart0_mode_t uart0_mode);
+uart0_mode_t cli_mode_get_function();
 
 int cli_init(void);
 /**

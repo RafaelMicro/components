@@ -43,6 +43,7 @@ uint32_t gpio_cfg(uint32_t pin_number, gpio_pin_dir_t dir, gpio_pin_int_mode_t i
         GPIO->input_en = MASK;
         GPIO->enable_input = MASK;
         pin_set_pullopt(pin_number,PULLUP_100K);
+
     } else {
         GPIO->disable_input = MASK;
         GPIO->output_en = MASK;

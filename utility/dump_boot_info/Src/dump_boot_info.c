@@ -5,6 +5,7 @@
  *
  */
 
+
 #include <FreeRTOS.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -33,7 +34,9 @@ void _dump_boot_info(void) {
     puts("Build Version: ");
     puts(RAFAEL_SDK_VER);
     puts("\r\n");
-
+    puts("Build Project: ");
+    puts(CONFIG_BUILD_PORJECT);
+    puts("\r\n");
     puts("Build Date: ");
     puts(__DATE__);
     puts("\r\n");

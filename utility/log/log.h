@@ -22,7 +22,6 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #ifndef __FILE_NAME__
 #define __FILE_NAME__                                                          \
     (strrchr(__FILE__, '/')                                                    \
@@ -79,8 +78,6 @@ typedef struct {
 } log_setting_t;
 
 extern log_setting_t log_set;
-
-
 
 #define custom_cflog(lowlevel, N, M, ...)                                      \
     do {                                                                       \

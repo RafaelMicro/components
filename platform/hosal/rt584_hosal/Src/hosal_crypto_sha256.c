@@ -66,7 +66,7 @@ int hosal_crypto_sha256_operation(hosal_sha256_dev_t* sha256_dev) {
     } else if (sha256_dev->crypto_operation == HOSAL_SHA256_DIGEST_INIT) {
         sha256_init(&sha256_dev->sha_cnxt);
     } else if (sha256_dev->crypto_operation == HOSAL_SHA256_DIGEST_STARTS) {
-#if defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+#if defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) || defined(CONFIG_RF1301)
         sha256_starts(&sha256_dev->sha_cnxt, 0);
 #endif
     } else if (sha256_dev->crypto_operation == HOSAL_SHA256_DIGEST_UPDATE) {

@@ -57,6 +57,7 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.isr_vector))
+		KEEP(*(.build_info))		
 		*(.text*)
 
 		KEEP(*(.init))

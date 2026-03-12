@@ -747,8 +747,9 @@ void* shell_proc(sh_args_t* pArg) {
 
                     pCmd_cur = (sh_cmd_t*)cli_cmd_pool_start;
                     while ((uintptr_t)pCmd_cur < (uintptr_t)cli_cmd_pool_end) {
-                        if (!strncmp(pCmd_cur->pCmd_name, pCmd_args[0],
-                                     strlen(pCmd_cur->pCmd_name))) {
+                        if (strlen(pCmd_args[0]) == strlen(pCmd_cur->pCmd_name)
+                            && !strncmp(pCmd_cur->pCmd_name, pCmd_args[0],
+                                        strlen(pCmd_cur->pCmd_name))) {
                             pCmd_act = pCmd_cur;
                             break;
                         }

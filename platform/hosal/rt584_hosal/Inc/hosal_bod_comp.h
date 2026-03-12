@@ -70,6 +70,7 @@ typedef struct {
     uint8_t falling_edge_int_en     : 1;        /*!< set falling edge interrupt enable */
     uint16_t counter_mode_threshold;            /*!< set the trigger threshold of the counter mode. 
                                                  When COUNTER_CNT > counter_mode_threshold , Interrupt will be triggered. */
+    uint16_t voltage_threshold;                 /* voltage threshold value */
 } hosal_bod_comp_config_t;
 
 /**

@@ -40,7 +40,11 @@ extern "C" {
 #define STATUS_NO_INIT            (4UL)         /*!< Device should be init first. */
 #define STATUS_ERROR              (5UL)         /*!< ERROR */
 #define STATUS_TIMEOUT            (6UL)         /*!< TIMEOUT */
-
+#define STATUS_LOW_VOLTAGE        (7UL)         /*!< STATUS_LOW_VOLTAGE */
+#define STATUS_VERIFY_FAIL        (8UL)         /*!< VERIFY_FAIL */ 
+#define STATUS_PROTECTED          (9UL)         /*!< PROTECTED */ 
+#define STATUS_REGION_CONFLICT    (10UL)        /*!< CONFLICT */ 
+#define STATUS_UNSUPPORTED        (11UL)        /*!< UNSUPPORTED */ 
 /*@}*/ /* end of RT584_DRIVER STATUS */
 
 #ifdef __cplusplus

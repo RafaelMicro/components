@@ -6,6 +6,9 @@
  */
 
 #include <EnhancedFlashDataset.h>
+#if defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584HA4) || defined(CONFIG_RF1301)
+     #include "flashctl.h"
+#endif
 
 #if !defined(EFD_START_ADDR)
 #error "Please configure backup area start address (in efd_cfg.h)"
@@ -36,6 +39,7 @@ EfErrCode enhanced_flash_dataset_init(void) {
     if (init_ok) {
         return EFD_NO_ERR;
     }
+
 
     result = efd_port_init(&default_env_set, &default_env_set_size);
 

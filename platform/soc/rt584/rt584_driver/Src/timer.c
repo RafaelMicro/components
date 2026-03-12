@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include "timer.h"
+#include "sysctrl.h"
 
 /**
  * \brief           Timer and slow timer max number definitions

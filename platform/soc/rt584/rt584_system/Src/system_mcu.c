@@ -19,6 +19,7 @@
 #include "flashctl.h"
 #include "sysfun.h"
 #include "mp_sector.h"
+#include "gpio.h"
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
 #include "partition.h"
 #endif
@@ -839,6 +840,7 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
 void systeminit (void) {
 
     #if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
+    #elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
     #else
         txpower_default_cfg_t txpwrlevel = sys_txpower_getdefault();
     #endif
@@ -881,6 +883,8 @@ void systeminit (void) {
 #endif
 
 #if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
+    systempmuupdatedcdc();
+#elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
     systempmuupdatedcdc();
 #else
     SystemPmuUpdateDcdcTxPwrLvl(txpwrlevel);
@@ -932,6 +936,8 @@ void systeminit (void) {
     flash_enable_qe();
 
     rco1m_and_rco32k_calibration();
+
+    
 #endif
 
 #if (SET_SYS_CLK == SYS_CLK_32MHZ)
@@ -959,6 +965,12 @@ void systeminit (void) {
 #endif
 
     SystemCoreClock = SYSTEM_CLOCK;
+
+#if defined(CONFIG_EXTRCO32K_ENABLE)
+    set_ext32k_pin(GPIO5);
+    set_slow_clock_source(EXT_GPIO_RCO32K);
+#endif
+
 }
 
 //#if  (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)

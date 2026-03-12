@@ -23,6 +23,7 @@
 #include "zb_common.h"
 #include "zb_osif.h"
 #include "zb_nvram.h"
+#include "hosal_flash.h"
 #include "flashctl.h"
 //=============================================================================
 //                Private Definitions of const value
@@ -42,11 +43,20 @@
   ZB_ASSERT((val) % 4 == 0)
 
 
-//Zigbee nvram use 0xF4000 ~ 0xFC000 in mp_sector
-#if defined(CONFIG_FLASHCTRL_SECURE_EN) // rt584 only
-#define NVRAM_START_ADDRESS  ((uint32_t)(0x100F4000))
-#else
+//for RT581/582, the NVRAM is located at 0xF4000~0xFC000 (32KB)
+//for RT583, the NVRAM is located at 0x1F4000~0x1FC000 (32KB)
+//for RT584H/L, the NVRAM is located at 0x101F4000~0x101FC000 (32KB)
+//for RT584HA4, the NVRAM is located at 0x103F4000~0x103FC000 (32KB)
+#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT582_NONE_OS)
 #define NVRAM_START_ADDRESS  ((uint32_t)(0xF4000))
+#elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
+#define NVRAM_START_ADDRESS  ((uint32_t)(0x1F4000))
+#elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS)
+#define NVRAM_START_ADDRESS  ((uint32_t)(0x101F4000))
+#elif defined(CONFIG_RT584HA4)
+#define NVRAM_START_ADDRESS  ((uint32_t)(0x103F4000))
+#else
+#error "Chip Not Supported"
 #endif 
 
 #define PAGE0_BASE_ADDRESS    ((uint32_t)(NVRAM_START_ADDRESS + 0x0000))

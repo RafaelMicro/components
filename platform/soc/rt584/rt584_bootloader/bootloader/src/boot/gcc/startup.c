@@ -18,6 +18,8 @@
 
 #define MAGIC_HEADER_NUMBER       0x524D24A5
 
+
+
 /* NOTICE:
  * ANTI_VERSION CONTROL: 
  *  MSB 8 bits is reserved.
@@ -199,6 +201,7 @@ const VECTOR_TABLE_Type __VECTOR_TABLE[64] __VECTOR_TABLE_ATTRIBUTE =
     aux_comp_handler,                         /*   47 Aux Comparator Handler*/
 };
 
+
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic pop
 #endif
@@ -208,7 +211,9 @@ const VECTOR_TABLE_Type __VECTOR_TABLE[64] __VECTOR_TABLE_ATTRIBUTE =
  *----------------------------------------------------------------------------*/
 __NO_RETURN void Reset_Handler(void)
 {
-
+#if defined(CONFIG_RF1301_NONE_OS)
+    SYSCTRL->sram_lowpower_1.reg = 0x20000000;
+#endif
     __set_MSP((uint32_t)(&__INITIAL_SP));
     __set_PSP((uint32_t)(&__INITIAL_SP));
 

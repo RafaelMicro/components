@@ -15,7 +15,6 @@ extern "C" {
 #include "FreeRTOS.h"
 #include "task.h"
 
-
 void vHeapRegionsInt(void);
 // 堆疊溢出 Hook
 void __attribute__((weak)) vApplicationStackOverflowHook(TaskHandle_t xTask,

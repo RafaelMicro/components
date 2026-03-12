@@ -48,16 +48,24 @@
           space*/
 /* backup area start address */
 #ifndef EFD_START_ADDR
-#if defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
-#define EFD_START_ADDR          0x100F3000 /* @note you must define it for a value */
-#elif defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583)
-#define EFD_START_ADDR          0xF3000 /* @note you must define it for a value */
+#if defined(CONFIG_RF1301)
+#define EFD_START_ADDR          0x100F0000 /* @note you must define it for a value */
+#elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L)
+#define EFD_START_ADDR          0x101F0000 /* @note you must define it for a value */
+#elif defined(CONFIG_RT584HA4)
+#define EFD_START_ADDR          0x103F0000 /* @note you must define it for a value */
+#elif defined(CONFIG_RT581) || defined(CONFIG_RT582)
+#define EFD_START_ADDR          0x000F0000 /* @note you must define it for a value */
+#elif defined(CONFIG_RT583)
+#define EFD_START_ADDR          0x001F0000 /* @note you must define it for a value */
 #endif
 #endif
 /* ENV area size. It's at least one empty sector for GC. So it's definition must more then or equal 2 flash sector size. */
 #ifndef ENV_AREA_SIZE
-#define ENV_AREA_SIZE           0x8000 /* @note you must define it for a value if you used ENV */
+#define ENV_AREA_SIZE           0x4000 /* @note you must define it for a value if you used ENV */
 #endif
+
+#define EFD_END_ADDR (EFD_START_ADDR + ENV_AREA_SIZE)
 
 #ifndef EFD_GC_EMPTY_SEC_THRESHOLD
 #define EFD_GC_EMPTY_SEC_THRESHOLD 2

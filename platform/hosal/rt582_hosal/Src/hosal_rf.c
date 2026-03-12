@@ -149,6 +149,10 @@ static void __rf_event_callback(uint8_t intStatus) {
     }
 
     if (intStatus & HOSAL_RF_TRAP_STS) {
+        uint32_t debug_value;
+
+        RfMcu_MemoryGet(0x4008, (uint8_t *)&debug_value, sizeof(debug_value));
+        printf("TRAP 0x%08x\n", debug_value);
         configASSERT(0);
     }
 
@@ -473,6 +477,41 @@ static hosal_rf_status_t __rf_tx_data_start_set(hosal_rf_tx_data_t* tx_data) {
     }
 
     return rval;
+}
+
+static hosal_rf_status_t __rf_single_tone_mode_set(uint8_t st_mode) {
+    uint8_t cmd_ptr[RUCI_LEN_SET_SINGLE_TONE_MODE];
+    SET_RUCI_PARA_SET_SINGLE_TONE_MODE(cmd_ptr, st_mode);
+    RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_SET_SINGLE_TONE_MODE);
+    return __rf_sub_command_set(cmd_ptr, RUCI_LEN_SET_SINGLE_TONE_MODE,
+                                RUCI_CODE_SET_SINGLE_TONE_MODE);
+}
+
+static hosal_rf_status_t __rf_tx_continuous_wave_set(uint32_t tx_enable) {
+    hosal_rf_status_t status;
+    hosal_rf_tx_data_t tx_data = {0};
+    static uint8_t dummy_tx_data[10];
+
+    tx_data.data_len = 10;
+    tx_data.control = 0;
+    tx_data.dsn = 0;
+    tx_data.pData = dummy_tx_data;
+    
+    if (tx_enable)
+    {
+        status = __rf_single_tone_mode_set(2);
+        if (status != HOSAL_RF_STATUS_SUCCESS)
+        {
+            return status;
+        }
+        status = __rf_tx_data_start_set(&tx_data);
+    }
+    else
+    {
+        status = __rf_single_tone_mode_set(0);
+    }
+
+    return status;
 }
 
 static hosal_rf_status_t __rf_tx_pwr_set(hosal_rf_tx_power_t* hosal_rf_tx_power) {
@@ -1075,6 +1114,10 @@ hosal_rf_status_t hosal_rf_ioctl(hosal_rf_ioctl_t ctl, void* p_arg) {
 
     case HOSAL_RF_IOCTL_RX_ENABLE_SET:
         rval = __rf_rx_enable_set((uint32_t)p_arg);
+        break;
+
+    case HOSAL_RF_IOCTL_TX_CONTINOUS_WAVE_SET:
+        rval = __rf_tx_continuous_wave_set((uint32_t)p_arg);
         break;
 
     case HOSAL_RF_IOCTL_RSSI_GET:

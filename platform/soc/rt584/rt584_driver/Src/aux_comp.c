@@ -14,10 +14,13 @@
  */
 
 #include "aux_comp.h"
+#include "flashctl.h"
 #include "lpm.h"
 
 
 static aux_comp_proc_cb  aux_notify_cb;
+uint8_t ft_data[256];
+
 
 uint32_t aux_comp_register_callback(aux_comp_proc_cb aux_comp_callback) {
     if( aux_comp_callback != NULL) {
@@ -26,7 +29,38 @@ uint32_t aux_comp_register_callback(aux_comp_proc_cb aux_comp_callback) {
     return STATUS_SUCCESS;
 }
 
-uint32_t aux_comp_ana_init(void) {
+uint32_t aux_voltage_threshold_calibration(uint16_t voltage, uint32_t *voltage_step) {
+    uint16_t vol_1 = 0, vol_2 = 0, exp_vol;
+    uint8_t step_1 = 0, step_2 = 0, exp_step = 0;
+    uint32_t m, k;
+
+#if defined(CONFIG_RT584HA4) || defined(CONFIG_RT584HA4_NONE_OS)
+    flash_read_sec_register((uint32_t)ft_data, 0x2000);
+#else
+    flash_read_sec_register((uint32_t)ft_data, 0x0);
+#endif
+    vol_1 |= (ft_data[0xC1]) + (ft_data[0xC2] << 8 );
+    step_1 = ft_data[0xC3];
+    vol_2 |= (ft_data[0xC4]) + (ft_data[0xC5] << 8 );
+    step_2 = ft_data[0xC6];
+
+    //printf("%d, %.2x\r\n",vol_1, step_1);
+    //printf("%d, %.2x\r\n",vol_2, step_2);
+    m = (vol_1 - vol_2) / (step_1 - step_2);
+    k = vol_1 - (m * step_1);
+    //printf("m:%d, k:%d\r\n",m, k);
+    /* +(m-1) for Round up*/
+    exp_step = (voltage - k + (m -1)) / m;
+    exp_vol = exp_step * m + k;
+    //printf("exp_step:%d, exp_vol:%d\r\n",exp_step, exp_vol);
+
+    *voltage_step = exp_step;
+    return STATUS_SUCCESS;
+}
+
+
+
+uint32_t aux_comp_ana_init(uint32_t voltage_step) {
     AUX_COMP->comp_ana_ctrl.bit.comp_selref = 0;
     AUX_COMP->comp_ana_ctrl.bit.comp_selinput = 0;
     AUX_COMP->comp_ana_ctrl.bit.comp_pw = 3;
@@ -35,7 +69,7 @@ uint32_t aux_comp_ana_init(void) {
     AUX_COMP->comp_ana_ctrl.bit.comp_swdiv = 1;
     AUX_COMP->comp_ana_ctrl.bit.comp_psrr = 0;
     /* vsel defined threshold */
-    AUX_COMP->comp_ana_ctrl.bit.comp_vsel = 15;
+    AUX_COMP->comp_ana_ctrl.bit.comp_vsel = voltage_step;
     AUX_COMP->comp_ana_ctrl.bit.comp_refsel = 0;
     AUX_COMP->comp_ana_ctrl.bit.comp_chsel = 0;
     AUX_COMP->comp_ana_ctrl.bit.comp_tc = 0;
@@ -46,7 +80,7 @@ uint32_t aux_comp_ana_init(void) {
 uint32_t aux_comp_open(aux_comp_config_t aux_cfg, aux_comp_proc_cb aux_comp_callback) {
     uint32_t rval;
 
-    rval = aux_comp_ana_init();
+    rval = aux_comp_ana_init(aux_cfg.voltage_step);
     
     AUX_COMP->comp_dig_ctrl0.bit.debounce_en = aux_cfg.debounce_en;
     AUX_COMP->comp_dig_ctrl0.bit.debounce_sel = aux_cfg.debounce_sel;

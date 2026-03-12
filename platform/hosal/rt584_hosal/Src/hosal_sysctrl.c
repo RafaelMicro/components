@@ -123,29 +123,37 @@ void hosal_tx_power_level_ctrl(int ctl, void* cfg_para) {
 }
 
 
-int hosal_sysctrl_ioctrl(hosal_sys_dwt_t *sys_dwt,int ctl, void* para) {
+int hosal_sysctrl_ioctrl(hosal_sys_tmo_t *sys_tmo,int ctl, void* para) {
 
      int ret= HOSAL_STATUS_SUCCESS;
     
-
      switch(ctl){
-        case HOSAL_SYSCTRL_DELAY_INIT:
-            ret =  dwt_init();
+        case HOSAL_SYSCTRL_TIMEOUT_INIT:
+            ret =  timeout_init();
             break;
-        case HOSAL_SYSCTRL_DELAY_UNINIT:
-            ret =  dwt_uninit();
+        case HOSAL_SYSCTRL_TIMEOUT_UNINIT:
+            ret =  timeout_uninit();
             break;
         case HOSAL_SYSCTRL_TIMEOUT_START:
-             uint32_t timeout = *(uint32_t*)para;  // 讀取值
-             ret =  dwt_timeoutstart(&sys_dwt->tmo, timeout, sys_dwt->tmo.unit, sys_dwt->tmo.callback);
-            break; 
+             uint32_t timeout = *(uint32_t*)para;  //
+            if (para == NULL) return STATUS_INVALID_PARAM;
+                
+                /* 取得傳入的超時數值 */
+                uint32_t ms = *(uint32_t*)para; 
+
+                ret = timeout_start(&sys_tmo->tmo, 
+                                    ms, 
+                                    sys_tmo->cb,    /* 正確用法 */
+                                    sys_tmo->arg,
+                                    sys_tmo->period); /* 或是您定義的 callback_arg */
+                break; 
 
         case HOSAL_SYSCTRL_TIMEOUT_CHECK:
-            ret =  dwt_timeoutcheck(&sys_dwt->tmo);
+            ret =  istimeout(&sys_tmo->tmo);
             break; 
 
-        case HOSAL_SYSCTRL_GET_TIMEOUT_REMAINING:
-            ret =  dwt_timeoutremaining(&sys_dwt->tmo,(uint32_t*)para);
+        case HOSAL_SYSCTRL_TIMEOUT_GET_REMAINING:
+            ret =  timeout_remaining(&sys_tmo->tmo,(uint32_t*)para);
             break;    
 
      }

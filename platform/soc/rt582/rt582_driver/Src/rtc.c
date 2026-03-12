@@ -158,14 +158,55 @@ uint32_t rtc_disable_alarm(void) {
     return STATUS_SUCCESS;
 }
 
-uint32_t rtc_set_clk(uint32_t clk) {
-    /* only 16bits. */
-    RTC->clock_div = (clk - 1) & 0xFFFF;
+uint32_t calculate_frequency_integer(uint32_t *freq)
+{
+    uint32_t i = 0;
+    uint32_t caldiv;
+    uint32_t R1 = 0;
+
+    do
+    {
+        if (PMU->pmu_cal32k_result0.bit.cal32k_lock == 1 && PMU->pmu_cal32k_result0.bit.est_32k_result_valid == 1)
+        {
+            R1 = PMU->pmu_cal32k_result0.bit.est_32k_result & 0x0003FFFF; // Mask 20 bits
+            break;
+        }
+    } while (1);
+
+    uint64_t numerator = ((uint64_t)512000ULL) * 8000;
+    uint64_t denominator = (uint64_t)R1;
+    caldiv = (uint32_t)(numerator / denominator);
+
+    *freq = caldiv;
+
+    return STATUS_SUCCESS;
+}
+
+uint32_t rtc_set_clk(uint32_t clk)
+{
+
+    uint32_t status = 0, cal_clk = clk;
+
+#if defined(CONFIG_EXTRCO32K_ENABLE)
+    clk = 32768; //RCO 32.768K
+     //printf("cal_clk=%.8x\r\n",cal_clk);
+#else
+    status = calculate_frequency_integer(&cal_clk);
+
+    if ( status == STATUS_SUCCESS)
+    {
+        clk = cal_clk;
+    }
+#endif    
+
+    RTC->clock_div = (clk - 1) & 0xFFFF; /*only 16bits.*/
     RTC->load = RTC_LOAD_DIVISOR;
 
-    /* wait this take effect, wait RTC_LOAD bcome 0 */
-    while (RTC->load) {}
-
+    /*wait this take effect, wait RTC_LOAD bcome 0*/
+    while (RTC->load)
+    {
+        
+    }
     return STATUS_SUCCESS;
 }
 
@@ -194,3 +235,5 @@ void rtc_handler(void) {
         user_rtc_isr(status);
     }
 }
+
+

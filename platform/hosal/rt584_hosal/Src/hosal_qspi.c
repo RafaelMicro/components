@@ -424,6 +424,12 @@ hosal_qspi_status_t hosal_qspi_init(hosal_qspi_dev_t* qspi_dev) {
 	
 #endif
 
+        if(ptr->config.mcs_en==1)
+        {
+         ptr->instance->qspi_ss_config &=~ (1<<(ptr->config.slave_select + QSPI_CFG_SS_MANUAL_SHIFT));
+         ptr->instance->qspi_ss_config |= (1<<(ptr->config.slave_select + QSPI_CFG_SS_MANUUAL_ENABLE_SHIFT));
+
+        }
         /*Set qspi transfer mode, here we assume bitsize is 8 bit first, Normal SPI mode*/
         ptr->instance->qspi_control2 = QSPI_BITSIZE_8 | QSPI_NORMAL_SPI
                                   | QSPI_DISABLE_IN;

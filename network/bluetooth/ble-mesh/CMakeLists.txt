@@ -10,7 +10,7 @@ sdk_library_add_sources(
 if((${CONFIG_CHIP} STREQUAL "RT582") OR (${CONFIG_CHIP} STREQUAL "RT581") OR (${CONFIG_CHIP} STREQUAL "RT583"))
     sdk_add_static_library_ifdef(CONFIG_SUPPORT_MESH_SERVER CM3_ble_mesh_server)
     sdk_add_static_library_ifdef(CONFIG_SUPPORT_MESH_CLIENT CM3_ble_mesh_client)
-else((${CONFIG_CHIP} STREQUAL "RT584H") OR (${CONFIG_CHIP} STREQUAL "RT584L"))
+else((${CONFIG_CHIP} STREQUAL "RT584H") OR (${CONFIG_CHIP} STREQUAL "RT584HA4") OR (${CONFIG_CHIP} STREQUAL "RT584L"))
     sdk_add_static_library_ifdef(CONFIG_SUPPORT_MESH_SERVER CM33_ble_mesh_server)
     sdk_add_static_library_ifdef(CONFIG_SUPPORT_MESH_CLIENT CM33_ble_mesh_client)
 endif()

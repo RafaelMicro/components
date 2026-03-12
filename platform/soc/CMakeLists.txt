@@ -4,7 +4,7 @@ if(CONFIG_BOOTLOADER)
         sdk_add_subdirectory_ifdef(CONFIG_DRIVER ${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_driver) 
         sdk_add_subdirectory_ifdef(CONFIG_CRYPTO ${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_crypto)
         sdk_add_subdirectory_ifdef(CONFIG_DRIVER ${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_system)
-    elseif((${CONFIG_CHIP} STREQUAL "RT584_NONE_OS"))
+    elseif((${CONFIG_CHIP} STREQUAL "RT584H_NONE_OS") OR (${CONFIG_CHIP} STREQUAL "RT584L_NONE_OS") OR (${CONFIG_CHIP} STREQUAL "RF1301_NONE_OS") OR (${CONFIG_CHIP} STREQUAL "RT584HA4_NONE_OS"))
         sdk_add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/rt584/rt584_bootloader)
         sdk_add_subdirectory_ifdef(CONFIG_DRIVER ${CMAKE_CURRENT_LIST_DIR}/rt584/rt584_driver)
         sdk_add_subdirectory_ifdef(CONFIG_CRYPTO ${CMAKE_CURRENT_LIST_DIR}/rt584/rt584_crypto)
@@ -23,7 +23,7 @@ if((${CONFIG_CHIP} STREQUAL "RT582") OR (${CONFIG_CHIP} STREQUAL "RT581") OR (${
     endif()
 endif()
 
-if((${CONFIG_CHIP} STREQUAL "RT584H") OR (${CONFIG_CHIP} STREQUAL "RT584L"))
+if((${CONFIG_CHIP} STREQUAL "RF1301") OR (${CONFIG_CHIP} STREQUAL "RT584H") OR (${CONFIG_CHIP} STREQUAL "RT584HA4") OR (${CONFIG_CHIP} STREQUAL "RT584L"))
     
 
     sdk_add_subdirectory_ifdef(CONFIG_CRYPTO ${CMAKE_CURRENT_LIST_DIR}/rt584/rt584_crypto)

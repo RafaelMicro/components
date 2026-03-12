@@ -21,6 +21,8 @@
 *************************************************************************************************/
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include <inttypes.h>
 #include "chip_define.h"
 #include "rf_common_init.h"
 #include "rf_mcu.h"
@@ -1313,4 +1315,45 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select,
 #endif
 
     return true;
+}
+
+void rf_common_radio_reg_dump (void)
+{
+    uint32_t reg_val;
+    uint16_t reg_addr;
+
+    /* MAC */
+    for (reg_addr = 0x100 ; reg_addr < 0x200 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* BMU */
+    for (reg_addr = 0x200 ; reg_addr < 0x300 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* RF */
+    for (reg_addr = 0x300 ; reg_addr < 0x400 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* PMU */
+    for (reg_addr = 0x400 ; reg_addr < 0x500 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* FW */
+    for (reg_addr = 0x4000 ; reg_addr < 0x4040 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
 }

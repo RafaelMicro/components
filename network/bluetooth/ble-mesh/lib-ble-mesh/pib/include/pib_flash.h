@@ -21,13 +21,13 @@
 #ifndef __PIB_FLASH_H__
 #define __PIB_FLASH_H__
 
-#include "flashctl.h"
-
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#include "flashctl.h"
 
 /* define the flash data type */
 enum

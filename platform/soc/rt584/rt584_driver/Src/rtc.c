@@ -187,7 +187,6 @@ uint32_t i = 0, caldiv = 0;
     }
     while(1);
 
-    for(i=0; i<5; i++) {
         if((RCO32K_CAL->cal32k_result0.bit.est_32k_result_valid==1) && (RCO32K_CAL->cal32k_result0.bit.cal32k_lock==1)) {
             uint32_t R1 = RCO32K_CAL->cal32k_result0.bit.est_32k_result;  // Mask 20 bits
             //printf("R1:%.8x\r\n",R1);
@@ -207,7 +206,6 @@ uint32_t i = 0, caldiv = 0;
             //printf(" %d caldiv=%8x, freq:%.8x\r\n",i,caldiv,*freq);
             
         }
-    }
     return STATUS_SUCCESS;
 }
 
@@ -217,11 +215,17 @@ uint32_t rtc_set_clk(uint32_t clk) {
     uint32_t status = 0;
     uint32_t cal_clk = clk;
 
+#if defined(CONFIG_EXTRCO32K_ENABLE)
+    clk = 0x20C49C; //RCO 32.768K
+     //printf("cal_clk=%.8x\r\n",cal_clk);
+#else
     status = calculate_frequency_integer(&cal_clk);
     //printf("cal_clk=%.8x\r\n",cal_clk);
     if( status == STATUS_SUCCESS) {
         clk = cal_clk;
     } 
+#endif
+
     RTC->rtc_clock_div = (clk) & 0xFFFFFF; /*only 24bits.*/
     RTC->rtc_load = RTC_LOAD_DIVISOR;
 

@@ -78,6 +78,7 @@ typedef struct {
     uint16_t counter_mode_threshold;            /*!< set the trigger threshold of the counter mode.
                                                  When COUNTER_CNT > counter_mode_threshold , 
                                                  Interrupt will be triggered. */
+    uint16_t voltage_step;                      /* setup comp_vsel value */
 } aux_comp_config_t;
 
 
@@ -92,10 +93,19 @@ typedef struct {
 uint32_t aux_comp_register_callback(aux_comp_proc_cb aux_comp_callback);
 
 /**
- * \brief           Init Aux comparator Aanlog setting.
+ * \brief           Calibration comp_vsel voltage.
+ * \param[in]       voltage: expect voltage.
+ * \param[out]      voltage_step: 1.8V mapping comp_vsel step value.
  * \return          Function status, STATUS_SUCCESS
  */
-uint32_t aux_comp_ana_init(void);
+uint32_t aux_voltage_threshold_calibration(uint16_t voltage, uint32_t *voltage_step);
+
+/**
+ * \brief           Init Aux comparator Aanlog setting.
+ * \param[in]       voltage_step: setup comp_vsel value.
+ * \return          Function status, STATUS_SUCCESS
+ */
+uint32_t aux_comp_ana_init(uint32_t voltage_step);
 
 /**
  * \brief           Setting Aux comparator configuration.

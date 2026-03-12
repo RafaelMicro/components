@@ -21,6 +21,8 @@
 *************************************************************************************************/
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include <inttypes.h>
 
 #if 0
 #include "chip_define.h"
@@ -419,7 +421,7 @@ void rf_common_update_band_info()
     /* Read RF band info from MP sector */
     if (mpcalrftrimread(MP_ID_RF_BAND_SUPPORT, MP_CNT_RF_BAND_SUPPORT, (uint8_t *)(&rf_band_info)) != STATUS_SUCCESS)
     {
-#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!(defined(CONFIG_RT584H) || defined(CONFIG_RT584L)))
+#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!(defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L)))
         // Force to subGHz RF if MP sector doesn't exist
         rf_band_info.rf_band = RF_BAND_SUPP(RF_BAND_SUB1G0);
 #else
@@ -429,7 +431,7 @@ void rf_common_update_band_info()
     }
     else if ((rf_band_info.flag != 1) && (rf_band_info.flag != 2))
     {
-#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584L))
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L))
         // Force to 2.4GHz RF if flag isn't tool k and sw k
         rf_band_info.rf_band = RF_BAND_SUPP(RF_BAND_2P4G);
 #else
@@ -491,7 +493,7 @@ bool rf_common_cal_init(COMM_SUBSYSTEM_ISR_t isr_func)
 
         if (mpcalrftrimread(mp_id_map[mpIdIdx], MP_CNT_RFTRIM1, (uint8_t *)(p_rf_cal_info)) != STATUS_SUCCESS)
         {
-#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!(defined(CONFIG_RT584H) || defined(CONFIG_RT584L)))
+#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!(defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L)))
             // Force to AON mode if MP sector doesn't exist
             p_rf_cal_info->mode = RF_CAL_AON;
 #else
@@ -1424,4 +1426,43 @@ bool rf_common_init_fw_preload(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t
     return true;
 }
 
+void rf_common_radio_reg_dump (void)
+{
+    uint32_t reg_val;
+    uint16_t reg_addr;
 
+    /* MAC */
+    for (reg_addr = 0x100 ; reg_addr < 0x200 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* BMU */
+    for (reg_addr = 0x200 ; reg_addr < 0x300 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* RF */
+    for (reg_addr = 0x300 ; reg_addr < 0x400 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* PMU */
+    for (reg_addr = 0x400 ; reg_addr < 0x500 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+
+    /* FW */
+    for (reg_addr = 0x4000 ; reg_addr < 0x4040 ; reg_addr += 4)
+    {
+        reg_val = RfMcu_RegGet(reg_addr);
+        printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    }
+}

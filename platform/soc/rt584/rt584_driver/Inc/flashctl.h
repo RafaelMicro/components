@@ -24,7 +24,7 @@ extern "C" {
 
 
 #include "mcu.h"
-
+#include <stdbool.h>
 
 /**
  * \defgroup        FLASHCTL Flash ctl
@@ -110,7 +110,7 @@ extern "C" {
 #define FLASH_SIZE_ID_512KB     0x13            /*!< 512KB flash id  */
 #define FLASH_SIZE_ID_1MB       0x14            /*!< 1MB flash id  */
 #define FLASH_SIZE_ID_2MB       0x15            /*!< 2MB flash id  */
-
+#define FLASH_SIZE_ID_4MB       0x16            /*!< 4MB flash id  */
 /**
  * \brief           Length definied
  */
@@ -140,12 +140,22 @@ extern "C" {
 #define  FLASH_1MB_TYPE         RT582_FLASH_TYPE
 #define  FLASH_2MB_TYPE         RT583_FLASH_TYPE
 #define  FLASH_512K_TYPE        RT582P512_FLASH_TYPE
+#define  FLASH_4MB_TYPE         0x1665C8
 
-
-#define FLASH_END_ADDR(x)               (x == FLASH_SIZE_ID_512KB ? (((1 << FLASH_SIZE_ID_512KB)+FLASH_SECURE_MODE_BASE_ADDR)-FLASH_END_PROTECT_SIZE) \
-                                                                  : (x == FLASH_SIZE_ID_1MB ? (((1 << FLASH_SIZE_ID_1MB)+FLASH_SECURE_MODE_BASE_ADDR)-FLASH_END_PROTECT_SIZE) \
-                                                                  : (((1 << FLASH_SIZE_ID_2MB)+FLASH_SECURE_MODE_BASE_ADDR)-FLASH_END_PROTECT_SIZE)))
-
+#define FLASH_END_ADDR(x)                                                   \
+    ( (x) == FLASH_SIZE_ID_512KB ?                                          \
+        (((1 << FLASH_SIZE_ID_512KB) + FLASH_SECURE_MODE_BASE_ADDR)         \
+            - FLASH_END_PROTECT_SIZE)                                       \
+    : (x) == FLASH_SIZE_ID_1MB ?                                            \
+        (((1 << FLASH_SIZE_ID_1MB) + FLASH_SECURE_MODE_BASE_ADDR)           \
+            - FLASH_END_PROTECT_SIZE)                                       \
+    : (x) == FLASH_SIZE_ID_2MB ?                                            \
+        (((1 << FLASH_SIZE_ID_2MB) + FLASH_SECURE_MODE_BASE_ADDR)           \
+            - FLASH_END_PROTECT_SIZE)                                       \
+    : (x) == FLASH_SIZE_ID_4MB ?                                            \
+        (((1 << FLASH_SIZE_ID_4MB) + FLASH_SECURE_MODE_BASE_ADDR)           \
+            - FLASH_END_PROTECT_SIZE)                                       \
+    : 0 )
 /**
  * \brief           Define Flash timing
  * NOTICE:          Different flash has different timing. We should set correct flash timing according to flash type.
@@ -187,6 +197,7 @@ typedef enum {
     FLASH_512K = 0x13,                          /*!< 512K size   */
     FLASH_1024K = 0x14,                         /*!< 1024K size   */
     FLASH_2048K = 0x15,                         /*!< 2048K size   */
+    FLASH_4096K = 0x16,                         /*!< 4096K size   */    
 } flash_size_t;
 
 /**
@@ -472,6 +483,29 @@ uint32_t flash_verify_page(uint32_t read_page_addr);
 uint32_t flash_get_unique_id(uint32_t flash_id_buf_addr, uint32_t buf_length);
 
 /**
+ * \brief           Write/Program flash one byte data
+ * \param[in]       write_flash_addr: Specify the address of the flash to be written.
+ * \param[in]       buf_addr: Specify the byte that to be written into the flash.
+ * \param[in]       data_len: Specify write data length.
+ * \return
+ * \retval          STATUS_SUCCESS         erase opertation start to processing.
+ * \retval          STATUS_EBUSY           flash controller is busying, please call this function again when flash finish current operation.
+ * \details         this function will write "singlebyte" data to flash address "write_addr".
+ *                  This function is non-block function. So user shoould check flash_check_busy() to become idle before any other flash API called.
+ */
+uint32_t flash_write_n_bytes(uint32_t write_flash_addr, uint32_t data_buf_addr,uint32_t data_len);
+
+/**
+ * \brief Read n bytes from flash memory with alignment handling
+ * \param data_buf_addr Buffer address to store read data
+ * \param read_flash_addr Flash address to read from (can be any address)
+ * \param data_len Number of bytes to read
+ * \return STATUS_SUCCESS on success, error code otherwise
+ * 
+ * Note: 
+ */
+uint32_t flash_read_n_bytes(uint32_t read_flash_addr, uint32_t data_buf_addr, uint32_t data_len);
+/**
  * \brief Flash timing initinal
  * \details According to the flash type and system clock calcation the flash enter
  *          deeply powerdown timing and release from deeply powerdown mode timing and suspend timing, resume timing.
@@ -486,6 +520,7 @@ void flash_timing_init(void);
  * \arg             FLASH_512K = 0x13,
  * \arg             FLASH_1024K = 0x14,
  * \arg             FLASH_2048K = 0x15,
+ * \arg             FLASH_4096K = 0x16,
  */
 flash_size_t flash_size(void);
 
@@ -551,7 +586,6 @@ __STATIC_INLINE void flash_set_read_pagesize(void) {
  */
 __STATIC_INLINE void flush_cache(void) {
     SYSCTRL->cache_ctrl.reg |= (3 << 8);
-    
 }
 
 /**
@@ -563,7 +597,6 @@ void flash_enable_suspend(void);
  * \brief           This function disable internal flash suspend.
  */
 void flash_disable_suspend(void);
-
 /**
  * \brief           Get flash control register
  * \retval          control register value

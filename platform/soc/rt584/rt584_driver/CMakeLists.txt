@@ -5,17 +5,20 @@ sdk_add_include_directories(
 )
 if(CONFIG_BOOTLOADER)
 sdk_library_add_sources(
+    Src/bod_comp.c
     Src/dma.c
     Src/gpio.c
     Src/flashctl.c
     Src/sysctrl.c
     Src/dwt.c
+    Src/sadc.c
     Src/timer.c
     Src/wdt.c
     Src/sysfun.c 
 )
 else()
 sdk_library_add_sources(
+    Src/bod_comp.c
     Src/comm_subsystem_drv.c
     Src/flashctl.c
     Src/gpio.c
@@ -23,6 +26,7 @@ sdk_library_add_sources(
     Src/dwt.c
     Src/sysfun.c
     Src/wdt.c
+    Src/sadc.c
     Src/otp.c
     Src/lpm.c
     Src/trng.c
