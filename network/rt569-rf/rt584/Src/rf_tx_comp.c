@@ -62,7 +62,7 @@
 #define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
 
-#define TX_PWR_COMP_DEBUG                 0
+#define TX_PWR_COMP_DEBUG                 1
 #endif
 
 /**************************************************************************************************
@@ -73,7 +73,7 @@
 /**************************************************************************************************
  *    GLOBAL VARIABLES
  *************************************************************************************************/
-#if (CONFIG_FREERTOS == 1)
+#if defined(CONFIG_FREERTOS)
 TimerHandle_t rf_tx_comp_timer_handle = NULL;
 #endif
 tx_pwr_comp_state_t comp_state = TX_PWR_COMP_TEMPERATURE;
@@ -151,41 +151,6 @@ tx_pwr_comp_element_t (*ptr_tx_pwr_comp_table)[TX_PWR_COMP_TEMPERATURE_ELEMENT] 
 void Tx_Power_Sadc_Int_Callback_Handler(sadc_cb_t *p_cb)
 {
 
-}
-
-void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t *p_cb)
-{
-    uint32_t             sadc_comp_input;
-    sadc_value_t         sadc_comp_value;
-
-    if (p_cb->type == SADC_CB_SAMPLE)
-    {
-        sadc_comp_input = p_cb->data.sample.channel;
-        sadc_comp_value = p_cb->data.sample.value;
-
-        // #if (TX_PWR_COMP_DEBUG == 1)
-        //         printf("\nADC CH%d: adc = %d, comp = %d, cal = %d\n", p_cb->data.sample.channel, p_cb->raw.conversion_value, p_cb->raw.compensation_value, p_cb->raw.calibration_value);
-        // #endif
-
-        if (sadc_comp_input == SADC_CH_TEMPERATURE)
-        {
-            // #if (TX_PWR_COMP_DEBUG == 1)
-            //             gpio_pin_toggle(1);
-            //             printf("\nTemperature ADC = %d\n", sadc_comp_value);
-            // #endif
-
-            tx_pwr_comp_value_temperature = sadc_comp_value;
-        }
-        else if (sadc_comp_input == SADC_CH_VBAT)
-        {
-            // #if (TX_PWR_COMP_DEBUG == 1)
-            //             gpio_pin_toggle(2);
-            //             printf("\nVbat ADC = %d\n", sadc_comp_value);
-            // #endif
-
-            tx_pwr_comp_value_vbat = sadc_comp_value;
-        }
-    }
 }
 
 void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
@@ -280,8 +245,56 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
 #endif
 }
 
+void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t *p_cb)
+{
+    uint32_t             sadc_comp_input;
+    sadc_value_t         sadc_comp_value;
+
+    if (p_cb->type == SADC_CB_SAMPLE)
+    {
+        sadc_comp_input = p_cb->data.sample.channel;
+        sadc_comp_value = p_cb->data.sample.value;
+
+        // #if (TX_PWR_COMP_DEBUG == 1)
+        //         printf("\nADC CH%d: adc = %d, comp = %d, cal = %d\n", p_cb->data.sample.channel, p_cb->raw.conversion_value, p_cb->raw.compensation_value, p_cb->raw.calibration_value);
+        // #endif
+
+        if (sadc_comp_input == SADC_CH_TEMPERATURE)
+        {
+            // #if (TX_PWR_COMP_DEBUG == 1)
+            //             gpio_pin_toggle(1);
+            //             printf("\nTemperature ADC = %d\n", sadc_comp_value);
+            // #endif
+
+            tx_pwr_comp_value_temperature = sadc_comp_value;
+#if (TX_PWR_COMP_DEBUG == 1)
+            printf("Temp:%d\r\n", tx_pwr_comp_value_temperature);
+#endif
+        }
+        else if (sadc_comp_input == SADC_CH_VBAT)
+        {
+            // #if (TX_PWR_COMP_DEBUG == 1)
+            //             gpio_pin_toggle(2);
+            //             printf("\nVbat ADC = %d\n", sadc_comp_value);
+            // #endif
+
+            tx_pwr_comp_value_vbat = sadc_comp_value;
+#if (TX_PWR_COMP_DEBUG == 1)
+            printf("Vbat:%d\r\n", tx_pwr_comp_value_vbat);
+#endif
+        }
+
+        sadc_disable();
+
+        if ((tx_pwr_comp_value_temperature != 0) && (tx_pwr_comp_value_vbat != 0))
+        {
+            Tx_Power_Compensation_Update(tx_pwr_comp_value_temperature, tx_pwr_comp_value_vbat);
+        }
+    }
+}
+
 #if (RF_TX_POWER_COMP)
-#if (CONFIG_FREERTOS == 1)
+#if defined(CONFIG_FREERTOS)
 void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
 {
     /* Optionally do something if the pxTimer parameter is NULL. */
@@ -294,9 +307,6 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
         if (sadc_vbat_read() == STATUS_SUCCESS)
         {
             comp_state = TX_PWR_COMP_TEMPERATURE;
-#if (TX_PWR_COMP_DEBUG == 1)
-            printf("Vbat:%d\r\n", tx_pwr_comp_value_vbat);
-#endif
         }
         break;
 
@@ -305,19 +315,11 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
         if (sadc_temp_read() == STATUS_SUCCESS)
         {
             comp_state = TX_PWR_COMP_VBAT;
-#if (TX_PWR_COMP_DEBUG == 1)
-            printf("Temp:%d\r\n", tx_pwr_comp_value_temperature);
-#endif
         }
         break;
 
     default:
         break;
-    }
-
-    if ((tx_pwr_comp_value_temperature != 0) && (tx_pwr_comp_value_vbat != 0))
-    {
-        Tx_Power_Compensation_Update(tx_pwr_comp_value_temperature, tx_pwr_comp_value_vbat);
     }
 }
 #endif
@@ -359,7 +361,7 @@ void Tx_Power_Compensation_Init(uint32_t xPeriodicTimeInSec)
 #endif
     // Sadc_Register_Int_Callback(Tx_Power_Compensation_Sadc_Int_Handler);
 
-#if (CONFIG_FREERTOS == 1)
+#if defined(CONFIG_FREERTOS)
     mp_cal_temp_adc_t mp_cal_temp_adc;
 
     if (mpcalrftrimread(MP_ID_TEMP_ADC, MP_CNT_TEMPADC, (uint8_t *)(&mp_cal_temp_adc)) == STATUS_SUCCESS)
@@ -403,7 +405,7 @@ void Tx_Power_Compensation_Init(uint32_t xPeriodicTimeInSec)
 
 void Tx_Power_Compensation_Deinit(void)
 {
-#if (CONFIG_FREERTOS == 1)
+#if defined(CONFIG_FREERTOS)
     if (rf_tx_comp_timer_handle != NULL)
     {
         if (xTimerDelete(rf_tx_comp_timer_handle, 0) == pdPASS)
