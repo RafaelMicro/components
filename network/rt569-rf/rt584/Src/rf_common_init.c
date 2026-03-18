@@ -1363,6 +1363,9 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
 #if (RF_TX_POWER_COMP)
     sadc_config_enable(SADC_RES_12BIT, SADC_OVERSAMPLE_256, Tx_Power_Compensation_Sadc_Int_Handler);
     sadc_disable();
+
+    NVIC_EnableIRQ((IRQn_Type)(Sadc_IRQn));
+
     // Sadc_Compensation_Init(13);
     Tx_Power_Compensation_Init(10);
 #endif

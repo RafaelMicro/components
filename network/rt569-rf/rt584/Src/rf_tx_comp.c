@@ -55,14 +55,14 @@
 #define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
 
-#define TX_PWR_COMP_DEBUG                 0
+#define TX_PWR_COMP_DEBUG                 1
 #else
 #define TX_PWR_COMP_TEMPERATURE_ELEMENT   3
 #define TX_PWR_COMP_VBAT_ELEMENT          3
 #define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
 
-#define TX_PWR_COMP_DEBUG                 1
+#define TX_PWR_COMP_DEBUG                 0
 #endif
 
 /**************************************************************************************************
