@@ -54,7 +54,7 @@
 #endif
 
 #ifndef RF_TX_POWER_COMP
-#if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!((CONFIG_RF1301) && (SUPPORT_TX_PWR_20DBM != 1))))
+#if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!((CONFIG_RF1301) && (CONFIG_RF_POWER_20DBM != 1))))
 #define RF_TX_POWER_COMP            (TRUE)
 #else
 #define RF_TX_POWER_COMP            (FALSE)

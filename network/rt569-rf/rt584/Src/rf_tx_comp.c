@@ -86,9 +86,9 @@ uint8_t tx_pwr_comp_region      = TX_PWR_COMP_TEMPERATURE_NORMAL;
 uint8_t tx_pwr_comp_pre         = TX_PWR_COMP_TEMPERATURE_NORMAL;
 
 #if (TX_PWR_COMP_DEBUG == 1)
-sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {25};
+// sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {25};
 // sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3350};
-// sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
+sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
 sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450};
 #else
 sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
@@ -170,7 +170,7 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
 
 #endif
 #endif
-#if ((SUPPORT_TX_PWR_20DBM == 1) && (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584S)))
+#if ((CONFIG_RF_POWER_20DBM == 1) && (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584S)))
     for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY; tx_pwr_comp_temperature_index++)
     {
         if (temperature >= tx_pwr_comp_boundary_temperature[tx_pwr_comp_temperature_index])
@@ -215,10 +215,6 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
     uint32_t tx_pwr_comp_vbat_index = 0;
     tx_pwr_comp_element_t tx_pwr_comp;
 
-#if (TX_PWR_COMP_DEBUG == 1)
-    gpio_pin_toggle(3);
-#endif
-
     for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY; tx_pwr_comp_temperature_index++)
     {
         if (temperature < tx_pwr_comp_boundary_temperature[tx_pwr_comp_temperature_index])
@@ -238,7 +234,7 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
     tx_pwr_comp = ptr_tx_pwr_comp_table[tx_pwr_comp_vbat_index][tx_pwr_comp_temperature_index];
     rf_common_tx_pwr_comp_set(tx_pwr_comp.offset, tx_pwr_comp.poly_gain, tx_pwr_comp.pa_pw_pre, 0);
 
-#if (TX_PWR_COMP_DEBUG == 1)
+#if 0//(TX_PWR_COMP_DEBUG == 1)
     SYSCTRL->SYS_SCRATCH[4] = temperature;
     SYSCTRL->SYS_SCRATCH[5] = vbat;
 #endif
