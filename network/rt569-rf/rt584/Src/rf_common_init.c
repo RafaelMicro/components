@@ -190,6 +190,46 @@ bool ruci_ver_check(void)
     return true;
 }
 
+bool rf_common_sync_ic_ver(void)
+{
+    uint16_t                                        int_enable;
+    ruci_para_set_ic_version_t                      sSetIcVersion;
+    ruci_para_cmn_cnf_event_t                       sCmnCnfEvent;
+    uint8_t                                         event_len = 0;
+    RF_MCU_RX_CMDQ_ERROR                            event_status = RF_MCU_RX_CMDQ_ERR_INIT;
+    ic_version_t                                    ic_ver;
+
+    /* Store interrupt setting and disable all interrupt */
+    int_enable = RfMcu_InterruptEnGet();
+    RfMcu_InterruptEnSet(0x0000);
+
+    ic_ver = GetOtpICVersion();
+    printf("IC Version:0x%02x\n", ic_ver);
+
+    /* Sync IC version to lower layer HW */
+    SET_RUCI_PARA_SET_IC_VERSION(&sSetIcVersion, ic_ver);
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sSetIcVersion, RUCI_SET_IC_VERSION);
+
+    enter_critical_section();
+    event_len = 0;
+    rf_common_cmd_send((uint8_t *)&sSetIcVersion, RUCI_LEN_SET_IC_VERSION);
+    event_status = rf_common_event_get(&event_len, (uint8_t *)&sCmnCnfEvent);
+    leave_critical_section();
+
+    /* Enable interrupt */
+    RfMcu_InterruptClear(0xFF);
+    RfMcu_InterruptEnSet(int_enable);
+
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sCmnCnfEvent, RUCI_CMN_CNF_EVENT);
+    if ((event_status != RF_MCU_RX_CMDQ_GET_SUCCESS) ||
+            (sCmnCnfEvent.cmn_cmd_subheader != RUCI_CODE_SET_IC_VERSION) ||
+            (sCmnCnfEvent.status != 0))
+    {
+        return false;
+    }
+
+    return true;
+}
 
 bool rf_common_pmu_operation_mode(pmu_mode_cfg_t pmu_mode, slow_clock_mode_cfg_t slow_clock)
 {
@@ -1335,6 +1375,10 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
 #endif
 #if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) || (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569MP))
 
+    if (rf_common_sync_ic_ver() == false)
+    {
+        return false;
+    }
 
     if (rf_common_pmu_operation_mode(sys_pmu_getmode(), sys_slow_clk_mode()) == false)
     {
@@ -1367,7 +1411,7 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
     NVIC_EnableIRQ((IRQn_Type)(Sadc_IRQn));
 
     // Sadc_Compensation_Init(13);
-    Tx_Power_Compensation_Init(10);
+    Tx_Power_Compensation_Init(1);
 #endif
 #elif ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569M0) && (RF_MCU_CHIP_VER == RF_MCU_CHIP_VER_B))
     /* Update PMU setting from FT info */

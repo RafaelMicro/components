@@ -9,8 +9,8 @@
 *
 * @File         ruci_cmn_sys_cmd.h
 * @Version
-* $Revision: 6351
-* $Date: 2023-11-17
+* $Revision: 8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -82,6 +82,33 @@ typedef struct ruci_para_set_pta_default_s
         ((ruci_para_set_pta_default_t *)msg)->length                         = RUCI_PARA_LEN_SET_PTA_DEFAULT;          \
         ((ruci_para_set_pta_default_t *)msg)->enable_flag                    = enable_flag_in;                         \
         ((ruci_para_set_pta_default_t *)msg)->inverse_ctrl                   = inverse_ctrl_in;                        \
+        }while(0)
+
+// RUCI: set_ic_version --------------------------------------------------------
+#define RUCI_SET_IC_VERSION                     RUCI_NUM_SET_IC_VERSION, ruci_elmt_type_set_ic_version, ruci_elmt_num_set_ic_version
+#define RUCI_CODE_SET_IC_VERSION                0x03
+#define RUCI_LEN_SET_IC_VERSION                 4
+#define RUCI_NUM_SET_IC_VERSION                 4
+#define RUCI_PARA_LEN_SET_IC_VERSION            1
+#if (RUCI_ENDIAN_INVERSE)
+extern const uint8_t ruci_elmt_type_set_ic_version[];
+extern const uint8_t ruci_elmt_num_set_ic_version[];
+#endif /* RUCI_ENDIAN_INVERSE */
+typedef struct ruci_para_set_ic_version_s
+{
+    ruci_head_t     ruci_header;
+    uint8_t         sub_header;
+    uint8_t         length;
+    uint8_t         ic_type;
+} ruci_para_set_ic_version_t;
+
+/* User should provide msg buffer is greater than sizeof(ruci_para_set_ic_version_t) */
+#define SET_RUCI_PARA_SET_IC_VERSION(msg, ic_type_in)        \
+        do{                                                                                                            \
+        ((ruci_para_set_ic_version_t *)msg)->ruci_header.u8                 = RUCI_CMN_SYS_CMD_HEADER;                \
+        ((ruci_para_set_ic_version_t *)msg)->sub_header                     = RUCI_CODE_SET_IC_VERSION;               \
+        ((ruci_para_set_ic_version_t *)msg)->length                         = RUCI_PARA_LEN_SET_IC_VERSION;           \
+        ((ruci_para_set_ic_version_t *)msg)->ic_type                        = ic_type_in;                             \
         }while(0)
 
 #pragma pack(pop)

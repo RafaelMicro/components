@@ -9,8 +9,8 @@
 *
 * @File         ruci_cmn_hal_cmd.c
 * @Version
-* $Revision:6351
-* $Date: 2023-11-17
+* $Revision:8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -165,6 +165,16 @@ const uint8_t ruci_elmt_type_set_tx_power_by[] =
 const uint8_t ruci_elmt_num_set_tx_power_by[] =
 {
     1, 1, 1, 1, 1, 1, 1
+};
+
+// RUCI: set_calibration_setting_s ---------------------------------------------
+const uint8_t ruci_elmt_type_set_calibration_setting_s[] =
+{
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+};
+const uint8_t ruci_elmt_num_set_calibration_setting_s[] =
+{
+    1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 5
 };
 
 #endif /* RUCI_ENABLE_CMN */

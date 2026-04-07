@@ -9,8 +9,8 @@
 *
 * @File         ruci_cmn_hal_cmd.h
 * @Version
-* $Revision: 6351
-* $Date: 2023-11-17
+* $Revision: 8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -478,7 +478,7 @@ typedef struct ruci_para_set_tx_power_by_s
         ((ruci_para_set_tx_power_by_t *)msg)->tx_power                       = tx_power_in;                            \
         }while(0)
 
-        // RUCI: set_calibration_setting_s ---------------------------------------------
+// RUCI: set_calibration_setting_s ---------------------------------------------
 #define RUCI_SET_CALIBRATION_SETTING_S          RUCI_NUM_SET_CALIBRATION_SETTING_S, ruci_elmt_type_set_calibration_setting_s, ruci_elmt_num_set_calibration_setting_s
 #define RUCI_CODE_SET_CALIBRATION_SETTING_S     0x0F
 #define RUCI_LEN_SET_CALIBRATION_SETTING_S      24

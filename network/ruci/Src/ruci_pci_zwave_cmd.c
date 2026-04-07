@@ -9,8 +9,8 @@
 *
 * @File         ruci_pci_zwave_cmd.c
 * @Version
-* $Revision:6351
-* $Date: 2023-11-17
+* $Revision:8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -45,6 +45,26 @@ const uint8_t ruci_elmt_type_set_zwave_modem[] =
 const uint8_t ruci_elmt_num_set_zwave_modem[] =
 {
     1, 1, 1, 1
+};
+
+// RUCI: set_zwave_scan --------------------------------------------------------
+const uint8_t ruci_elmt_type_set_zwave_scan[] =
+{
+    1, 1, 1, 1, 1
+};
+const uint8_t ruci_elmt_num_set_zwave_scan[] =
+{
+    1, 1, 1, 1, 1
+};
+
+// RUCI: set_zwave_id_filter ---------------------------------------------------
+const uint8_t ruci_elmt_type_set_zwave_id_filter[] =
+{
+    1, 1, 1, 4, 2, 1
+};
+const uint8_t ruci_elmt_num_set_zwave_id_filter[] =
+{
+    1, 1, 1, 1, 1, 1
 };
 
 #endif /* RUCI_ENABLE_PCI */

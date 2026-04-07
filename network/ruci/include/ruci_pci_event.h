@@ -9,8 +9,8 @@
 *
 * @File         ruci_pci_event.h
 * @Version
-* $Revision: 6351
-* $Date: 2023-11-17
+* $Revision: 8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -167,6 +167,45 @@ typedef struct ruci_para_get_rssi_event_s
         ((ruci_para_get_rssi_event_t *)msg)->sub_header                     = RUCI_CODE_GET_RSSI_EVENT;               \
         ((ruci_para_get_rssi_event_t *)msg)->length                         = RUCI_PARA_LEN_GET_RSSI_EVENT;           \
         ((ruci_para_get_rssi_event_t *)msg)->rssi                           = rssi_in;                                \
+        }while(0)
+
+// RUCI: get_zwave_rssi_event --------------------------------------------------
+#define RUCI_GET_ZWAVE_RSSI_EVENT               RUCI_NUM_GET_ZWAVE_RSSI_EVENT, ruci_elmt_type_get_zwave_rssi_event, ruci_elmt_num_get_zwave_rssi_event
+#define RUCI_CODE_GET_ZWAVE_RSSI_EVENT          0x06
+#define RUCI_LEN_GET_ZWAVE_RSSI_EVENT           10
+#define RUCI_NUM_GET_ZWAVE_RSSI_EVENT           10
+#define RUCI_PARA_LEN_GET_ZWAVE_RSSI_EVENT      7
+#if (RUCI_ENDIAN_INVERSE)
+extern const uint8_t ruci_elmt_type_get_zwave_rssi_event[];
+extern const uint8_t ruci_elmt_num_get_zwave_rssi_event[];
+#endif /* RUCI_ENDIAN_INVERSE */
+typedef struct ruci_para_get_zwave_rssi_event_s
+{
+    ruci_head_t     ruci_header;
+    uint8_t         sub_header;
+    uint8_t         length;
+    uint8_t         r3_rssi;
+    uint8_t         r2_rssi;
+    uint8_t         r1_rssi;
+    uint8_t         l_r_rssi;
+    uint8_t         l_r2_rssi;
+    uint8_t         r32_rssi;
+    uint8_t         r33_rssi;
+} ruci_para_get_zwave_rssi_event_t;
+
+/* User should provide msg buffer is greater than sizeof(ruci_para_get_zwave_rssi_event_t) */
+#define SET_RUCI_PARA_GET_ZWAVE_RSSI_EVENT(msg, r3_rssi_in, r2_rssi_in, r1_rssi_in, l_r_rssi_in, l_r2_rssi_in, r32_rssi_in, r33_rssi_in)        \
+        do{                                                                                                            \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->ruci_header.u8                 = RUCI_PCI_EVENT_HEADER;                  \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->sub_header                     = RUCI_CODE_GET_ZWAVE_RSSI_EVENT;         \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->length                         = RUCI_PARA_LEN_GET_ZWAVE_RSSI_EVENT;     \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->r3_rssi                        = r3_rssi_in;                             \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->r2_rssi                        = r2_rssi_in;                             \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->r1_rssi                        = r1_rssi_in;                             \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->l_r_rssi                       = l_r_rssi_in;                            \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->l_r2_rssi                      = l_r2_rssi_in;                           \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->r32_rssi                       = r32_rssi_in;                            \
+        ((ruci_para_get_zwave_rssi_event_t *)msg)->r33_rssi                       = r33_rssi_in;                            \
         }while(0)
 
 // RUCI: get_phy_status_event --------------------------------------------------

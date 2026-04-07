@@ -44,16 +44,17 @@
  *    CONSTANTS AND DEFINES
  *************************************************************************************************/
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
-#define TX_PWR_COMP_BOUNDARY_TEMPERATURE_H  80  /// 23
-#define TX_PWR_COMP_BOUNDARY_TEMPERATURE_L  0   /// 24
-#define TX_PWR_COMP_TEMPERATURE_HIGH      1
-#define TX_PWR_COMP_TEMPERATURE_NORMAL    0
-#define TX_PWR_COMP_TEMPERATURE_LOW       2
+#define TX_PWR_COMP_TEMPERATURE_HIGH      2
+#define TX_PWR_COMP_TEMPERATURE_NORMAL    1
+#define TX_PWR_COMP_TEMPERATURE_LOW       0
+#define TX_PWR_COMP_TEMPERATURE_DEFAULT   3
 
 #define TX_PWR_COMP_TEMPERATURE_ELEMENT   2
 #define TX_PWR_COMP_VBAT_ELEMENT          2
+#define TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL   3
 #define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
+#define TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL  (TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL - 1)
 
 #define TX_PWR_COMP_DEBUG                 1
 #else
@@ -81,18 +82,16 @@ sadc_value_t tx_pwr_comp_value_temperature = 0;
 sadc_value_t tx_pwr_comp_value_vbat = 0;
 
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
-uint8_t tx_pwr_comp_region_pre  = TX_PWR_COMP_TEMPERATURE_NORMAL;
+uint8_t tx_pwr_comp_region_pre  = TX_PWR_COMP_TEMPERATURE_DEFAULT;
 uint8_t tx_pwr_comp_region      = TX_PWR_COMP_TEMPERATURE_NORMAL;
 uint8_t tx_pwr_comp_pre         = TX_PWR_COMP_TEMPERATURE_NORMAL;
 
-#if (TX_PWR_COMP_DEBUG == 1)
-// sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {25};
-// sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3350};
 sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
 sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450};
-#else
-sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
-sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450};
+#if (defined(CONFIG_RT584HA4))
+sadc_value_t tx_pwr_comp_boundary_temperature_pll[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 55};
+#elif (defined(CONFIG_RT584H) || defined(CONFIG_RT584L))
+sadc_value_t tx_pwr_comp_boundary_temperature_pll[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 80};
 #endif
 
 tx_pwr_comp_element_t tx_pwr_comp_table_h_20dbm[TX_PWR_COMP_TEMPERATURE_ELEMENT][TX_PWR_COMP_VBAT_ELEMENT] =
@@ -159,16 +158,15 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
     uint32_t tx_pwr_comp_vbat_index = 0;
     tx_pwr_comp_element_t tx_pwr_comp;
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
-#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L))
-    tx_pwr_comp_region = (temperature > TX_PWR_COMP_BOUNDARY_TEMPERATURE_H) ? TX_PWR_COMP_TEMPERATURE_HIGH : TX_PWR_COMP_TEMPERATURE_NORMAL;
-
-#if (SUPPORT_TX_PWR_0DBM == 1)
-    if (tx_pwr_comp_region == TX_PWR_COMP_TEMPERATURE_NORMAL)
+#if (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L))
+    for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL; tx_pwr_comp_temperature_index++)
     {
-        tx_pwr_comp_region = (temperature < TX_PWR_COMP_BOUNDARY_TEMPERATURE_L) ? TX_PWR_COMP_TEMPERATURE_LOW : TX_PWR_COMP_TEMPERATURE_NORMAL;
+        if (temperature < tx_pwr_comp_boundary_temperature_pll[tx_pwr_comp_temperature_index])
+        {
+            break;
+        }
     }
-
-#endif
+    tx_pwr_comp_region = tx_pwr_comp_temperature_index;
 #endif
 #if ((CONFIG_RF_POWER_20DBM == 1) && (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584S)))
     for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY; tx_pwr_comp_temperature_index++)
@@ -282,7 +280,8 @@ void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t *p_cb)
 
         sadc_disable();
 
-        if ((tx_pwr_comp_value_temperature != 0) && (tx_pwr_comp_value_vbat != 0))
+        // if ((tx_pwr_comp_value_temperature != 0) && (tx_pwr_comp_value_vbat != 0))
+        if (tx_pwr_comp_value_temperature != 0)
         {
             Tx_Power_Compensation_Update(tx_pwr_comp_value_temperature, tx_pwr_comp_value_vbat);
         }

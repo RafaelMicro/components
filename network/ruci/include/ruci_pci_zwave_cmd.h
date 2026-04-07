@@ -9,8 +9,8 @@
 *
 * @File         ruci_pci_zwave_cmd.h
 * @Version
-* $Revision: 6351
-* $Date: 2023-11-17
+* $Revision: 8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -82,6 +82,66 @@ typedef struct ruci_para_set_zwave_modem_s
         ((ruci_para_set_zwave_modem_t *)msg)->sub_header                     = RUCI_CODE_SET_ZWAVE_MODEM;              \
         ((ruci_para_set_zwave_modem_t *)msg)->length                         = RUCI_PARA_LEN_SET_ZWAVE_MODEM;          \
         ((ruci_para_set_zwave_modem_t *)msg)->bandwidth                      = bandwidth_in;                           \
+        }while(0)
+
+// RUCI: set_zwave_scan --------------------------------------------------------
+#define RUCI_SET_ZWAVE_SCAN                     RUCI_NUM_SET_ZWAVE_SCAN, ruci_elmt_type_set_zwave_scan, ruci_elmt_num_set_zwave_scan
+#define RUCI_CODE_SET_ZWAVE_SCAN                0x03
+#define RUCI_LEN_SET_ZWAVE_SCAN                 5
+#define RUCI_NUM_SET_ZWAVE_SCAN                 5
+#define RUCI_PARA_LEN_SET_ZWAVE_SCAN            2
+#if (RUCI_ENDIAN_INVERSE)
+extern const uint8_t ruci_elmt_type_set_zwave_scan[];
+extern const uint8_t ruci_elmt_num_set_zwave_scan[];
+#endif /* RUCI_ENDIAN_INVERSE */
+typedef struct ruci_para_set_zwave_scan_s
+{
+    ruci_head_t     ruci_header;
+    uint8_t         sub_header;
+    uint8_t         length;
+    uint8_t         select_mode;
+    uint8_t         region;
+} ruci_para_set_zwave_scan_t;
+
+/* User should provide msg buffer is greater than sizeof(ruci_para_set_zwave_scan_t) */
+#define SET_RUCI_PARA_SET_ZWAVE_SCAN(msg, select_mode_in, region_in)        \
+        do{                                                                                                            \
+        ((ruci_para_set_zwave_scan_t *)msg)->ruci_header.u8                 = RUCI_PCI_ZWAVE_CMD_HEADER;              \
+        ((ruci_para_set_zwave_scan_t *)msg)->sub_header                     = RUCI_CODE_SET_ZWAVE_SCAN;               \
+        ((ruci_para_set_zwave_scan_t *)msg)->length                         = RUCI_PARA_LEN_SET_ZWAVE_SCAN;           \
+        ((ruci_para_set_zwave_scan_t *)msg)->select_mode                    = select_mode_in;                         \
+        ((ruci_para_set_zwave_scan_t *)msg)->region                         = region_in;                              \
+        }while(0)
+
+// RUCI: set_zwave_id_filter ---------------------------------------------------
+#define RUCI_SET_ZWAVE_ID_FILTER                RUCI_NUM_SET_ZWAVE_ID_FILTER, ruci_elmt_type_set_zwave_id_filter, ruci_elmt_num_set_zwave_id_filter
+#define RUCI_CODE_SET_ZWAVE_ID_FILTER           0x04
+#define RUCI_LEN_SET_ZWAVE_ID_FILTER            10
+#define RUCI_NUM_SET_ZWAVE_ID_FILTER            6
+#define RUCI_PARA_LEN_SET_ZWAVE_ID_FILTER       7
+#if (RUCI_ENDIAN_INVERSE)
+extern const uint8_t ruci_elmt_type_set_zwave_id_filter[];
+extern const uint8_t ruci_elmt_num_set_zwave_id_filter[];
+#endif /* RUCI_ENDIAN_INVERSE */
+typedef struct ruci_para_set_zwave_id_filter_s
+{
+    ruci_head_t     ruci_header;
+    uint8_t         sub_header;
+    uint8_t         length;
+    uint32_t        home_id;
+    uint16_t        node_id;
+    uint8_t         home_id_hash;
+} ruci_para_set_zwave_id_filter_t;
+
+/* User should provide msg buffer is greater than sizeof(ruci_para_set_zwave_id_filter_t) */
+#define SET_RUCI_PARA_SET_ZWAVE_ID_FILTER(msg, home_id_in, node_id_in, home_id_hash_in)        \
+        do{                                                                                                            \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->ruci_header.u8                 = RUCI_PCI_ZWAVE_CMD_HEADER;              \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->sub_header                     = RUCI_CODE_SET_ZWAVE_ID_FILTER;          \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->length                         = RUCI_PARA_LEN_SET_ZWAVE_ID_FILTER;      \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->home_id                        = home_id_in;                             \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->node_id                        = node_id_in;                             \
+        ((ruci_para_set_zwave_id_filter_t *)msg)->home_id_hash                   = home_id_hash_in;                        \
         }while(0)
 
 #pragma pack(pop)

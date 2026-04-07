@@ -9,8 +9,8 @@
 *
 * @File         ruci_cmn_sys_cmd.c
 * @Version
-* $Revision:6351
-* $Date: 2023-11-17
+* $Revision:8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -42,10 +42,19 @@ const uint8_t ruci_elmt_type_set_pta_default[] =
 {
     1, 1, 1, 1, 1
 };
-
 const uint8_t ruci_elmt_num_set_pta_default[] =
 {
     1, 1, 1, 1, 1
+};
+
+// RUCI: set_ic_version --------------------------------------------------------
+const uint8_t ruci_elmt_type_set_ic_version[] =
+{
+    1, 1, 1, 1
+};
+const uint8_t ruci_elmt_num_set_ic_version[] =
+{
+    1, 1, 1, 1
 };
 
 #endif /* RUCI_ENABLE_CMN */

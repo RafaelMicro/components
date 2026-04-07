@@ -9,8 +9,8 @@
 *
 * @File         ruci.h
 * @Version
-* $Revision: 6351
-* $Date: 2023-11-17
+* $Revision: 8070
+* $Date: 2026-03-25
 * @Brief
 * @Note
 *
@@ -43,7 +43,7 @@
 /*****************************************************************************
 * DEFINES
 ******************************************************************************/
-#define RUCI_VERSION  (6351)
+#define RUCI_VERSION  (8070)
 
 #if (RUCI_ENDIAN_INVERSE)
 #define RUCI_ENDIAN_CONVERT(pData, para)        RUCI_endianConvert(pData, para)

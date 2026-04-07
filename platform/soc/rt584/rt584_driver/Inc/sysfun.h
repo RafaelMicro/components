@@ -61,6 +61,30 @@ typedef enum {
 } chip_version_t;
 
 /**
+ * \brief           hardware chip IC version definitions.
+ */
+typedef enum
+{
+    /* ==================== Base 0x00 group (RT584Z series) ==================== */
+    IC_VER_RT584Z       = 0x00,     // Wafer B
+    IC_VER_RT584ZC      = 0x01,     // Wafer C
+
+    /* ==================== Base 0x40 group (RF1301 series) ==================== */
+    IC_VER_RF1301       = 0x10,     // Wafer C
+    IC_VER_RF1301_F     = 0x11,     // Wafer F
+
+    /* ==================== Base 0x20 group (RT584H series) ==================== */
+    IC_VER_RT584H       = 0x20,     // Wafer E
+    IC_VER_RT584HA4     = 0x21,     // Wafer E
+
+    /* ==================== Base 0x30 group (RT584L series) ==================== */
+    IC_VER_RT584L       = 0x30,     // Wafer D
+
+    /* ==================== Unknown FT Version ==================== */
+    IC_VERSION_UNKNOWN   = 0xFF
+} ic_version_t;
+
+/**
  * \brief           Irq priority definitions.
  */
 typedef struct __attribute__((packed)) {
@@ -146,6 +170,15 @@ void leave_critical_section(void);
  *                  1 --- hardware and system defined mis-matched.
  */
 uint32_t version_check(void);
+
+/**
+ * @brief   check hardware chip IC version.
+ * @details
+ *           GetOtpICVersion is an API to read chip version and convert into type ic_version_t.
+ * @return
+ * @retval    the enumeration of ic_version_t or IC_VERSION_UNKNOWN if undetermined.
+ */
+ic_version_t GetOtpICVersion(void);
 
 /**
 * \brief            Set the system PMU mode

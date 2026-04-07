@@ -16,6 +16,7 @@
 
 
 
+#include <string.h>
 #include "mcu.h"
 #include "assert_help.h"
 #include "system_mcu.h"
@@ -154,6 +155,66 @@ chip_model_t getotpversion() {
 
     chip_model.version = (chip_version_t)otp_version.buf[6];
     return chip_model;
+}
+
+const char* GetOtpICVersionString(void)
+{
+    static char ic_version_str[20] = {0};
+    uint8_t volatile otp_buf[256] = {0};
+    uint32_t i;
+
+    if (flash_read_otp_sec_page((uint32_t)otp_buf) != STATUS_SUCCESS)
+    {
+        strcpy(ic_version_str, "UNKNOWN");
+        return ic_version_str;
+    }
+
+    printf("otp:\n");
+    for (uint8_t idx = 0 ; idx < 10 ; idx++)
+    {
+        printf(" 0x%x", otp_buf[idx]);
+    }
+    printf("\n");
+
+    if (otp_buf[0] == 0xFF) // otp version flag
+    {
+        strcpy(ic_version_str, "UNKNOWN");
+        return ic_version_str;
+    }
+
+    size_t len = 0;
+    for (i = 1; i < 20 && len < 19; i++)
+    {
+        uint8_t ch = otp_buf[i];
+
+        if (ch == 0x00 || ch == 0xFF ||
+            ch < '0' || (ch > '9' && ch < 'A') || ch > 'Z')
+        {
+            break;
+        }
+        ic_version_str[len++] = (char)ch;
+    }
+    ic_version_str[len] = '\0';
+
+    return ic_version_str;
+}
+
+/**
+ * @brief get otp ic version
+ */
+ic_version_t GetOtpICVersion(void)
+{
+    const char* ver = GetOtpICVersionString();
+
+    if (strcmp(ver, "RT584Z")       == 0)  return IC_VER_RT584Z;
+    if (strcmp(ver, "RT584ZC")      == 0)  return IC_VER_RT584ZC;
+    if (strcmp(ver, "RT584HE")      == 0)  return IC_VER_RT584H;
+    if (strcmp(ver, "RT584HA4E")    == 0)  return IC_VER_RT584HA4;
+    if (strcmp(ver, "RT584LD")      == 0)  return IC_VER_RT584L;
+    if (strcmp(ver, "RF1301C")      == 0)  return IC_VER_RF1301;
+    if (strcmp(ver, "RF1301F")      == 0)  return IC_VER_RF1301_F;
+
+    return IC_VERSION_UNKNOWN;
 }
 
 /**
