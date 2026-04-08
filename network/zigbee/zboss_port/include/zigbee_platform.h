@@ -24,6 +24,9 @@
 #ifndef ZIGBEE_PLATFORMT_H
 #define ZIGBEE_PLATFORMT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <string.h>             /* memcpy */
 #include <stdio.h>
 //#include "zb_types.h"
@@ -240,4 +243,8 @@ void zbStartRun(void);
 void zigbee_do_factory_reset(void);
 void register_app_cb(void* cb);
 void register_zcl_cb(void* cb);
+#ifdef __cplusplus
+}
+#endif
+
 #endif

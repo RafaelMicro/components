@@ -138,3 +138,6 @@ void zb_radioUpdateAddressFilter(void);
 zb_bool_t zb_radioPendBit(void);
 void zb_radioSetChannel(uint8_t channel);
 void zb_radioSendPacket(uint8_t buf, zb_uint8_t wait_type);
+#ifdef __cplusplus
+}
+#endif
