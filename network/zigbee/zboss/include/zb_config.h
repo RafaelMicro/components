@@ -73,7 +73,7 @@ constants etc.
  *  Prevent error caused by beacon with invalid-length
 */
 #ifndef ZB_RAF_INVALID_BEACON_PREVENT
-#define ZB_RAF_INVALID_BEACON_PREVENT
+//#define ZB_RAF_INVALID_BEACON_PREVENT
 #endif
 
 /**
