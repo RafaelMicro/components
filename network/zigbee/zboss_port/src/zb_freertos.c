@@ -166,7 +166,7 @@ void raf_device_cb(zb_uint8_t param)
 
                 flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
 
-                for (i = 0; i < 0x74; i++)
+                for (i = 0; i < SIZE_OF_FOTA_BANK_UNCOMPRESS / 0x1000; i++)
                 {
                     // Page erase (4096 bytes)
                     while (flash_check_busy());

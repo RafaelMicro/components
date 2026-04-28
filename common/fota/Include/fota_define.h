@@ -89,7 +89,7 @@
 #elif defined(CONFIG_RT584HA4) || defined(CONFIG_RT584HA4_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB             0x10200000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_4MB                         0x001E0000          /**< Total Size for saving FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_4MB                         0x001D0000          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_4MB          /**< Total Size for saving FOTA update data.*/
 #else
@@ -124,7 +124,7 @@
 #elif defined(CONFIG_RT584HA4) || defined(CONFIG_RT584HA4_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB_UNCOMPRESS    0x10200000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS                0x001E0000          /**< Total Size for saving FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS                0x001D0000          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS        FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                    SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #else

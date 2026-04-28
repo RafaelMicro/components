@@ -33,7 +33,12 @@
 #define NVRAM_WRITE_ERROR -1
 #define NVRAM_WRITE_WRONG_PARAM -2
 
+#if defined(CONFIG_RT584HA4)
+#define PAGE_SIZE               (uint32_t)0x8000  /* Page size = 32KByte */
+#else
 #define PAGE_SIZE               (uint32_t)0x4000  /* Page size = 16KByte */
+#endif
+
 #define PAGE_COUNT  2
 
 #define ERASE_BLOCK_SIZE (uint32_t)0x1000 
@@ -46,7 +51,7 @@
 //for RT581/582, the NVRAM is located at 0xF4000~0xFC000 (32KB)
 //for RT583, the NVRAM is located at 0x1F4000~0x1FC000 (32KB)
 //for RT584H/L, the NVRAM is located at 0x101F4000~0x101FC000 (32KB)
-//for RT584HA4, the NVRAM is located at 0x103F4000~0x103FC000 (32KB)
+//for RT584HA4, the NVRAM is located at 0x103D0000~0x103E0000 (64KB)
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT582_NONE_OS)
 #define NVRAM_START_ADDRESS  ((uint32_t)(0xF4000))
 #elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
@@ -54,14 +59,14 @@
 #elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS)
 #define NVRAM_START_ADDRESS  ((uint32_t)(0x101F4000))
 #elif defined(CONFIG_RT584HA4)
-#define NVRAM_START_ADDRESS  ((uint32_t)(0x103F4000))
+#define NVRAM_START_ADDRESS  ((uint32_t)(0x103D0000))
 #else
 #error "Chip Not Supported"
 #endif 
 
-#define PAGE0_BASE_ADDRESS    ((uint32_t)(NVRAM_START_ADDRESS + 0x0000))
+#define PAGE0_BASE_ADDRESS    ((uint32_t)(NVRAM_START_ADDRESS))
 
-#define PAGE1_BASE_ADDRESS    ((uint32_t)(NVRAM_START_ADDRESS + 0x4000))
+#define PAGE1_BASE_ADDRESS    ((uint32_t)(NVRAM_START_ADDRESS + PAGE_SIZE))
 
 //=============================================================================
 //                Private ENUM

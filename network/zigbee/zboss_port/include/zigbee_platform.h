@@ -60,7 +60,7 @@ typedef zb_uint32_t zb_minimal_vararg_t;
 #define ZVUNUSED(v) (void)v
 
 #ifndef ZB_TASK_SIZE
-#define ZB_TASK_SIZE 4096
+#define ZB_TASK_SIZE (4096/sizeof(StackType_t))
 #endif
 
 #ifndef ZB_TASK_PRORITY

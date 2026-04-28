@@ -58,11 +58,11 @@ void zb_timer_set(void)
 uint8_t sleep_set_1st = 0;
 void radio_sleep_set(void)
 {
-    if (sleep_set_1st == 0)
-    {
-        ZB_TRANSCEIVER_SET_RX_ON_OFF(0);
-        sleep_set_1st = 1;
-    }
+    // if (sleep_set_1st == 0)
+    // {
+    //     ZB_TRANSCEIVER_SET_RX_ON_OFF(0);
+    //     sleep_set_1st = 1;
+    // }
 }
 
 void radio_idle_set(void)

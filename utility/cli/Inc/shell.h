@@ -148,9 +148,9 @@ typedef struct sh_io_desc {
 typedef struct sh_cmd {
     struct sh_cmd* next;
 
-    char* pCmd_name;
+    const char* pCmd_name;
     uint32_t cmd_name_len;
-    char* pDescription;
+    const char* pDescription;
 
     void* pExtra;
 
