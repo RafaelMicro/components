@@ -51,10 +51,16 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[64];
  */
 uint32_t SystemCoreClock = SYSTEM_CLOCK;        /*!< System Core Clock Frequency */
 uint32_t SystemFrequency = SYSTEM_CLOCK;
+uint32_t set_sys_clk_value = SET_SYS_CLK;
 
 void systemcoreclockupdate (void) {
     SystemCoreClock = SYSTEM_CLOCK;
     SystemFrequency = SYSTEM_CLOCK;
+    set_sys_clk_value = SET_SYS_CLK;
+}
+
+void get_set_sys_clk_value (uint32_t *get_value) {
+    *get_value = set_sys_clk_value;
 }
 
 /**
@@ -350,6 +356,9 @@ void systempmuupdatedcdc()
     PMU_CTRL->pmu_core_vosel.bit.ldodig_vosel = 0xA;
     //offset:6024
     PMU_CTRL->pmu_soc_pmu_xtal1.bit.xosc_cap_ini = 29;
+
+    PMU_CTRL->pmu_en_control.bit.en_ldoflash_sp = 1;
+    DPD_CTRL->dpd_cmd.bit.dpd_flash_dpd_en = 1;
 }
 
 /**
@@ -835,6 +844,9 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
 
     //Set RF Tx Power config
     set_sys_txpower_default(txpwrlevel);
+
+    PMU_CTRL->pmu_en_control.bit.en_ldoflash_sp = 1;
+    DPD_CTRL->dpd_cmd.bit.dpd_flash_dpd_en = 1;
 }
 
 void systeminit (void) {

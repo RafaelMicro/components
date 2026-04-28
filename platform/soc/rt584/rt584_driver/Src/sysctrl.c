@@ -698,6 +698,39 @@ void disable_pin_opendrain(uint32_t pin_number) {
     return;
 }
 
+void bbpll_init(sys_clk_sel_t sys_clk_mode) {
+
+    if ((sys_clk_mode == SYS_48MHZ_CLK) || (sys_clk_mode == SYS_64MHZ_CLK)) {
+
+        if(sys_clk_mode == SYS_48MHZ_CLK) {
+            PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man = 0;
+            PMU_CTRL->soc_bbpll0.bit.bbpll_selbbclk_man = 0x06;
+        } else {
+            PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man = 1;
+            PMU_CTRL->soc_bbpll0.bit.bbpll_selbbclk_man = 0x08;
+        }
+        PMU_CTRL->soc_bbpll0.bit.bbpll_selbbref_man = 0;
+        PMU_CTRL->soc_bbpll0.bit.bbpll_en_div_man = 0;
+    }
+    PMU_CTRL->soc_bbpll0.bit.bbpll_setting_auto = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_byp_ldo = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_trigger_bg = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_byp = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_dly = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_ib = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_tc = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_en_vt_tempcomp = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_vth = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_vtl = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_tune_temp = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_bg_os = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_hi = 1;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_sel_icp = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_pw = 1;
+}
+
+
 sys_clk_sel_t pll_unlock_check(void)
 {
     sys_clk_sel_t sys_clk_mode;
@@ -748,110 +781,86 @@ sys_clk_sel_t pll_unlock_check(void)
     return sys_clk_mode;
 }
 
-uint32_t pll_status_check(void)
-{
 
-    if (  ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_0) && (PLL_BANK_VCO_STATUS() == PLL_LOCK_BANK_VCO_4)) ||
-            ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) && (PLL_BANK_VCO_STATUS() == PLL_LOCK_BANK_VCO_7))
-       )
-    {
-        return STATUS_INVALID_REQUEST;
-    }
-    else  if (((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_0) && (PLL_BANK_VCO_STATUS() != PLL_LOCK_BANK_VCO_4)) ||
-              ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) && (PLL_BANK_VCO_STATUS() != PLL_LOCK_BANK_VCO_7))
-             )
-    {
-        return STATUS_EBUSY;
-    }
-    else  if (PLL_LOCK_STATUS() == PLL_LOCK_DOWN)
-    {
-        return STATUS_SUCCESS;
-    }
 
-    return STATUS_INVALID_REQUEST;
-}
+uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode) {
+    uint32_t i = 0;
+    uint32_t pll_clk = 0, bank_n = 0, bank1_man = 0;
 
-uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode)
-{
-
-    uint32_t i = 0, j=0;
-    uint32_t pll_clk = 0, bank_vco=0, clk_status=0;
-
-    if (sys_clk_mode > SYS_CLK_MAX)                                         /*Invalid parameter*/
-    {
+    if (sys_clk_mode > SYS_CLK_MAX) {
         return STATUS_ERROR;
     }
 
-    SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK);  /*Set MCU clock source to default 32MHZ*/
+    bbpll_init(sys_clk_mode);
+
+    SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK);              /*Set MCU clock source to default 32MHZ*/
     SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~(MCU_BBPLL_CLK_MASK | MCU_BBPLL_ENABLE)); /*disable pll*/
 
-    if ((sys_clk_mode == SYS_48MHZ_CLK) || (sys_clk_mode == SYS_64MHZ_CLK))        /*Set PLL to 48MHz*/
-    {
-        PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = 0;
-        PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 0;
-        pll_clk = (sys_clk_mode-SYS_CLK_OFFSET);
-
+    if ((sys_clk_mode == SYS_48MHZ_CLK) || (sys_clk_mode == SYS_64MHZ_CLK)) {
+        
+        pll_clk = (sys_clk_mode - SYS_CLK_OFFSET);
         SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_BBPLL_CLK_MASK) | (pll_clk << MCU_BBPLL_CLK_SHIFT);
 
-        for (j = 0; j < PLL_CHECK_COUNT; j++)
+        /* Auto bank mode, settle 200us */
+        PMU_CTRL->soc_bbpll0.bit.bbpll_setting_auto = 1;
+        PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = 0;
+        PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 0;
+        SYSCTRL->sys_clk_ctrl.reg |= MCU_BBPLL_ENABLE;
+        for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
+
+        /* Check auto mode result */
+        if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1)
         {
-            SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg | MCU_BBPLL_ENABLE);      /*config BASEBAND_PLL_ENABLE*/
-            /*
-            * need delay 200 us.
-            * If code is not in cache, it will take more time for preload data.
-            */
-            for (i = 0; i < PLL_WAIT_PERIOD; i++)
-            {
-                __NOP();
-            }
+            SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
+            return STATUS_SUCCESS;
+        }
+        else if ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) && (PLL_BANK_VCO_STATUS() == PLL_LOCK_BANK_VCO_7))
+        {
+            /* Auto mode saturated at bank 7 without locking — switch to manual bank search */
+            SYSCTRL->sys_clk_ctrl.reg &= ~MCU_BBPLL_ENABLE;
 
-            if (PLL_LOCK_STATUS() == PLL_LOCK_DOWN)            //PLL lock down
-            {
-                SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL; //switch pll clock outpu
-                break;
-            }
-            else if ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) && (PLL_BANK_VCO_STATUS() < PLL_LOCK_BANK_VCO_7))
-            {
-                bank_vco = PLL_BANK_VCO_STATUS();
-                PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = (bank_vco + 1); //next bank
-                PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 1;
-            }
-            else
-            {
-                SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & MCU_BBPLL_DISABLE);            //baseband pll disable
+            PMU_CTRL->soc_bbpll0.bit.bbpll_setting_auto = 0;
+            bank1_man = PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man;
+            PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man = bank1_man + 1;
+            PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 1;
+            bank_n = 0;
+            PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
 
-                //delay > 32us
-                for (i = 0; i < PLL_DELAY_PERIOD; i++)
+            SYSCTRL->sys_clk_ctrl.reg |= MCU_BBPLL_ENABLE;
+            for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
+
+            /* Step 3: Manual bank scan loop (no PLL restart needed between banks) */
+            while (1)
+            {
+                if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1)
                 {
-                    __NOP();
+                    SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
+                    return STATUS_SUCCESS;
                 }
-
-                clk_status = pll_status_check();
-
-                if (clk_status == STATUS_INVALID_REQUEST)
+                else if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3)
                 {
-                    break;
+                    bank_n++;
+                    if (bank_n == 8)
+                    {
+                        return STATUS_INVALID_REQUEST;  /* all banks exhausted */
+                    }
+                    PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
+                    for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
+                }
+                else
+                {
+                    return STATUS_INVALID_REQUEST;  /* BBPLL abnormal */
                 }
             }
+        }
+        else
+        {
+            return STATUS_INVALID_REQUEST;  /* BBPLL abnormal */
         }
     }
     else
     {
-      //default 32M Clock
-    }
-
-    //Add pll status check lock success, config to pll clock
-    if ((j == PLL_CHECK_COUNT) && (clk_status == STATUS_SUCCESS))
-    {
-        SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg | MCU_BBPLL_ENABLE);      /*config BASEBAND_PLL_ENABLE*/
-
-        /*baseband pll enable wait delay time 200us*/
-        for (i = 0; i < PLL_WAIT_PERIOD; i++)
-        {
-            __NOP();
-        }
-
-        SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
+        //default 32M Clock
     }
 
     return STATUS_SUCCESS;

@@ -66,6 +66,7 @@ extern "C" {
  */
 #define PLL_WAIT_PERIOD              1600
 #define PLL_DELAY_PERIOD             400
+#define PLL_BANK_ADJUST_PERIOD       800     /*!< ~100us NOP delay after bank adjustment */
 /**
  * \brief           Slow clock source select
  *                  
@@ -372,6 +373,7 @@ typedef enum
     RCO1M_SELECT,                    /*!< System slow clock 1M Mode */
     RCO_NULL,
 } slow_clock_select_t;
+
 /**
  * \brief           Delay us
  * \param[in]       us: 
