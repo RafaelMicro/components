@@ -44,6 +44,7 @@ typedef struct {
 
 uint32_t SystemFrequency = XTAL; /*!< System Clock Frequency (Core Clock)  */
 uint32_t SystemCoreClock = XTAL; /*!< Processor Clock Frequency            */
+uint32_t set_sys_clk_value = SET_SYS_CLK;
 
 #if (SET_PMU_MODE == PMU_LDO_MODE)
 const reg_bit_write_t pmu_ap_init_table_ldo[] = {
@@ -81,7 +82,14 @@ const reg_bit_write_t pmu_mp_init_table_dcdc[] = {
 void systemcoreclockupdate(void) /* Get Core Clock Frequency */
 {
     SystemCoreClock = XTAL;
+    set_sys_clk_value = SET_SYS_CLK;
 }
+
+
+void get_set_sys_clk_value (uint32_t *get_value) {
+    *get_value = set_sys_clk_value;
+}
+
 
 void systemfrequencyupdate(void) /* Update System clock Frequency */
 {
