@@ -851,6 +851,7 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
 
 void systeminit (void) {
 
+    early_init_before_use();
     #if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
     #elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
     #else

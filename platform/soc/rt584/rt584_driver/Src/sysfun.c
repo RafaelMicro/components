@@ -35,6 +35,11 @@
  */
 static int critical_counter = 0;
 static txpower_default_cfg_t   tx_pwr_level;
+
+void early_init_before_use(void) {
+    critical_counter = 0;
+}
+
 void enter_critical_section(void) {
 
 #if defined(CONFIG_FREERTOS)

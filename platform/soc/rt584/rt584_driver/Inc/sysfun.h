@@ -143,6 +143,13 @@ typedef enum
 } slow_clock_mode_cfg_t;
 
 /**
+* \brief            Init critical_counter 
+* \details          Init critical_counter before __PROGRAM_START
+*/
+void early_init_before_use(void);
+
+
+/**
 * \brief            Enter critical sections
 * \details          This function is nest function, that is, system call this function several times.
 *                   This function will mask all interrupt , except non-mask interrupt.
