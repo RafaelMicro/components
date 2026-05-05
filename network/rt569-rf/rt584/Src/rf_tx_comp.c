@@ -30,6 +30,7 @@
 
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "lpm.h"
 
 #if (RF_TX_POWER_COMP)
 #include "mp_sector.h"
@@ -279,6 +280,7 @@ void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t *p_cb)
         }
 
         sadc_disable();
+        lpm_low_power_unmask(LOW_POWER_MASK_BIT_TASK_ADC);
 
         // if ((tx_pwr_comp_value_temperature != 0) && (tx_pwr_comp_value_vbat != 0))
         if (tx_pwr_comp_value_temperature != 0)
@@ -301,6 +303,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
 
         if (sadc_vbat_read() == STATUS_SUCCESS)
         {
+            lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
             comp_state = TX_PWR_COMP_TEMPERATURE;
         }
         break;
@@ -309,6 +312,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
 
         if (sadc_temp_read() == STATUS_SUCCESS)
         {
+            lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
             comp_state = TX_PWR_COMP_VBAT;
         }
         break;

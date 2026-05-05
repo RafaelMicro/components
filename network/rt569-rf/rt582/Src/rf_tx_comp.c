@@ -27,6 +27,7 @@
 #include "rf_common_init.h"
 #include "rf_mcu.h"
 #include "rf_tx_comp.h"
+#include "lpm.h"
 
 
 #include "FreeRTOS.h"
@@ -107,7 +108,7 @@ void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t* p_cb) {
     if (p_cb->type == SADC_CB_SAMPLE) {
         sadc_comp_input = p_cb->data.sample.channel;
         sadc_comp_value = p_cb->data.sample.value;
-
+        lpm_low_power_unmask(LOW_POWER_MASK_BIT_TASK_ADC);
 #if (TX_PWR_COMP_DEBUG == 1)
         printf("\nADC CH%d: adc = %d, comp = %d, cal = %d\n",
                p_cb->data.sample.channel, p_cb->raw.conversion_value,
@@ -177,6 +178,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer) {
         case TX_PWR_VBAT:
 
             if (sadc_channel_read(SADC_CH_VBAT) == STATUS_SUCCESS) {
+                lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
                 comp_state = TX_PWR_0V_ADC;
             }
             break;
@@ -184,6 +186,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer) {
         case TX_PWR_0V_ADC:
 
             if (sadc_channel_read(SADC_0VADC) == STATUS_SUCCESS) {
+                lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
                 comp_state = TX_PWR_COMP_VBAT;
             }
             break;
@@ -191,6 +194,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer) {
         case TX_PWR_COMP_VBAT:
 
             if (sadc_channel_read(SADC_COMP_VBAT) == STATUS_SUCCESS) {
+                lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
                 comp_state = TX_PWR_COMP_TEMPERATURE;
             }
             break;
@@ -198,6 +202,7 @@ void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer) {
         case TX_PWR_COMP_TEMPERATURE:
 
             if (sadc_channel_read(SADC_COMP_TEMPERATURE) == STATUS_SUCCESS) {
+                lpm_low_power_mask(LOW_POWER_MASK_BIT_TASK_ADC);
                 comp_state = TX_PWR_VBAT;
             }
             break;
