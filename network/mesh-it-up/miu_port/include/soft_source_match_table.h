@@ -36,7 +36,6 @@
 #ifndef SOFT_SOURCE_MATCH_TABLE_H
 #define SOFT_SOURCE_MATCH_TABLE_H
 
-// #include "openthread-core-config.h"
 #include <openthread/platform/radio.h>
 
 #include <stdint.h>
@@ -44,27 +43,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifndef RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM
-#define RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM 32
-#endif
-
-#ifndef RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM
-#define RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM 32
-#endif
-
-#if RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM || RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM
-void utilsSoftSrcMatchSetPanId(uint16_t aPanId);
-#endif // RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM || RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM
-
-#if RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM
-int16_t utilsSoftSrcMatchShortFindEntry(uint16_t aShortAddress);
-#endif // RADIO_CONFIG_SRC_MATCH_SHORT_ENTRY_NUM
-
-#if RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM
-int16_t utilsSoftSrcMatchExtFindEntry(const otExtAddress *aExtAddress);
-#endif // RADIO_CONFIG_SRC_MATCH_EXT_ENTRY_NUM
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

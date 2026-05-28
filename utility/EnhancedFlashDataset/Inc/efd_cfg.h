@@ -60,6 +60,7 @@
 #define EFD_START_ADDR          0x001F0000 /* @note you must define it for a value */
 #endif
 #endif
+
 /* ENV area size. It's at least one empty sector for GC. So it's definition must more then or equal 2 flash sector size. */
 #ifndef ENV_AREA_SIZE
 #define ENV_AREA_SIZE           0x4000 /* @note you must define it for a value if you used ENV */

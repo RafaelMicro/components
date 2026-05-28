@@ -42,6 +42,7 @@ extern "C" {
 typedef enum {
     LMAC15P4_SUBG_FSK = 1,   /*!< Sub 1GHz band FSK modulation */
     LMAC15P4_2P4G_OQPSK = 2, /*!< 2.4 GHz band OQPSK modulation */
+    LMAC15P4_SUBG_BLE = 3, /*!< 2.4 GHz band OQPSK modulation */
     LMAC15P4_SUBG_OQPSK = 4, /*!< Sub 1GHz band OQPSK modulation */
 } lmac15p4_modem_t;
 

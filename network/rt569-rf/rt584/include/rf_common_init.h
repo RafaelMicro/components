@@ -54,12 +54,17 @@
 #endif
 
 #ifndef RF_TX_POWER_COMP
-#if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!((CONFIG_RF1301) && (CONFIG_RF_POWER_20DBM != 1))))
+#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
 #define RF_TX_POWER_COMP            (TRUE)
 #else
 #define RF_TX_POWER_COMP            (FALSE)
 #endif
 #endif
+
+#ifndef CONFIG_TEMP_VOL_COMP_PERIOD
+#define CONFIG_TEMP_VOL_COMP_PERIOD 1
+#else
+#endif // !CONFIG_TEMP_VOL_COMP_PERIOD
 
 /**************************************************************************************************
 *    TYPEDEFS

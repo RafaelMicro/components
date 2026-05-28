@@ -12,21 +12,17 @@
 /*
  * Author:          Kc.tseng
  */
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include "dwt.h"
+#include "hosal_status.h"
+#include "hosal_sysctrl.h"
 #include "mcu.h"
 #include "sysctrl.h"
-#include "dwt.h"
-#include "hosal_sysctrl.h"
-#include "hosal_status.h"
 
-void hosal_delay_us(volatile uint32_t us){ 
-    delay_us (us);
-}
+void hosal_delay_us(volatile uint32_t us) { delay_us(us); }
 
-void hosal_delay_ms(volatile uint32_t ms) {
-     delay_ms(ms);
-}
+void hosal_delay_ms(volatile uint32_t ms) { delay_ms(ms); }
 
 uint32_t hosal_pin_get_mode(uint32_t pin_number) {
     return pin_get_mode(pin_number);
@@ -50,21 +46,18 @@ void hosal_disable_pin_opendrain(uint32_t pin_number) {
 
 void hosal_config_peripherl_clock(uint32_t per_clk, void* cfg_para) {
 
-     if(cfg_para) {
-        
+    if (cfg_para) {
+
         enable_perclk(per_clk);
-     }
-     else  {
+    } else {
 
         disable_perclk(per_clk);
-     }
+    }
 }
 
+int hosal_get_rco_clock_tick(uint32_t* rco_tick) {
+    if (rco_tick == NULL) {
 
-int hosal_get_rco_clock_tick(uint32_t* rco_tick)
-{
-    if(rco_tick == NULL){
-        
         return HOSAL_STATUS_INVALID_PARAM;
     }
 
@@ -73,42 +66,31 @@ int hosal_get_rco_clock_tick(uint32_t* rco_tick)
     return HOSAL_STATUS_SUCCESS;
 }
 
-int hosal_sysctrl_ioctrl(hosal_sys_tmo_t *sys_tmo,int ctl, void* para) {
+int hosal_sysctrl_ioctrl(hosal_sys_tmo_t* sys_tmo, int ctl, void* para) {
 
-     int ret= HOSAL_STATUS_SUCCESS;
-    
-     switch(ctl){
-        case HOSAL_SYSCTRL_TIMEOUT_INIT:
-            ret =  timeout_init();
+    int ret = HOSAL_STATUS_SUCCESS;
+
+    switch (ctl) {
+        case HOSAL_SYSCTRL_TIMEOUT_INIT: ret = timeout_init(); break;
+        case HOSAL_SYSCTRL_TIMEOUT_UNINIT: ret = timeout_uninit(); break;
+        case HOSAL_SYSCTRL_TIMEOUT_START: {
+            uint32_t timeout = *(uint32_t*)para; //
+            if (para == NULL)
+                return STATUS_INVALID_PARAM;
+
+            uint32_t ms = *(uint32_t*)para;
+
+            ret = timeout_start(&sys_tmo->tmo, ms, sys_tmo->cb, /* 嚙踝蕭嚙確嚙諄法 */
+                                sys_tmo->arg,
+                                sys_tmo->period); /* 嚙諄是嚙緲嚙緩嚙緬嚙踝蕭 callback_arg */
             break;
-        case HOSAL_SYSCTRL_TIMEOUT_UNINIT:
-            ret =  timeout_uninit();
-            break;
-        case HOSAL_SYSCTRL_TIMEOUT_START:
-             uint32_t timeout = *(uint32_t*)para;  //
-            if (para == NULL) return STATUS_INVALID_PARAM;
-                
-                /* 取得傳入的超時數值 */
-                uint32_t ms = *(uint32_t*)para; 
-
-                ret = timeout_start(&sys_tmo->tmo, 
-                                    ms, 
-                                    sys_tmo->cb,    /* 正確用法 */
-                                    sys_tmo->arg,
-                                    sys_tmo->period); /* 或是您定義的 callback_arg */
-                break; 
-
-        case HOSAL_SYSCTRL_TIMEOUT_CHECK:
-            ret =  istimeout(&sys_tmo->tmo);
-            break; 
+        }
+        case HOSAL_SYSCTRL_TIMEOUT_CHECK: ret = istimeout(&sys_tmo->tmo); break;
 
         case HOSAL_SYSCTRL_TIMEOUT_GET_REMAINING:
-            ret =  timeout_remaining(&sys_tmo->tmo,(uint32_t*)para);
-            break;    
+            ret = timeout_remaining(&sys_tmo->tmo, (uint32_t*)para);
+            break;
+    }
 
-     }
-
-     return ret;
-
+    return ret;
 }
-

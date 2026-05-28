@@ -50,6 +50,9 @@ uint32_t gpio_cfg(uint32_t pin_number, gpio_pin_dir_t dir, gpio_pin_int_mode_t i
         pin_set_pullopt(pin_number, PULL_NONE);
     }
 
+    //clear IRQ and handler
+    GPIO->disable_int = MASK;
+    GPIO->edge_int_clr = MASK;
     user_isr[pin_number].gpio_handler = NULL;
 
     switch (int_mode) {
@@ -240,7 +243,6 @@ void gpio_handler(void) {
     uint32_t  i = 0, Mask = 1;
 
     irq_state = GPIO->int_status;
-
     for (i = 0; i < MAX_NUMBER_OF_PINS; i++, Mask <<= 1) {
         if (irq_state & Mask) {
             app_isr = user_isr[i].gpio_handler;

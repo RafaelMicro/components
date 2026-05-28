@@ -355,6 +355,19 @@ hosal_qspi_status_t hosal_qspi_transfer_pio(hosal_qspi_dev_t* qspi_dev,
                                             uint8_t* txbuf, uint8_t* rxbuf,
                                             uint16_t size, uint32_t timeout);
 
+          /**
+ * \brief          qspi transfer polling function for epd
+ * \param[in]      qspi_dev     qspi struct identifier
+ * \param[in]      txbuf        qspi transfer buffer point.
+ * \param[in]      rxbuf        qspi receiver buffer point.
+ * \param[in]      size         qspi transfer size.
+ * \param[in]      timeout      qspi transfer timeout.
+ * \return         hosal_qspi_status_t status
+ *
+ */                                  
+hosal_qspi_status_t hosal_qspi_transfer_pio_epd(hosal_qspi_dev_t* qspi_dev,
+                                            uint8_t* txbuf, uint8_t* rxbuf,
+                                            uint16_t size, uint32_t timeout);
 /**
  * \brief          qapi io control function.
  * \param[in]      qspi_dev     qspi struct identifier

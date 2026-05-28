@@ -20,6 +20,7 @@
 #include "mcu.h"
 #include "stdio.h"
 #include "hosal_status.h"
+#include "sysctrl.h"
 #include "comm_subsystem_drv.h"
 
 int hosal_lpm_init(void) {
@@ -47,6 +48,7 @@ int hosal_get_lpm_ioctrl(int ctl, uint32_t* para) {
 int hosal_lpm_ioctrl(int ctl, uint32_t para) {
 
     int status = HOSAL_STATUS_SUCCESS;
+    uint32_t enable = (para != 0u);
 
     switch (ctl) {
 
@@ -83,9 +85,34 @@ int hosal_lpm_ioctrl(int ctl, uint32_t para) {
 
         case HOSAL_LPM_SUBSYSTEM_ENTER_LOW_POWER:
             lpm_sub_system_low_power_mode(para);
+            break; 
+
+        case HOSAL_LPM_PERIGRP1_PWR_OFF_DEEP_SLEEP:
+            if (enable) lpm_peri_group_low_power_off_unmask(MCU_PERI1_PWR_OFF_DEEP_SLEEP);
+            else        lpm_peri_group_low_power_off_mask(MCU_PERI1_PWR_OFF_DEEP_SLEEP);
+            break;
+
+        case HOSAL_LPM_PERIGRP2_PWR_OFF_SLEEP:
+            if (enable) lpm_peri_group_low_power_off_unmask(MCU_PERI2_PWR_OFF_SLEEP);
+            else        lpm_peri_group_low_power_off_mask(MCU_PERI2_PWR_OFF_SLEEP);
+            break;
+
+        case HOSAL_LPM_PERIGRP2_PWR_OFF_DEEP_SLEEP:
+            if (enable) lpm_peri_group_low_power_off_unmask(MCU_PERI2_PWR_OFF_DEEP_SLEEP);
+            else        lpm_peri_group_low_power_off_mask(MCU_PERI2_PWR_OFF_DEEP_SLEEP);
+            break;
+
+        case HOSAL_LPM_PERIGRP3_PWR_OFF_SLEEP:
+            if (enable) lpm_peri_group_low_power_off_unmask(MCU_PERI3_PWR_OFF_SLEEP);
+            else        lpm_peri_group_low_power_off_mask(MCU_PERI3_PWR_OFF_SLEEP);
+            break;
+
+        case HOSAL_LPM_PERIGRP3_PWR_OFF_DEEP_SLEEP:
+            if (enable) lpm_peri_group_low_power_off_unmask(MCU_PERI3_PWR_OFF_DEEP_SLEEP);
+            else        lpm_peri_group_low_power_off_mask(MCU_PERI3_PWR_OFF_DEEP_SLEEP);
             break;   
-           
-        default: return -1;
+
+        default: return HOSAL_STATUS_INVALID_PARAM;
     }
 
     return HOSAL_STATUS_SUCCESS;

@@ -780,13 +780,13 @@ private:
 #endif
     static constexpr uint32_t kChildUpdateRequestDelay       = 100;  // Delay for aggregating Child Update Req
 #if OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT || OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT
-    static constexpr uint32_t kMaxLinkRequestDelayOnRouter   = 30000; // Max delay to tx Link Request on Adv rx
+    static constexpr uint32_t kMaxLinkRequestDelayOnRouter   = 10000; // Max delay to tx Link Request on Adv rx
 #else
     static constexpr uint32_t kMaxLinkRequestDelayOnRouter   = 1000; // Max delay to tx Link Request on Adv rx
 #endif
 #if OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT || OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT
-    static constexpr uint32_t kMinLinkRequestDelayOnChild    = 60000; // Min delay to tx Link Request on Adv rx (child)
-    static constexpr uint32_t kMaxLinkRequestDelayOnChild    = 120000; // Max delay to tx Link Request on Adv rx (child)
+    static constexpr uint32_t kMinLinkRequestDelayOnChild    = 3000; // Min delay to tx Link Request on Adv rx (child)
+    static constexpr uint32_t kMaxLinkRequestDelayOnChild    = 6000; // Max delay to tx Link Request on Adv rx (child)
 #else
     static constexpr uint32_t kMinLinkRequestDelayOnChild    = 1500; // Min delay to tx Link Request on Adv rx (child)
     static constexpr uint32_t kMaxLinkRequestDelayOnChild    = 3000; // Max delay to tx Link Request on Adv rx (child)
@@ -834,7 +834,7 @@ private:
 
     // Next attach cycles includes one Parent Request to routers, followed by one to routers and REEDs.
     static constexpr uint8_t kNextAttachCycleTotalParentRequests       = 6;//2;
-    static constexpr uint8_t kNextAttachCycleNumParentRequestToRouters = 5;//2;
+    static constexpr uint8_t kNextAttachCycleNumParentRequestToRouters = 3;//2;
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

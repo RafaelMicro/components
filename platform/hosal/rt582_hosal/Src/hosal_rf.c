@@ -33,23 +33,23 @@
 /**************************************************************************************************
  *    CONSTANTS AND DEFINES
  *************************************************************************************************/
-#define HOSAL_RF_NO_STS             (0x00)
-#define HOSAL_RF_EVENT_STS          (0x01)
-#define HOSAL_RF_TX_DONE_STS        (0x02)
-#define HOSAL_RF_TRAP_STS           (0x04)
-#define HOSAL_RF_RX_DATA_STS        (0x20)
-#define HOSAL_RF_RTC_WAKE_STS       (0x80)
+#define HOSAL_RF_NO_STS       (0x00)
+#define HOSAL_RF_EVENT_STS    (0x01)
+#define HOSAL_RF_TX_DONE_STS  (0x02)
+#define HOSAL_RF_TRAP_STS     (0x04)
+#define HOSAL_RF_RX_DATA_STS  (0x20)
+#define HOSAL_RF_RTC_WAKE_STS (0x80)
 
-#define HOSAL_RF_Q_MAX_SIZE         (16u)
+#define HOSAL_RF_Q_MAX_SIZE (16u)
 
-#define HOSAL_RF_PROC_TASK_SIZE     (2048)
+#define HOSAL_RF_PROC_TASK_SIZE (2048)
 
 #define HOSAL_RF_HCI_EVENT          (0x04)
 #define HOSAL_RF_RUCI_PCI_EVENT     (0x16)
 #define HOSAL_RF_RUCI_SF_HOST_EVENT (0xF1)
 #define HOSAL_RF_RUCI_CMN_EVENT     (0x3F)
 
-#define HOSAL_RF_HCI_ACL_DATA       (0x02)
+#define HOSAL_RF_HCI_ACL_DATA (0x02)
 
 /**************************************************************************************************
  *    TYPEDEFS
@@ -113,7 +113,7 @@ __STATIC_FORCEINLINE uint8_t __rf_pop_state(void) {
         ghosal_rf_cmd_state_q.cmd_queue[ghosal_rf_cmd_state_q.rp] = 0;
         /* rp <= wp */
         if (ghosal_rf_cmd_state_q.rp
-                <= ghosal_rf_cmd_state_q.wp) /* wp will not equal to MAX */
+            <= ghosal_rf_cmd_state_q.wp) /* wp will not equal to MAX */
         {
             ghosal_rf_cmd_state_q.rp++;
         } else {
@@ -141,6 +141,14 @@ __STATIC_FORCEINLINE BaseType_t __rf_signal(void) {
 }
 
 static void __rf_event_callback(uint8_t intStatus) {
+    /* wake up RF to clear interrupt status */
+    RfMcu_HostWakeUpMcu();
+    if (RfMcu_PowerStateCheck() != 0x03) {
+        /* FOR LEVEL TRIGGER ONLY, the MCU will keep entering INT if status not cleared */
+        printf("[W] PWR state error in rfb_isr_handler\n");
+        return;
+    }
+
     /* clean interrupt status first */
     RfMcu_InterruptClear(intStatus);
 
@@ -151,7 +159,7 @@ static void __rf_event_callback(uint8_t intStatus) {
     if (intStatus & HOSAL_RF_TRAP_STS) {
         uint32_t debug_value;
 
-        RfMcu_MemoryGet(0x4008, (uint8_t *)&debug_value, sizeof(debug_value));
+        RfMcu_MemoryGet(0x4008, (uint8_t*)&debug_value, sizeof(debug_value));
         printf("TRAP 0x%08x\n", debug_value);
         configASSERT(0);
     }
@@ -190,35 +198,36 @@ __STATIC_FORCEINLINE void handle_event_status(void) {
     event_len = RfMcu_EvtQueueRead(g_event_buffer, &rxCmdError);
     if (rxCmdError == RF_MCU_RX_CMDQ_GET_SUCCESS) {
         switch (g_event_buffer[0]) {
-        case HOSAL_RF_HCI_EVENT:
-            if (g_hci_evt_cb) {
-                if (g_hci_evt_cb(g_event_buffer) == HOSAL_RF_CB_CMD_COMPLETE) {
-                    xSemaphoreGive(xSemaphore);
+            case HOSAL_RF_HCI_EVENT:
+                if (g_hci_evt_cb) {
+                    if (g_hci_evt_cb(g_event_buffer)
+                        == HOSAL_RF_CB_CMD_COMPLETE) {
+                        xSemaphoreGive(xSemaphore);
+                    }
                 }
-            }
-            break;
+                break;
 
-        case HOSAL_RF_RUCI_PCI_EVENT:
-        case HOSAL_RF_RUCI_SF_HOST_EVENT:
-        case HOSAL_RF_RUCI_CMN_EVENT:
-            do {
-                evt_ptr = pvPortMalloc(event_len);
-                if (evt_ptr == NULL) {
-                    vTaskDelay(1);
-                }
-            } while (evt_ptr == NULL);
+            case HOSAL_RF_RUCI_PCI_EVENT:
+            case HOSAL_RF_RUCI_SF_HOST_EVENT:
+            case HOSAL_RF_RUCI_CMN_EVENT:
+                do {
+                    evt_ptr = pvPortMalloc(event_len);
+                    if (evt_ptr == NULL) {
+                        vTaskDelay(1);
+                    }
+                } while (evt_ptr == NULL);
 
-            memcpy(evt_ptr, g_event_buffer, event_len);
-            if (xQueueSend(g_rf_evt_handle, (void*)&evt_ptr, portMAX_DELAY)
+                memcpy(evt_ptr, g_event_buffer, event_len);
+                if (xQueueSend(g_rf_evt_handle, (void*)&evt_ptr, portMAX_DELAY)
                     != pdPASS) {
-                configASSERT(0);
-            }
-            xSemaphoreGive(xSemaphore);
-            break;
+                    configASSERT(0);
+                }
+                xSemaphoreGive(xSemaphore);
+                break;
 
-        default:
-            log_error("unknown event 0x%02x\n", g_event_buffer[0]);
-            break;
+            default:
+                log_error("unknown event 0x%02x\n", g_event_buffer[0]);
+                break;
         }
     }
 }
@@ -238,8 +247,7 @@ __STATIC_FORCEINLINE void handle_rx_data_status(void) {
             if (g_hci_data_cb) {
                 g_hci_data_cb(g_rx_data);
             }
-        }
-        else {
+        } else {
             log_error("invalid data header 0x%02x\n", g_rx_data[0]);
         }
     }
@@ -261,26 +269,17 @@ static void __rf_check_state(void) {
         rf_state = __rf_pop_state();
 
         switch (rf_state) {
-        case HOSAL_RF_NO_STS:
-            break;
+            case HOSAL_RF_NO_STS: break;
 
-        case HOSAL_RF_EVENT_STS:
-            handle_event_status();
-            break;
+            case HOSAL_RF_EVENT_STS: handle_event_status(); break;
 
-        case HOSAL_RF_RX_DATA_STS:
-            handle_rx_data_status();
-            break;
+            case HOSAL_RF_RX_DATA_STS: handle_rx_data_status(); break;
 
-        case HOSAL_RF_TX_DONE_STS:
-            handle_tx_done_status();
-            break;
+            case HOSAL_RF_TX_DONE_STS: handle_tx_done_status(); break;
 
-        case HOSAL_RF_RTC_WAKE_STS:
-            break;
+            case HOSAL_RF_RTC_WAKE_STS: break;
 
-        default:
-            break;
+            default: break;
         }
     } while (rf_state != 0);
 }
@@ -294,11 +293,12 @@ static void __rf_proc(void* pvParameters) {
 }
 
 static hosal_rf_status_t __rf_sub_command_set(uint8_t* cmd_ptr,
-        uint32_t cmd_len,
-        uint8_t expected_subheader) {
+                                              uint32_t cmd_len,
+                                              uint8_t expected_subheader) {
     ruci_para_cnf_event_t sCnfEvent = {0};
 
-    while (hosal_rf_write_command(cmd_ptr, cmd_len) != HOSAL_RF_STATUS_SUCCESS);
+    while (hosal_rf_write_command(cmd_ptr, cmd_len) != HOSAL_RF_STATUS_SUCCESS)
+        ;
 
     hosal_rf_read_event((uint8_t*)&sCnfEvent);
     RUCI_ENDIAN_CONVERT((uint8_t*)&sCnfEvent, RUCI_CNF_EVENT);
@@ -318,49 +318,64 @@ static hosal_rf_status_t __rf_modem_set(hosal_rf_15p4_modem_cnf_t* modem_cnf) {
     hosal_rf_status_t rval = HOSAL_RF_STATUS_SUCCESS;
 
     switch (modem_cnf->modem) {
-    case HOSAL_RF_MODEM_FSK:
-        cmd_ptr = pvPortMalloc(RUCI_LEN_INITIATE_FSK);
-        if (cmd_ptr == NULL) {
-            rval = HOSAL_RF_STATUS_NO_MEMORY;
+        case HOSAL_RF_MODEM_FSK:
+            cmd_ptr = pvPortMalloc(RUCI_LEN_INITIATE_FSK);
+            if (cmd_ptr == NULL) {
+                rval = HOSAL_RF_STATUS_NO_MEMORY;
+                break;
+            }
+            SET_RUCI_PARA_INITIATE_FSK(cmd_ptr, modem_cnf->band_type);
+            RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_FSK);
+            cmd_len = RUCI_LEN_INITIATE_FSK;
+            cfn_sub_hdr = RUCI_CODE_INITIATE_FSK;
             break;
-        }
-        SET_RUCI_PARA_INITIATE_FSK(cmd_ptr, modem_cnf->band_type);
-        RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_FSK);
-        cmd_len = RUCI_LEN_INITIATE_FSK;
-        cfn_sub_hdr = RUCI_CODE_INITIATE_FSK;
-        break;
 
-    case HOSAL_RF_MODEM_2P4G_OQPSK:
-        cmd_ptr = pvPortMalloc(sizeof(ruci_para_initiate_zigbee_t));
-        if (cmd_ptr == NULL) {
-            rval = HOSAL_RF_STATUS_NO_MEMORY;
+        case HOSAL_RF_MODEM_2P4G_OQPSK:
+            cmd_ptr = pvPortMalloc(sizeof(ruci_para_initiate_zigbee_t));
+            if (cmd_ptr == NULL) {
+                rval = HOSAL_RF_STATUS_NO_MEMORY;
+                break;
+            }
+            SET_RUCI_PARA_INITIATE_ZIGBEE(cmd_ptr);
+            RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_ZIGBEE);
+            cmd_len = RUCI_LEN_INITIATE_ZIGBEE;
+            cfn_sub_hdr = RUCI_CODE_INITIATE_ZIGBEE;
             break;
-        }
-        SET_RUCI_PARA_INITIATE_ZIGBEE(cmd_ptr);
-        RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_ZIGBEE);
-        cmd_len = RUCI_LEN_INITIATE_ZIGBEE;
-        cfn_sub_hdr = RUCI_CODE_INITIATE_ZIGBEE;
-        break;
 
-    case HOSAL_RF_MODEM_BLE:
-        // Add BLE modem handling here if needed
-        break;
-
-    case HOSAL_RF_MODEM_SUBG_OQPSK:
-        cmd_ptr = pvPortMalloc(RUCI_LEN_INITIATE_OQPSK);
-        if (cmd_ptr == NULL) {
-            rval = HOSAL_RF_STATUS_NO_MEMORY;
+        case HOSAL_RF_MODEM_BLE:
+            cmd_ptr = pvPortMalloc(RUCI_LEN_INITIATE_BLE);
+            if (cmd_ptr == NULL) {
+                rval = HOSAL_RF_STATUS_NO_MEMORY;
+                break;
+            }
+            SET_RUCI_PARA_INITIATE_BLE(cmd_ptr);
+            RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_BLE);
+            cmd_len = RUCI_LEN_INITIATE_BLE;
+            cfn_sub_hdr = RUCI_CODE_INITIATE_BLE;
+            cmd_ptr = pvPortMalloc(RUCI_LEN_SET_CLOCK_MODE);
+            if (cmd_ptr == NULL) {
+                rval = HOSAL_RF_STATUS_NO_MEMORY;
+                break;
+            }
+            SET_RUCI_PARA_SET_CLOCK_MODE(cmd_ptr, 0, 1, 1);
+            RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI__SET_CLOCK_MODE);
+            cmd_len = RUCI_LEN_SET_CLOCK_MODE;
+            cfn_sub_hdr = RUCI_CODE_SET_CLOCK_MODE;
             break;
-        }
-        SET_RUCI_PARA_INITIATE_OQPSK(cmd_ptr, modem_cnf->band_type);
-        RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_OQPSK);
-        cmd_len = RUCI_LEN_INITIATE_OQPSK;
-        cfn_sub_hdr = RUCI_CODE_INITIATE_OQPSK;
-        break;
 
-    default:
-        rval = HOSAL_RF_STATUS_INVALID_PARAMETER;
-        break;
+        case HOSAL_RF_MODEM_SUBG_OQPSK:
+            cmd_ptr = pvPortMalloc(RUCI_LEN_INITIATE_OQPSK);
+            if (cmd_ptr == NULL) {
+                rval = HOSAL_RF_STATUS_NO_MEMORY;
+                break;
+            }
+            SET_RUCI_PARA_INITIATE_OQPSK(cmd_ptr, modem_cnf->band_type);
+            RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_INITIATE_OQPSK);
+            cmd_len = RUCI_LEN_INITIATE_OQPSK;
+            cfn_sub_hdr = RUCI_CODE_INITIATE_OQPSK;
+            break;
+
+        default: rval = HOSAL_RF_STATUS_INVALID_PARAMETER; break;
     }
 
     if (rval == HOSAL_RF_STATUS_SUCCESS) {
@@ -388,7 +403,9 @@ static hosal_rf_status_t __rf_rssi_get(uint8_t* rssi) {
 
     SET_RUCI_PARA_GET_RSSI(cmd_ptr);
     RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_GET_RSSI);
-    while (hosal_rf_write_command(cmd_ptr, RUCI_LEN_GET_RSSI) != HOSAL_RF_STATUS_SUCCESS);
+    while (hosal_rf_write_command(cmd_ptr, RUCI_LEN_GET_RSSI)
+           != HOSAL_RF_STATUS_SUCCESS)
+        ;
 
     hosal_rf_read_event((uint8_t*)&sCnfEvent);
     hosal_rf_read_event((uint8_t*)&sGetRssiEvent);
@@ -469,7 +486,7 @@ static hosal_rf_status_t __rf_tx_data_start_set(hosal_rf_tx_data_t* tx_data) {
 
     do {
         rval = hosal_rf_write_tx_data(
-                   cmd_ptr, RUCI_LEN_SET_TX_CONTROL_FIELD + tx_data->data_len);
+            cmd_ptr, RUCI_LEN_SET_TX_CONTROL_FIELD + tx_data->data_len);
     } while (rval != HOSAL_RF_STATUS_SUCCESS);
 
     if (cmd_ptr) {
@@ -496,31 +513,28 @@ static hosal_rf_status_t __rf_tx_continuous_wave_set(uint32_t tx_enable) {
     tx_data.control = 0;
     tx_data.dsn = 0;
     tx_data.pData = dummy_tx_data;
-    
-    if (tx_enable)
-    {
+
+    if (tx_enable) {
         status = __rf_single_tone_mode_set(2);
-        if (status != HOSAL_RF_STATUS_SUCCESS)
-        {
+        if (status != HOSAL_RF_STATUS_SUCCESS) {
             return status;
         }
         status = __rf_tx_data_start_set(&tx_data);
-    }
-    else
-    {
+    } else {
         status = __rf_single_tone_mode_set(0);
     }
 
     return status;
 }
 
-static hosal_rf_status_t __rf_tx_pwr_set(hosal_rf_tx_power_t* hosal_rf_tx_power) {
+static hosal_rf_status_t
+__rf_tx_pwr_set(hosal_rf_tx_power_t* hosal_rf_tx_power) {
     uint8_t cmd_ptr[RUCI_LEN_SET_TX_POWER];
     uint8_t band_type_ruci;
     /* RUCI band type: [0: 2.4GHz, 1: SubG 915MHz, 2: SubG 868MHz, 3: SubG 433MHz, 4: SubG 315MHz 5:SubG 470MHz] */
     band_type_ruci = (hosal_rf_tx_power->band_type < HOSAL_RF_BAND_SUBG_868M)
-                     ? (hosal_rf_tx_power->band_type ^ 1)
-                     : hosal_rf_tx_power->band_type;
+                         ? (hosal_rf_tx_power->band_type ^ 1)
+                         : hosal_rf_tx_power->band_type;
 
     if (hosal_rf_tx_power->modem == HOSAL_RF_MODEM_FSK) {
         SET_RUCI_PARA_SET_TX_POWER(cmd_ptr, band_type_ruci,
@@ -554,16 +568,11 @@ static hosal_rf_status_t __rf_tx_pwr_comp_set(hosal_rf_modem_t* modem) {
     r_pab_pw_pre = (r_pab_pw_pre >> 12) & 0x3;
 
     switch (*modem) {
-    case HOSAL_RF_MODEM_BLE:
-        r_modem_type = 0;
-        break;
+        case HOSAL_RF_MODEM_BLE: r_modem_type = 0; break;
 
-    case HOSAL_RF_MODEM_2P4G_OQPSK:
-        r_modem_type = 1;
-        break;
+        case HOSAL_RF_MODEM_2P4G_OQPSK: r_modem_type = 1; break;
 
-    default:
-        break;
+        default: break;
     }
     log_info("modem type: %d", r_modem_type);
     /* Update tx power compensation setting to lower layer HW */
@@ -605,16 +614,11 @@ __rf_tx_pwr_ch_comp_set(hosal_rf_tx_power_ch_comp_t* tx_pwr_ch_comp_ctrl) {
              r_tx_pwr_offset2, r_tx_pwr_offset3);
 
     switch (tx_pwr_ch_comp_ctrl->modem_type) {
-    case HOSAL_RF_MODEM_BLE:
-        r_modem_type = 0;
-        break;
+        case HOSAL_RF_MODEM_BLE: r_modem_type = 0; break;
 
-    case HOSAL_RF_MODEM_2P4G_OQPSK:
-        r_modem_type = 1;
-        break;
+        case HOSAL_RF_MODEM_2P4G_OQPSK: r_modem_type = 1; break;
 
-    default:
-        break;
+        default: break;
     }
     log_info("modem type: %d", r_modem_type);
     /* Update tx power compensation setting to lower layer HW */
@@ -642,16 +646,11 @@ __rf_tx_pwr_comp_seg_set(hosal_rf_tx_power_comp_seg_t* tx_pwr_comp_seg_ctrl) {
              tx_pwr_comp_seg_ctrl->segmentB, tx_pwr_comp_seg_ctrl->segmentC);
 
     switch (tx_pwr_comp_seg_ctrl->modem_type) {
-    case HOSAL_RF_MODEM_BLE:
-        r_modem_type = 0;
-        break;
+        case HOSAL_RF_MODEM_BLE: r_modem_type = 0; break;
 
-    case HOSAL_RF_MODEM_2P4G_OQPSK:
-        r_modem_type = 1;
-        break;
+        case HOSAL_RF_MODEM_2P4G_OQPSK: r_modem_type = 1; break;
 
-    default:
-        break;
+        default: break;
     }
     log_info("modem type: %d", r_modem_type);
 
@@ -737,7 +736,8 @@ __rf_15p4_address_filter_set(hosal_rf_15p4_address_filter_t* filter) {
                                 RUCI_CODE_SET15P4_ADDRESS_FILTER);
 }
 
-static hosal_rf_status_t __rf_15p4_ack_packet_get(hosal_rf_15p4_ack_packet_t* ack) {
+static hosal_rf_status_t
+__rf_15p4_ack_packet_get(hosal_rf_15p4_ack_packet_t* ack) {
     uint32_t temp_data;
     uint16_t temp_addr;
     uint8_t packet_length;
@@ -759,7 +759,7 @@ static hosal_rf_status_t __rf_15p4_ack_packet_get(hosal_rf_15p4_ack_packet_t* ac
     temp_addr += is2bytephr ? 4 : 0;
     RfMcu_MemoryGet(temp_addr, (uint8_t*)&temp_data, 4);
     packet_length = is2bytephr ? (uint8_t)(temp_data & 0xff)
-                    : (uint8_t)((temp_data >> 24) & 0xff);
+                               : (uint8_t)((temp_data >> 24) & 0xff);
     temp_addr += is2bytephr ? 0 : 4;
     ack->ack_len = packet_length;
 
@@ -791,7 +791,7 @@ static hosal_rf_status_t __rf_15p4_ack_packet_get(hosal_rf_15p4_ack_packet_t* ac
     ack->ptime[2] = tmp_rtc_time;
     /* Start from 0x4000 + (page*64), the 9th 4-byte*/
     temp_addr = 0x4000 + (page * 64) + (12 * 4);
-    RfMcu_MemoryGet(temp_addr, (uint8_t *)&temp_data, 4);
+    RfMcu_MemoryGet(temp_addr, (uint8_t*)&temp_data, 4);
     *ack->prssi = (temp_data & 0xff);
 
     return HOSAL_RF_STATUS_SUCCESS;
@@ -1009,6 +1009,24 @@ static hosal_rf_status_t __rf_sub_fsk_filter_set(uint32_t filter) {
                                 RUCI_CODE_SET_FSK_TYPE);
 }
 
+static hosal_rf_status_t
+__rf_sub_ble_modem_config_set(hosal_rf_phy_data_rate_t* data_rate) {
+    uint8_t cmd_ptr[RUCI_LEN_SET_BLE_MODEM];
+    SET_RUCI_PARA_SET_BLE_MODEM(cmd_ptr, *data_rate, 0x00);
+    RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_SET_BLE_MODEM);
+    return __rf_sub_command_set(cmd_ptr, RUCI_LEN_SET_BLE_MODEM,
+                                RUCI_CODE_SET_BLE_MODEM);
+}
+
+static hosal_rf_status_t __rf_sub_ble_mac_set(hosal_rf_ble_mac_set_t* mac_set) {
+    uint8_t cmd_ptr[RUCI_LEN_SET_BLE_MAC];
+    SET_RUCI_PARA_SET_BLE_MAC(cmd_ptr, mac_set->sfd, mac_set->whiten_enable,
+                              0x00, 0x00555555);
+    RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_SET_BLE_MAC);
+    return __rf_sub_command_set(cmd_ptr, RUCI_LEN_SET_BLE_MAC,
+                                RUCI_CODE_SET_BLE_MAC);
+}
+
 static hosal_rf_status_t __rf_15p4_op_pan_idx_set(uint32_t pan_idx) {
     uint32_t temp_data;
     uint8_t page;
@@ -1030,7 +1048,7 @@ int hosal_rf_write_command(uint8_t* command_ptr, uint32_t command_len) {
         return HOSAL_RF_STATUS_INVALID_STATE;
     }
     if (RF_MCU_TX_CMDQ_SET_SUCCESS
-            != RfMcu_CmdQueueSend(command_ptr, (uint32_t)command_len)) {
+        != RfMcu_CmdQueueSend(command_ptr, (uint32_t)command_len)) {
         xSemaphoreGive(xSemaphore);
         log_warn("Command queue is full");
         taskYIELD();
@@ -1084,7 +1102,8 @@ uint32_t hosal_rf_read_event(uint8_t* event_data_ptr) {
     uint8_t* pdata = NULL;
     uint32_t event_len = 0;
 
-    if (xQueueReceive(g_rf_evt_handle, (void*)&pdata, portMAX_DELAY) != pdPASS) {
+    if (xQueueReceive(g_rf_evt_handle, (void*)&pdata, portMAX_DELAY)
+        != pdPASS) {
         log_error("!!");
         xSemaphoreGive(xSemaphore);
     } else {
@@ -1104,181 +1123,187 @@ hosal_rf_status_t hosal_rf_ioctl(hosal_rf_ioctl_t ctl, void* p_arg) {
     hosal_rf_status_t rval = HOSAL_RF_STATUS_SUCCESS;
 
     switch (ctl) {
-    case HOSAL_RF_IOCTL_MODEM_SET:
-        rval = __rf_modem_set((hosal_rf_15p4_modem_cnf_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_MODEM_SET:
+            rval = __rf_modem_set((hosal_rf_15p4_modem_cnf_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_FREQUENCY_SET:
-        rval = __rf_frequency_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_FREQUENCY_SET:
+            rval = __rf_frequency_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_RX_ENABLE_SET:
-        rval = __rf_rx_enable_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_RX_ENABLE_SET:
+            rval = __rf_rx_enable_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_TX_CONTINOUS_WAVE_SET:
-        rval = __rf_tx_continuous_wave_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_TX_CONTINOUS_WAVE_SET:
+            rval = __rf_tx_continuous_wave_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_RSSI_GET:
-        rval = __rf_rssi_get((uint8_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_RSSI_GET:
+            rval = __rf_rssi_get((uint8_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SLEEP_SET:
-        rval = __rf_sleep_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SLEEP_SET:
+            rval = __rf_sleep_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_IDLE_SET:
-        rval = __rf_idle_set();
-        break;
+        case HOSAL_RF_IOCTL_IDLE_SET: rval = __rf_idle_set(); break;
 
-    case HOSAL_RF_IOCTL_KEY_SET:
-        rval = __rf_key_set((uint8_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_KEY_SET:
+            rval = __rf_key_set((uint8_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_PTA_CTRL_SET:
-        rval = __rf_pta_ctrl_set((hosal_rf_pta_ctrl_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_PTA_CTRL_SET:
+            rval = __rf_pta_ctrl_set((hosal_rf_pta_ctrl_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_TX_START_SET:
-        rval = __rf_tx_data_start_set((hosal_rf_tx_data_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_TX_START_SET:
+            rval = __rf_tx_data_start_set((hosal_rf_tx_data_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_TX_PWR_SET:
-        rval = __rf_tx_pwr_set((hosal_rf_tx_power_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_TX_PWR_SET:
+            rval = __rf_tx_pwr_set((hosal_rf_tx_power_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_TX_PWR_COMP_SET:
-        rval = __rf_tx_pwr_comp_set((hosal_rf_modem_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_TX_PWR_COMP_SET:
+            rval = __rf_tx_pwr_comp_set((hosal_rf_modem_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_TX_PWR_CH_COMP_SET:
-        rval = __rf_tx_pwr_ch_comp_set((hosal_rf_tx_power_ch_comp_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_TX_PWR_CH_COMP_SET:
+            rval = __rf_tx_pwr_ch_comp_set((hosal_rf_tx_power_ch_comp_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_COMP_SEG_SET:
-        rval = __rf_tx_pwr_comp_seg_set((hosal_rf_tx_power_comp_seg_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_COMP_SEG_SET:
+            rval = __rf_tx_pwr_comp_seg_set(
+                (hosal_rf_tx_power_comp_seg_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_WAKE_ON_RADIO_SET:
-        rval = __rf_wake_on_radio_set((hosal_rf_wake_on_radio_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_WAKE_ON_RADIO_SET:
+            rval = __rf_wake_on_radio_set((hosal_rf_wake_on_radio_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_MAC_PIB_SET:
-        rval = __rf_15p4_mac_pib_set((hosal_rf_15p4_mac_pib_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_MAC_PIB_SET:
+            rval = __rf_15p4_mac_pib_set((hosal_rf_15p4_mac_pib_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_PHY_PIB_SET:
-        rval = __rf_15p4_phy_pib_set((hosal_rf_15p4_phy_pib_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_PHY_PIB_SET:
+            rval = __rf_15p4_phy_pib_set((hosal_rf_15p4_phy_pib_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_ACK_PENDING_BIT_SET:
-        rval = __rf_15p4_ack_pending_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_ACK_PENDING_BIT_SET:
+            rval = __rf_15p4_ack_pending_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_AUTO_ACK_SET:
-        rval = __rf_15p4_auto_ack_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_AUTO_ACK_SET:
+            rval = __rf_15p4_auto_ack_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_AUTO_STATE_SET:
-        rval = __rf_15p4_auto_state_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_AUTO_STATE_SET:
+            rval = __rf_15p4_auto_state_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_ADDRESS_FILTER_SET:
-        rval = __rf_15p4_address_filter_set(
-                   (hosal_rf_15p4_address_filter_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_ADDRESS_FILTER_SET:
+            rval = __rf_15p4_address_filter_set(
+                (hosal_rf_15p4_address_filter_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_ACK_PACKET_GET:
-        rval = __rf_15p4_ack_packet_get((hosal_rf_15p4_ack_packet_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_ACK_PACKET_GET:
+            rval = __rf_15p4_ack_packet_get((hosal_rf_15p4_ack_packet_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_MATCH_SET:
-        rval = __rf_15p4_src_match_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_MATCH_SET:
+            rval = __rf_15p4_src_match_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_SHORT_CONTROL_SET:
-        rval = __rf_15p4_src_match_short_entry(
-                   (hosal_rf_15p4_src_match_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_SHORT_CONTROL_SET:
+            rval = __rf_15p4_src_match_short_entry(
+                (hosal_rf_15p4_src_match_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_EXTEND_CONTROL_SET:
-        rval = __rf_15p4_src_match_extend_entry(
-                   (hosal_rf_15p4_src_match_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_SOURCE_ADDRESS_EXTEND_CONTROL_SET:
+            rval = __rf_15p4_src_match_extend_entry(
+                (hosal_rf_15p4_src_match_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_FRAME_COUNTER_GET:
-        rval = __rf_15p4_frame_counter_get((uint32_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_FRAME_COUNTER_GET:
+            rval = __rf_15p4_frame_counter_get((uint32_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_RTC_TIME_GET:
-        rval = __rf_15p4_rtc_time_read((uint32_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_RTC_TIME_GET:
+            rval = __rf_15p4_rtc_time_read((uint32_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_RX_RTC_TIME_GET:
-        rval = __rf_15p4_rx_rtc_time_read((hosal_rf_15p4_rx_rtc_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_RX_RTC_TIME_GET:
+            rval = __rf_15p4_rx_rtc_time_read((hosal_rf_15p4_rx_rtc_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_2CH_SCAN_FREQUENCY_SET:
-        rval = __rf_15p4_2ch_scan_frequency_set(
-                   (hosal_rf_15p4_2ch_scan_frequency_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_2CH_SCAN_FREQUENCY_SET:
+            rval = __rf_15p4_2ch_scan_frequency_set(
+                (hosal_rf_15p4_2ch_scan_frequency_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_RX_DATA_CHANNEL_GET:
-        rval = __rf_15p4_rx_pkt_channel_get(
-                   (hosal_rf_15p4_rx_pkt_channel_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_RX_DATA_CHANNEL_GET:
+            rval = __rf_15p4_rx_pkt_channel_get(
+                (hosal_rf_15p4_rx_pkt_channel_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_CSL_SAMPLE_TIME_UPDATE_SET:
-        rval = __rf_15p4_csl_sample_time_update_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_CSL_SAMPLE_TIME_UPDATE_SET:
+            rval = __rf_15p4_csl_sample_time_update_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_CSL_RECEIVER_CTRL_SET:
-        rval = __rf_15p4_csl_receiver_ctrl_set(
-                   (hosal_rf_15p4_csl_receiver_ctrl_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_15P4_CSL_RECEIVER_CTRL_SET:
+            rval = __rf_15p4_csl_receiver_ctrl_set(
+                (hosal_rf_15p4_csl_receiver_ctrl_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_OQPSK_DATA_RATE_SET:
-        rval = __rf_sub_qpsk_data_rate_set(
-                   (hosal_rf_phy_oqpsk_data_rate_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_OQPSK_DATA_RATE_SET:
+            rval = __rf_sub_qpsk_data_rate_set(
+                (hosal_rf_phy_oqpsk_data_rate_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_OQPSK_MAC_SET:
-        rval = __rf_sub_qpsk_mac_set((hosal_rf_mac_set_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_OQPSK_MAC_SET:
+            rval = __rf_sub_qpsk_mac_set((hosal_rf_mac_set_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_OQPSK_PREAMBLE_SET:
-        rval = __rf_sub_qpsk_preamble_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_OQPSK_PREAMBLE_SET:
+            rval = __rf_sub_qpsk_preamble_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_FSK_MODEM_CONFIG_SET:
-        rval = __rf_sub_fsk_modem_config_set(
-                   (hosal_rf_modem_config_set_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_FSK_MODEM_CONFIG_SET:
+            rval = __rf_sub_fsk_modem_config_set(
+                (hosal_rf_modem_config_set_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_FSK_MAC_SET:
-        rval = __rf_sub_fsk_mac_set((hosal_rf_mac_set_t*)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_FSK_MAC_SET:
+            rval = __rf_sub_fsk_mac_set((hosal_rf_mac_set_t*)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_FSK_PREAMBLE_SET:
-        rval = __rf_sub_fsk_preamble_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_FSK_PREAMBLE_SET:
+            rval = __rf_sub_fsk_preamble_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_FSK_SFD_SET:
-        rval = __rf_sub_fsk_sfd_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_FSK_SFD_SET:
+            rval = __rf_sub_fsk_sfd_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_SUBG_FSK_FILTER_SET:
-        rval = __rf_sub_fsk_filter_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_FSK_FILTER_SET:
+            rval = __rf_sub_fsk_filter_set((uint32_t)p_arg);
+            break;
 
-    case HOSAL_RF_IOCTL_15P4_OPERATION_PAN_IDX_SET:
-        rval = __rf_15p4_op_pan_idx_set((uint32_t)p_arg);
-        break;
+        case HOSAL_RF_IOCTL_SUBG_BLE_MODEM_CONFIG_SET:
+            rval = __rf_sub_ble_modem_config_set(
+                (hosal_rf_phy_data_rate_t*)p_arg);
+            break;
 
-    default:
-        rval = HOSAL_RF_STATUS_INVALID_PARAMETER;
-        break;
+        case HOSAL_RF_IOCTL_SUBG_BLE_MAC_SET:
+            rval = __rf_sub_ble_mac_set((hosal_rf_ble_mac_set_t*)p_arg);
+            break;
+
+        case HOSAL_RF_IOCTL_15P4_OPERATION_PAN_IDX_SET:
+            rval = __rf_15p4_op_pan_idx_set((uint32_t)p_arg);
+            break;
+
+        default: rval = HOSAL_RF_STATUS_INVALID_PARAMETER; break;
     }
     if (rval != HOSAL_RF_STATUS_SUCCESS) {
         log_error("RF IOCTL(%d) status %d", ctl, rval);
@@ -1289,24 +1314,15 @@ hosal_rf_status_t hosal_rf_ioctl(hosal_rf_ioctl_t ctl, void* p_arg) {
 int hosal_rf_callback_set(int callback_type, hosal_rf_callback_t pfn_callback,
                           void* arg) {
     switch (callback_type) {
-    case HOSAL_RF_PCI_RX_CALLBACK:
-        g_pci_rx_done_cb = pfn_callback;
-        break;
+        case HOSAL_RF_PCI_RX_CALLBACK: g_pci_rx_done_cb = pfn_callback; break;
 
-    case HOSAL_RF_PCI_TX_CALLBACK:
-        g_pci_tx_done_cb = pfn_callback;
-        break;
+        case HOSAL_RF_PCI_TX_CALLBACK: g_pci_tx_done_cb = pfn_callback; break;
 
-    case HOSAL_RF_BLE_EVENT_CALLBACK:
-        g_hci_evt_cb = pfn_callback;
-        break;
+        case HOSAL_RF_BLE_EVENT_CALLBACK: g_hci_evt_cb = pfn_callback; break;
 
-    case HOSAL_RF_BLE_RX_CALLBACK:
-        g_hci_data_cb = pfn_callback;
-        break;
+        case HOSAL_RF_BLE_RX_CALLBACK: g_hci_data_cb = pfn_callback; break;
 
-    default:
-        return HOSAL_RF_STATUS_INVALID_PARAMETER;
+        default: return HOSAL_RF_STATUS_INVALID_PARAMETER;
     }
 
     return HOSAL_RF_STATUS_SUCCESS;
@@ -1331,7 +1347,7 @@ void hosal_rf_init(hosal_rf_mode_t mode) {
     if (xTaskCreate(__rf_proc, (char*)"hoasl-rf",
                     HOSAL_RF_PROC_TASK_SIZE / sizeof(StackType_t), NULL,
                     E_TASK_PRIORITY_HOSAL, &g_rf_taskHandle)
-            != pdPASS) {
+        != pdPASS) {
         puts("Task create fail....");
     }
     g_rf_evt_handle = xQueueCreate(4, sizeof(void*));

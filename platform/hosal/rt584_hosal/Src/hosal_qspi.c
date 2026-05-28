@@ -252,14 +252,14 @@ static hosal_qspi_status_t hosal_qspi_pin_init(hosal_qspi_dev_t* qspi_dev)
             {
                 if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_0)
                 {   
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI0_MASTER_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI0_MASTER_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI0_MASTER_MOSI); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI0_MASTER_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI0_MASTER_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI0_MASTER_MOSI); /*SPI DATA0*/
                             
-                    #if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)                                 //for support e-paper spi operation
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI0_MASTER_SDATA1); /*SPI DATA1*/
+                    #if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)                                //for support e-paper spi operation
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI0_MASTER_SDATA1); /*SPI DATA1*/
                     #else                    
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI0_MASTER_MISO); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI0_MASTER_MISO); /*SPI DATA1*/
                     #endif
                    
 
@@ -267,14 +267,14 @@ static hosal_qspi_status_t hosal_qspi_pin_init(hosal_qspi_dev_t* qspi_dev)
                 else if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_1)
                 {
 
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI1_MASTER_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI1_MASTER_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI1_MASTER_MOSI); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI1_MASTER_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI1_MASTER_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI1_MASTER_MOSI); /*SPI DATA0*/
 
-                    #if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)                                 //for support e-paper spi operation
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI1_MASTER_SDATA1); /*SPI DATA1*/
+                    #if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)    //for support e-paper spi operation
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI1_MASTER_SDATA1); /*SPI DATA1*/
                     #else                    
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI1_MASTER_MISO); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI1_MASTER_MISO); /*SPI DATA1*/
                     #endif
 
                 } 
@@ -287,21 +287,21 @@ static hosal_qspi_status_t hosal_qspi_pin_init(hosal_qspi_dev_t* qspi_dev)
             {
                 if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_0)
                 {
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI0_MASTER_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI0_MASTER_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI0_MASTER_SDATA0); /*SPI DATA0*/
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI0_MASTER_SDATA1); /*SPI DATA1*/
-                    hosal_pin_set_mode(qspi_dev->config.data2, MODE_SPI0_MASTER_SDATA2); /*SPI DATA2*/
-                    hosal_pin_set_mode(qspi_dev->config.data3, MODE_SPI0_MASTER_SDATA3); /*SPI DATA3*/                    
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI0_MASTER_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI0_MASTER_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI0_MASTER_SDATA0); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI0_MASTER_SDATA1); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.data2, HOSAL_MODE_SPI0_MASTER_SDATA2); /*SPI DATA2*/
+                    hosal_pin_set_mode(qspi_dev->config.data3, HOSAL_MODE_SPI0_MASTER_SDATA3); /*SPI DATA3*/                    
                 }
                 else if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_1)
                 {
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI1_MASTER_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI1_MASTER_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI1_MASTER_SDATA0); /*SPI DATA0*/
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI1_MASTER_SDATA1); /*SPI DATA1*/
-                    hosal_pin_set_mode(qspi_dev->config.data2, MODE_SPI1_MASTER_SDATA2); /*SPI DATA2*/
-                    hosal_pin_set_mode(qspi_dev->config.data3, MODE_SPI1_MASTER_SDATA3); /*SPI DATA3*/                    
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI1_MASTER_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI1_MASTER_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI1_MASTER_SDATA0); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI1_MASTER_SDATA1); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.data2, HOSAL_MODE_SPI1_MASTER_SDATA2); /*SPI DATA2*/
+                    hosal_pin_set_mode(qspi_dev->config.data3, HOSAL_MODE_SPI1_MASTER_SDATA3); /*SPI DATA3*/                    
                 }
                 else 
                 {
@@ -315,17 +315,17 @@ static hosal_qspi_status_t hosal_qspi_pin_init(hosal_qspi_dev_t* qspi_dev)
             {
                 if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_0)
                 {
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI0_SLAVE_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI0_SLAVE_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI0_SLAVE_MOSI); /*SPI DATA0*/
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI0_SLAVE_MISO); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI0_SLAVE_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI0_SLAVE_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI0_SLAVE_MOSI); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI0_SLAVE_MISO); /*SPI DATA1*/
                 }
                 else if(qspi_dev->config.qspi_id==HOSAL_QSPI_ID_1)
                 {
-                    hosal_pin_set_mode(qspi_dev->config.clk_pin, MODE_SPI1_SLAVE_SCLK);  /*SPI SCLK*/
-                    hosal_pin_set_mode(qspi_dev->config.cs_pin, MODE_SPI1_SLAVE_CSN0);   /*SPI CS*/
-                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, MODE_SPI1_SLAVE_MOSI); /*SPI DATA0*/
-                    hosal_pin_set_mode(qspi_dev->config.miso_pin, MODE_SPI1_SLAVE_MISO); /*SPI DATA1*/
+                    hosal_pin_set_mode(qspi_dev->config.clk_pin, HOSAL_MODE_SPI1_SLAVE_SCLK);  /*SPI SCLK*/
+                    hosal_pin_set_mode(qspi_dev->config.cs_pin, HOSAL_MODE_SPI1_SLAVE_CSN0);   /*SPI CS*/
+                    hosal_pin_set_mode(qspi_dev->config.mosi_pin, HOSAL_MODE_SPI1_SLAVE_MOSI); /*SPI DATA0*/
+                    hosal_pin_set_mode(qspi_dev->config.miso_pin, HOSAL_MODE_SPI1_SLAVE_MISO); /*SPI DATA1*/
                 } 
                 else
                 {
@@ -371,9 +371,9 @@ hosal_qspi_status_t hosal_qspi_init(hosal_qspi_dev_t* qspi_dev) {
             qspi_dev->config.qspi_id = 1;
         }
 		
-		qspi_dev->config.pre_dly = HOSAL_QSPI_PRE_DEALY_ENABLE;
-		qspi_dev->config.inter_dly = HOSAL_QSPI_INTER_DEALY_ENABLE;	
-		qspi_dev->config.post_dly = HOSAL_QSPI_POST_DEALY_ENABLE;
+		qspi_dev->config.pre_dly = HOSAL_QSPI_PRE_DEALY_DISABLE;
+		qspi_dev->config.inter_dly = HOSAL_QSPI_INTER_DEALY_DISABLE;	
+		qspi_dev->config.post_dly = HOSAL_QSPI_POST_DEALY_DISABLE;
 
         memcpy(ptr, qspi_dev, sizeof(hosal_qspi_dev_t));
 
@@ -910,18 +910,11 @@ hosal_qspi_status_t hosal_qspi_transfer_pio(hosal_qspi_dev_t* qspi_dev,
 						   
 #endif
 
-#if defined(CONFIG_EPD_FOUR_BIT_MODE) ||  defined(CONFIG_EPD_THREE_BIT_MODE)  //for support e-paper spi operation
-    control2_reg = QSPI_BITSIZE_16 | QSPI_NORMAL_SPI
-              | ((ptr->instance->qspi_control & QSPI_CNTL_MASTER)
-                     ? QSPI_Xfer_Extend
-                     : 0);
-#else
+
     control2_reg = QSPI_BITSIZE_8 | QSPI_NORMAL_SPI
               | ((ptr->instance->qspi_control & QSPI_CNTL_MASTER)
                      ? QSPI_Xfer_Extend
                      : 0);
-#endif
-
 
     ptr->instance->qspi_control2 = control2_reg;
     ptr->transfer_cb = NULL;
@@ -931,37 +924,8 @@ hosal_qspi_status_t hosal_qspi_transfer_pio(hosal_qspi_dev_t* qspi_dev,
     ptr->tx_buf = txbuf;
     ptr->rx_buf = rxbuf;
 
-#if defined(CONFIG_EPD_FOUR_BIT_MODE)                                  //for support e-paper spi operation
-    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_en = 1;
-    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_num = 7;
-    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_en = 1;
-    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_num = 8;
-#elif defined(CONFIG_EPD_THREE_BIT_MODE)
-    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_en = 1;
-    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_num = 8;
-    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_en = 0;
-    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_num = 8;
-#endif
-
     while (ptr->tx_xfer_count > 0 || ptr->rx_xfer_count > 0) {
 
-        #if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)                                //for support e-paper spi operation
-        
-                if (!(ptr->instance->qspi_status & QSPI_STATUS_txFull)
-                    && (ptr->tx_xfer_count > 0)) {
-                    ptr->instance->qspi_tx_fifo = *(uint16_t*)ptr->tx_buf;
-                    ptr->tx_buf+=2;
-                    ptr->tx_xfer_count-=2;
-                }
-
-                if (!(ptr->instance->qspi_status & QSPI_STATUS_rxEmpty)
-                    && (ptr->rx_xfer_count > 0)) {
-                    *(uint16_t*)ptr->rx_buf = ptr->instance->qspi_rx_fifo;
-                    ptr->rx_buf+=2;
-                    ptr->rx_xfer_count-=2;
-                }
-
-        #else
                 if (!(ptr->instance->qspi_status & QSPI_STATUS_txFull)
                     && (ptr->tx_xfer_count > 0)) {
                     ptr->instance->qspi_tx_fifo = *ptr->tx_buf;
@@ -975,9 +939,6 @@ hosal_qspi_status_t hosal_qspi_transfer_pio(hosal_qspi_dev_t* qspi_dev,
                     ptr->rx_buf++;
                     ptr->rx_xfer_count--;
                 }
-        #endif
-
-
 
         #if defined(CONFIG_FREERTOS)
         if (xTaskGetTickCount() - tickstart >= timeout) {
@@ -1005,6 +966,141 @@ hosal_qspi_status_t hosal_qspi_transfer_pio(hosal_qspi_dev_t* qspi_dev,
 
     return err;
 }
+
+hosal_qspi_status_t hosal_qspi_transfer_pio_epd(hosal_qspi_dev_t* qspi_dev,
+                                            uint8_t* txbuf, uint8_t* rxbuf,
+                                            uint16_t size, uint32_t timeout)
+{
+    hosal_qspi_status_t err = HOSAL_QSPI_SUCCESS;
+    uint32_t control2_reg;
+    uint32_t tickstart = 0;
+    hosal_qspi_dev_t* ptr;
+    uint8_t id;
+
+    id = hosal_qspi_id_get(qspi_dev);
+    ptr = hosal_qspi_handle_get(id);
+
+#if defined(CONFIG_FREERTOS)
+    tickstart = xTaskGetTickCount();
+#endif
+
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_PARAM, qspi_dev == NULL);
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_PARAM, txbuf == NULL);
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_PARAM, size == 0);
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_PARAM,
+                     ptr->config.qspi_id >= MAX_NUMBER_OF_QSPI);
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_REQUEST,
+                     ptr->qspi_state != QSPI_STATE_IDLE);
+
+    /* only support master pio */
+    HOSAL_QSPI_CHECK(HOSAL_QSPI_INVALID_REQUEST,
+                     !(ptr->instance->qspi_control & QSPI_CNTL_MASTER));
+
+    ptr->qspi_state = HOSAL_QSPI_STATE_TRANSFER;
+
+#if defined(SUPPORT_QSPI0_MULTI_CS)
+    ptr->instance->qspi_ss_config =
+        (ptr->instance->qspi_ss_config & ~(QSPI_SSOUT_MASK)) |
+        (1 << ptr->config.slave_select);
+#endif
+
+#if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)
+    control2_reg = QSPI_BITSIZE_16 | QSPI_NORMAL_SPI | QSPI_Xfer_Extend;
+#else
+    control2_reg = QSPI_BITSIZE_8 | QSPI_NORMAL_SPI | QSPI_Xfer_Extend;
+#endif
+
+    if (rxbuf == NULL) {
+        control2_reg |= QSPI_DISABLE_IN;
+    }
+
+    ptr->instance->qspi_control2 = control2_reg;
+    ptr->transfer_cb = NULL;
+
+#if defined(CONFIG_EPD_FOUR_BIT_MODE)
+    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_en = 1;
+    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_num = 7;
+    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_en = 1;
+    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_num = 8;
+#elif defined(CONFIG_EPD_THREE_BIT_MODE)
+    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_en = 1;
+    ptr->instance->qspi_epd_func.bit.cfg_short_cycle_num = 8;
+    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_en = 0;
+    ptr->instance->qspi_epd_func.bit.cfg_direct_bit_num = 8;
+#endif
+
+#if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)
+    {
+        uint16_t remain = size;
+        uint8_t *p = txbuf;
+
+        while (remain > 0) {
+            if (!(ptr->instance->qspi_status & QSPI_STATUS_txFull)) {
+                ptr->instance->qspi_tx_fifo = *(uint16_t *)p;
+                p += 2;
+                remain -= 2;
+            }
+
+#if defined(CONFIG_FREERTOS)
+            if (xTaskGetTickCount() - tickstart >= timeout) {
+                hosal_qspi_abort(ptr);
+                return HOSAL_QSPI_TIMEOUT;
+            }
+#endif
+        }
+    }
+#else
+    {
+        uint16_t remain = size;
+        uint8_t *p = txbuf;
+
+        while (remain > 0) {
+            if (!(ptr->instance->qspi_status & QSPI_STATUS_txFull)) {
+                ptr->instance->qspi_tx_fifo = *p++;
+                remain--;
+            }
+
+#if defined(CONFIG_FREERTOS)
+            if (xTaskGetTickCount() - tickstart >= timeout) {
+                hosal_qspi_abort(ptr);
+                return HOSAL_QSPI_TIMEOUT;
+            }
+#endif
+        }
+    }
+#endif
+
+    while (!(ptr->instance->qspi_status & QSPI_STATUS_AllCmdDone)) {
+#if defined(CONFIG_FREERTOS)
+        if (xTaskGetTickCount() - tickstart >= timeout) {
+            hosal_qspi_abort(ptr);
+            return HOSAL_QSPI_TIMEOUT;
+        }
+#endif
+    }
+
+    control2_reg &= ~QSPI_Xfer_Extend;
+    ptr->instance->qspi_control2 = control2_reg;
+
+    if (rxbuf != NULL) {
+#if defined(CONFIG_EPD_FOUR_BIT_MODE) || defined(CONFIG_EPD_THREE_BIT_MODE)
+        uint16_t i = 0;
+        while (!(ptr->instance->qspi_status & QSPI_STATUS_rxEmpty)) {
+            *(uint16_t *)(rxbuf + i) = ptr->instance->qspi_rx_fifo;
+            i += 2;
+        }
+#else
+        uint8_t *r = rxbuf;
+        while (!(ptr->instance->qspi_status & QSPI_STATUS_rxEmpty)) {
+            *r++ = ptr->instance->qspi_rx_fifo;
+        }
+#endif
+    }
+
+    ptr->qspi_state = QSPI_STATE_IDLE;
+    return err;
+}
+
 
 hosal_qspi_status_t hosal_qspi_ioctl(hosal_qspi_dev_t* qspi_dev, int ctl,
                                      void* p_arg) {

@@ -1158,10 +1158,13 @@ void MeshForwarder::UpdateNeighborLinkFailures(Neighbor &aNeighbor,
     else if (aError == kErrorNoAck)
     {
         aNeighbor.IncrementLinkFailures();
+        LogInfo("[LinkFail] To:0x%04x, Failures:%u", aNeighbor.GetRloc16(), aNeighbor.GetLinkFailures());
 
         if (aAllowNeighborRemove && (Mle::IsRouterRloc16(aNeighbor.GetRloc16())) &&
             (aNeighbor.GetLinkFailures() >= aFailLimit))
         {
+            LogInfo("[LinkFail] REMOVE NEIGHBOR 0x%04x due to No-Ack limit (%u)", 
+                      aNeighbor.GetRloc16(), aFailLimit);
 #if OPENTHREAD_FTD
             Get<Mle::MleRouter>().RemoveRouterLink(static_cast<Router &>(aNeighbor));
 #else
@@ -1406,7 +1409,17 @@ void MeshForwarder::HandleReceivedFrame(Mac::RxFrame &aFrame)
     rxInfo.mLinkInfo.SetFrom(aFrame);
 
     Get<SupervisionListener>().UpdateOnReceive(rxInfo.mMacAddrs.mSource, rxInfo.IsLinkSecurityEnabled());
-
+    // added update neighbor age
+#if OPENTHREAD_FTD
+    if (mEnabled) 
+    {
+        Neighbor *neighbor = Get<NeighborTable>().FindNeighbor(rxInfo.mMacAddrs.mSource);
+        if (neighbor != nullptr && rxInfo.IsLinkSecurityEnabled())
+        {
+            neighbor->SetLastHeard(TimerMilli::GetNow());
+        }
+    }
+#endif
     switch (aFrame.GetType())
     {
     case Mac::Frame::kTypeData:

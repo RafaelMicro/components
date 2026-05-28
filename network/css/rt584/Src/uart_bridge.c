@@ -139,12 +139,14 @@ TaskHandle_t xrf_ub_sleep_taskHandle;
 
 #if (CHOOSE_UART == UART_0)
 #define UART_OPERATION_PORT 0
+HOSAL_UART_DEV_DECL(uart_dev_bridge, UART_OPERATION_PORT, 17, 16, UART_BAUDRATE_115200)
 #elif (CHOOSE_UART == UART_1)
 #define UART_OPERATION_PORT 1
+HOSAL_UART_DEV_DECL(uart_dev_bridge, UART_OPERATION_PORT, 28, 29, UART_BAUDRATE_115200)
 #else
 #error "undefined UART port"
 #endif
-HOSAL_UART_DEV_DECL(uart_dev_bridge, UART_OPERATION_PORT, 28, 29, UART_BAUDRATE_115200)
+
 
 static struct ruci_hci_message_struct gruci_hci_message_tx_block;
 static struct ble_hci_acl_data_sn_struct ghci_message_tx_data;

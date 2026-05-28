@@ -34,6 +34,7 @@
 
 #include <FreeRTOS.h>
 #include "mem_pool.h"
+#include "flashctl.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -486,21 +486,21 @@ private:
     // Advertisement trickle timer constants - all times are in milliseconds.
     static constexpr uint32_t kAdvIntervalMin                = 5000;  // I_MIN
     static constexpr uint32_t kAdvIntervalNeighborMultiplier = 4000;  // Multiplier for I_MAX per router neighbor
-    static constexpr uint32_t kAdvIntervalMaxLowerBound      = 60000; // Lower bound for I_MAX
-    static constexpr uint32_t kAdvIntervalMaxUpperBound      = 120000; // Upper bound for I_MAX
+    static constexpr uint32_t kAdvIntervalMaxLowerBound      = 12000; // Lower bound for I_MAX
+    static constexpr uint32_t kAdvIntervalMaxUpperBound      = 32000; // Upper bound for I_MAX
     static constexpr uint32_t kReedAdvIntervalMin            = 570000;
     static constexpr uint32_t kReedAdvIntervalMax            = 630000;
 #if OPENTHREAD_CONFIG_MLE_LONG_ROUTES_ENABLE
     static constexpr uint32_t kAdvIntervalMaxLogRoutes = 5000;
 #endif
 
-    static constexpr uint32_t kMaxNeighborAge                = 300000; // Max neighbor age (in msec)
-    static constexpr uint32_t kMaxLeaderToRouterTimeout      = 90000;  // (in msec)
-    static constexpr uint8_t  kMinDowngradeNeighbors         = 4; //7
+    static constexpr uint32_t kMaxNeighborAge                = 240000; // Max neighbor age (in msec)
+    static constexpr uint32_t kMaxLeaderToRouterTimeout      = 255000; //90000;  // (in msec)
+    static constexpr uint8_t  kMinDowngradeNeighbors         = 3; //7
     static constexpr uint8_t  kNetworkIdTimeout              = 255; //120 // (in sec)
     static constexpr uint8_t  kRouterSelectionJitter         = 255; //120 // (in sec)
     static constexpr uint8_t  kRouterDowngradeThreshold      = 28;
-    static constexpr uint8_t  kRouterUpgradeThreshold        = 24;
+    static constexpr uint8_t  kRouterUpgradeThreshold        = 4;
     static constexpr uint16_t kDiscoveryMaxJitter            = 2000;//250; // Max jitter delay Discovery Responses (in msec).
     static constexpr uint16_t kUnsolicitedDataResponseJitter = 500; // Max delay for unsol Data Response (in msec).
     static constexpr uint8_t  kLeaderDowngradeExtraDelay     = 10;  // Extra delay to downgrade leader (in sec).

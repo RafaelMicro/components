@@ -608,12 +608,14 @@ uint32_t getmpsectorinfo(mp_sector_inf_t *MpSectorInf)
 void mpcaldcdcinit(mp_cal_regulator_t *mp_cal_reg)
 {
     uint8_t flag;
-    //uint8_t select;
+    uint32_t chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
+    uint8_t value = 1u;
     uint8_t target_vosel[3];
 
     flag = mp_cal_reg->flag;
     //select = mp_cal_reg->select;
-
+    
+    mpsectorgettxpwrcfg(&value);
 
     target_vosel[0] = mp_cal_reg->target_vosel_1;
     target_vosel[1] = mp_cal_reg->target_vosel_2;
@@ -624,43 +626,28 @@ void mpcaldcdcinit(mp_cal_regulator_t *mp_cal_reg)
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal =  target_vosel[0];
 
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
-
-#if defined(CONFIG_RF_POWER_14DBM)
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[2];
-#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
-#else
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
-#endif
-
-#else
-
-        txpower_default_cfg_t       txpwrlevel;
-
-        txpwrlevel = sys_txpower_getdefault();
-
-        if (txpwrlevel == TX_POWER_14DBM_DEF)
-        {
-
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[2];
-        }
-        else if (txpwrlevel == TX_POWER_0DBM_DEF || txpwrlevel == TX_POWER_20DBM_DEF)
-        {
-
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
-        }
-        else
-        {
-
+        if (chip_id == 0x0584u) {
+            /* value=1 -> 20 1250mv, value=0 -> 14 1600mv*/
+            #if defined(CONFIG_RF_POWER_20DBM)
+                value = 1;
+            #elif defined(CONFIG_RF_POWER_14DBM)
+                value = 0;
+            #endif
+            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = (value == 0u) ? target_vosel[2] : target_vosel[0];
+        } else {
+            /* 1584/3584 heavy都用 target_vosel[0] */
             PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = target_vosel[0];
         }
 
-#endif
 
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_light = target_vosel[0];
 
-
+    } else {
+        if (chip_id == 0x0584u) {
+            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x0A;
+        } else {
+            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x0A;
+        }
     }
 }
 /**
@@ -672,12 +659,15 @@ void mpcaldcdcinit(mp_cal_regulator_t *mp_cal_reg)
 void mpcalldomvinit(mp_cal_regulator_t *mp_cal_reg)
 {
     uint8_t flag;
-    //uint8_t select;
+    uint32_t chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
+    uint8_t value = 1u;
+    
     uint8_t target_vosel[3];;
 
     flag = mp_cal_reg->flag;
     //select = mp_cal_reg->select;
-
+    
+    mpsectorgettxpwrcfg(&value);
 
     target_vosel[0] = mp_cal_reg->target_vosel_1;
     target_vosel[1] = mp_cal_reg->target_vosel_2;
@@ -685,39 +675,29 @@ void mpcalldomvinit(mp_cal_regulator_t *mp_cal_reg)
 
     if ((flag == 1) || (flag == 2))
     {
-
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal =  target_vosel[0];    //1250mv
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
 
-#if defined(CONFIG_RF_POWER_14DBM)
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[2];      //1600mv
-#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
-#else
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
-#endif
-
-#else
-        txpower_default_cfg_t       txpwrlevel;
-
-        txpwrlevel = sys_txpower_getdefault();
-        if (txpwrlevel == TX_POWER_14DBM_DEF)
-        {
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[2];      //1600mv
+        if (chip_id == 0x0584u) {
+            /* value=1 -> 20 1250mv, value=0 -> 14 1600mv*/
+            #if defined(CONFIG_RF_POWER_20DBM)
+                value = 1;
+            #elif defined(CONFIG_RF_POWER_14DBM)
+                value = 0;
+            #endif
+            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = (value == 0u) ? target_vosel[2] : target_vosel[0];
+        } else {
+            /* 1584/3584 heavy都用 target_vosel[0] */
+            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];
         }
-        else if (txpwrlevel == TX_POWER_0DBM_DEF || txpwrlevel == TX_POWER_20DBM_DEF)
-        {
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
-        }
-        else
-        {
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = target_vosel[0];      //1250mv
-        }
-
-#endif
 
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_light = target_vosel[0];      //1250mv
+    } else {
+        if (chip_id == 0x0584u) {
+            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
+        } else {
+            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
+        }
     }
 }
 /**
@@ -1066,163 +1046,150 @@ void mpcalagcreadinit(mp_cal_agc_adc_t *mp_cal_agc)
     mp_cal_temp_adc = mp_cal_agc->adc_temp;
 }
 
+#define MP_TXPWR_LEN            (8u)
+#define MP_TXPWR_EMPTY         (0xFFu)
+
+static uint32_t _mpsector_txpwr_base_addr_get(void)
+{
+    if (flash_size() == FLASH_1024K) {
+    #if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        return 0x100FFFD8u;
+    #else
+        return 0x000FFFD8u;
+    #endif
+    } else if (flash_size() == FLASH_2048K) {
+    #if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        return 0x101FFFD8u;
+    #else
+        return 0x001FFFD8u;
+    #endif
+    } else if (flash_size() == FLASH_4096K) {
+    #if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        return 0x103FFFD8u;
+    #else
+        return 0x003FFFD8u;
+    #endif
+    }
+    return 0u;
+}
+
+static txpower_default_cfg_t _chip_default_txpower_get(uint16_t soc_chip_id)
+{
+    /* 你定義的規則 */
+    if (soc_chip_id == 0x0584u) return TX_POWER_20DBM_DEF; /* 20/14 */
+    if (soc_chip_id == 0x3584u) return TX_POWER_20DBM_DEF; /* 20/0  */
+    if (soc_chip_id == 0x1584u) return TX_POWER_10DBM_DEF; /* 10/0  */
+    return TX_POWER_20DBM_DEF;
+}
+
+static bool _is_txpower_allowed(uint16_t soc_chip_id, uint8_t pwr)
+{
+    if (soc_chip_id == 0x0584u) {
+        return (pwr == TX_POWER_20DBM_DEF) || (pwr == TX_POWER_14DBM_DEF);
+    } else if (soc_chip_id == 0x3584u) {
+        return (pwr == TX_POWER_20DBM_DEF) || (pwr == TX_POWER_0DBM_DEF);
+    } else if (soc_chip_id == 0x1584u) {
+        return (pwr == TX_POWER_10DBM_DEF) || (pwr == TX_POWER_0DBM_DEF);
+    } else {
+        /* unknown：保守允許常見值 */
+        return (pwr == TX_POWER_20DBM_DEF) || (pwr == TX_POWER_14DBM_DEF) ||
+               (pwr == TX_POWER_10DBM_DEF) || (pwr == TX_POWER_0DBM_DEF);
+    }
+}
+
+/* HA4: 強制用 flash_read_bytes 取最新 */
+static uint8_t _mpsector_read_u8(uint32_t addr)
+{
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+    return flash_read_byte(addr);
+#else
+    return 0xFF; /* need nsc */
+#endif
+}
 /**
 *
 * \brief Mp sector initinal AGC Value
 */
-uint8_t mpsectorreadtxpwrcfg()
+static uint8_t _mpsector_txpwr_latest_get(uint16_t soc_chip_id)
 {
+    uint32_t base = _mpsector_txpwr_base_addr_get();
+    uint8_t last = (uint8_t)_chip_default_txpower_get(soc_chip_id);
 
-    uint32_t read_addr = 0;
-    uint8_t txpwrlevel = 0;
-    if (flash_size() == FLASH_1024K)
-    {
-#if defined(CONFIG_FLASHCTRL_SECURE_EN)
-        read_addr = 0x100FFFD8;
-#else
-        read_addr = 0x000FFFD8;
-#endif
-    }
-    else if (flash_size() == FLASH_2048K)
-    {
-#if defined(CONFIG_FLASHCTRL_SECURE_EN)
-        read_addr = 0x101FFFD8;
-#else
-        read_addr = 0x001FFFD8;
-#endif
-    }
-    else if (flash_size() == FLASH_4096K)
-    {
-#if defined(CONFIG_FLASHCTRL_SECURE_EN)
-        read_addr = 0x103FFFD8;
-#else
-        read_addr = 0x003FFFD8;
-#endif
-    }
-
-    uint32_t start = read_addr;      // FD8
-    uint32_t limit = start + 8;      // one-past-end: FD8~FDF 共 8 bytes
-    uint32_t addr;
-    
-    for (addr = start; addr < limit; addr++)
-    {
-        txpwrlevel = flash_read_byte(addr);
-    
-        if ((txpwrlevel == TX_POWER_20DBM_DEF) ||
-            (txpwrlevel == TX_POWER_14DBM_DEF) ||
-            (txpwrlevel == TX_POWER_0DBM_DEF))
-        {
-            break;  // find data
-        }
-        else
-        {
-            txpwrlevel = TX_POWER_14DBM_DEF; // 
+    if (base != 0u) {
+        for (uint32_t i = 0; i < MP_TXPWR_LEN; i++) {
+            uint8_t v = _mpsector_read_u8(base + i);
+            if (v == MP_TXPWR_EMPTY) break;
+            if (_is_txpower_allowed(soc_chip_id, v)) last = v;
         }
     }
-    
-    if (addr >= limit) {
-        txpwrlevel = TX_POWER_14DBM_DEF;
-    }
 
-    set_sys_txpower_default(txpwrlevel);
-
-    return txpwrlevel;
+    return last;
 }
-
-
+/**
+*
+* \brief Mp sector read tx power config
+*/
+uint8_t mpsectorreadtxpwrcfg(void)
+{
+    uint16_t soc_chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
+    uint8_t last = _mpsector_txpwr_latest_get(soc_chip_id);
+    set_sys_txpower_default(last);
+    return last;
+}
+/**
+*
+* \brief Mp sector write tx power config
+*/
 uint32_t mpsectorwritetxpwrcfg(uint8_t updatetxpwrlevel)
 {
+    uint16_t soc_chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
+    uint32_t base = _mpsector_txpwr_base_addr_get();
 
-
-    uint32_t read_addr = 0, i = 0;
-    uint8_t txpwrlevel = 0;
-	uint8_t buf[8];
-    if ((updatetxpwrlevel == TX_POWER_20DBM_DEF) || (updatetxpwrlevel == TX_POWER_14DBM_DEF) || (updatetxpwrlevel == TX_POWER_0DBM_DEF))
-    {
-
-        if (flash_size() == FLASH_1024K)
-        {
-#if defined(CONFIG_FLASHCTRL_SECURE_EN)
-            read_addr = 0x100FFFD8;
-#else
-            read_addr = 0x000FFFD8;
-#endif
-        }
-        else if (flash_size() == FLASH_2048K)
-        {
-#if FLASHCTRL_SECURE_EN==1
-            read_addr = 0x101FFFD8;
-#else
-            read_addr = 0x001FFFD8;
-#endif
-        }
-        else if (flash_size() == FLASH_4096K)
-        {
-#if FLASHCTRL_SECURE_EN==1
-            read_addr = 0x103FFFD8;
-#else
-            read_addr = 0x003FFFD8;
-#endif
-        }
-        uint32_t start = read_addr;      // start addres FD8
-        uint32_t limit = start + 8;      // FD8~FDF 共 8 bytes
-        txpwrlevel = 0xFF;
-        uint32_t addr;
-
-        /* scan 8 bytes */
-        for (addr = start; addr < limit; addr++)
-        {
-            txpwrlevel = flash_read_byte(addr);
-        
-            /* find value */
-            if (txpwrlevel == updatetxpwrlevel)
-            {
-                return STATUS_INVALID_PARAM;
-            }
-        
-            /* new address */
-            if (txpwrlevel == 0xFF)
-            {
-                break;
-            }
-        }
-
-        /* New address */
-        if (txpwrlevel == 0xFF)
-        {
-            if (addr < limit)
-            {
-         
-                flash_write_mpsector_txpwrcfgbyte(addr, updatetxpwrlevel);
-        
-                if (addr != start)
-                {
-                    flash_write_mpsector_txpwrcfgbyte(addr - 1, 0x00);
-                }
-				
-                set_sys_txpower_default(updatetxpwrlevel);
-        
-                return STATUS_SUCCESS;
-            }
-            else
-            {
-                return STATUS_INVALID_REQUEST;   // over address
-            }
-        }
-        else
-        {
-            return STATUS_ERROR;                 // record full
-        }
-    }
-    else   //unknow tx power type;
-    {
-
+    if (base == 0u) {
         return STATUS_INVALID_PARAM;
     }
 
+    if (!_is_txpower_allowed(soc_chip_id, updatetxpwrlevel)) {
+        return STATUS_INVALID_PARAM;
+    }
 
+    /* 去重：最後有效值 == 新值，就不寫 */
+    if (_mpsector_txpwr_latest_get(soc_chip_id) == updatetxpwrlevel) {
+        return STATUS_SUCCESS;
+    }
 
+    /* 找第一個 0xFF slot */
+    uint32_t address = 0u;
+    bool found = false;
+
+    for (uint32_t i = 0; i < MP_TXPWR_LEN; i++) {
+        uint8_t v = _mpsector_read_u8(base + i);
+        if (v == MP_TXPWR_EMPTY) {
+            address = base + i;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        return STATUS_ERROR;   /* journal full */
+    }
+
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+
+    uint32_t rc = flash_write_mpsector_txpwrcfgbyte(address, updatetxpwrlevel);
+    if (rc != STATUS_SUCCESS) {
+        return rc;
+    }
+
+    while (flash_check_busy()) {;}
+
+    set_sys_txpower_default(updatetxpwrlevel);
     return STATUS_SUCCESS;
+
+#else
+    return STATUS_UNSUPPORTED;   /* need nsc */
+#endif
 }
 
 /**
@@ -1299,7 +1266,6 @@ uint32_t mpcalrftrimwrite(uint32_t mp_id, MPK_RF_TRIM_T *mp_cal_rf)
 	        write_addr = MpInf.cal_data_sector_addr + offset;
 	    }
 	#else
-	    /* Non-RT584HA4: valid_rf_trim is a pointer in flash memory map already */
 	    write_addr = (uint32_t)valid_rf_trim;
 	#endif
 	
@@ -1336,6 +1302,52 @@ uint32_t mpcalrftrimwrite(uint32_t mp_id, MPK_RF_TRIM_T *mp_cal_rf)
 
 
     return write_status;
+}
+
+uint32_t mpsectorgettxpwrcfg(uint8_t *value)
+{
+    mp_tx_power_trim_t sTx_power_trim;
+
+    /* check value */
+    if (!value) {
+        return STATUS_INVALID_PARAM;
+    }
+
+    /* default High Power*/
+    *value = 1u;
+
+    /* read MP sector */
+    if (mpcalrftrimread(MP_ID_TX_POWER_TRIM,
+                        MP_CNT_TX_POWER_TRIM,
+                        (uint8_t *)&sTx_power_trim) != STATUS_SUCCESS)
+    {
+        /* default High Power */
+        return STATUS_SUCCESS;
+    }
+
+    /* check flag is vaild */
+    if (!((sTx_power_trim.flag == 1u) ||
+          (sTx_power_trim.flag == 2u)))
+    {
+        /* High Power */
+        return STATUS_SUCCESS;
+    }
+
+    uint32_t chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
+ 
+    if ((chip_id == 0x1584u) || (chip_id == 0x3584u)){
+        
+        *value = ((sTx_power_trim.tx_gain_idx_2g_fsk & BIT6) != 0u) ? 1u : 0u;
+    }
+    else if (chip_id == 0x0584u){
+
+        *value = ((sTx_power_trim.tx_gain_idx_subg0_fsk & BIT6) != 0u) ? 1u : 0u;
+    }
+    else {
+        *value = 1u; /*keep High Power */
+    }
+
+    return STATUS_SUCCESS;
 }
 
 uint32_t mpcalrftrimread(uint32_t mp_id, uint32_t byte_cnt, uint8_t *mp_sec_data)
@@ -2286,12 +2298,7 @@ uint32_t fttompcalibration()
     mp_temp_k_t                 mp_temp_k;
     mp_cal_agc_adc_t            mp_agc;
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM)
-#elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
-#else
-    txpower_default_cfg_t       txpwrlevel;
-    txpwrlevel = sys_txpower_getdefault();
-#endif
+
 #if defined(CONFIG_FLASHCTRL_SECURE_EN)
     if (flash_read_otp_sec_page((uint32_t)ft_rd_buf_addr) != STATUS_SUCCESS)
     {
@@ -2300,7 +2307,6 @@ uint32_t fttompcalibration()
 #else
     //need to use nsc function
 #endif
-
 
     //MP_ID_DCDC
     ft_pmu_temp = *(ft_cal_regulator_t *)(ft_rd_buf_addr + FT_DCDC_OFFSET);
@@ -2311,40 +2317,10 @@ uint32_t fttompcalibration()
         result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal =  GET_BYTE0(result);
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
-
-#if defined(CONFIG_RF_POWER_14DBM)
-        result = fttovoselcal(MP_ID_DCDC, 1600, &ft_pmu_temp); //Target volatge 1250;
+        /* heavy: SW calibration default -> always High power (1250mV) */
+        result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp);
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
 
-#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-        result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
-#else
-        result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
-#endif
-
-#else
-
-
-
-        if (txpwrlevel == TX_POWER_14DBM_DEF)
-        {
-            result = fttovoselcal(MP_ID_DCDC, 1600, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
-        }
-        else if (txpwrlevel == TX_POWER_0DBM_DEF || txpwrlevel == TX_POWER_20DBM_DEF)
-        {
-            result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
-        }
-        else
-        {
-            result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = GET_BYTE0(result);
-        }
-#endif
         result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_light = GET_BYTE0(result);
 
@@ -2359,41 +2335,14 @@ uint32_t fttompcalibration()
         result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal =  GET_BYTE0(result);
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
+        /* heavy: SW calibration default -> always High power (1250mV) */
+        result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp);
+        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
 
-#if defined(CONFIG_RF_POWER_14DBM)
-        result = fttovoselcal(MP_ID_LDOMV, 1600, &ft_pmu_temp); //Target volatge 1250;
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-#elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-        result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1250;
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-#else
-        result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-#endif
-
-#else
-        if (txpwrlevel == TX_POWER_14DBM_DEF)
-        {
-            result = fttovoselcal(MP_ID_LDOMV, 1600, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-        }
-        else if (txpwrlevel == TX_POWER_0DBM_DEF || txpwrlevel == TX_POWER_20DBM_DEF)
-        {
-            result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-        }
-        else
-        {
-            result = fttovoselcal(MP_ID_DCDC, 1250, &ft_pmu_temp); //Target volatge 1250;
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = GET_BYTE0(result);
-        }
-#endif
         result = fttovoselcal(MP_ID_LDOMV, 1250, &ft_pmu_temp); //Target volatge 1.25v;
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_light = GET_BYTE0(result);
 
     }
-
 
 
     //MP_ID_LDOANA

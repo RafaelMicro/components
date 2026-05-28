@@ -69,7 +69,7 @@ if(NOT PYTHON_EXEC_RESULT EQUAL 0)
     set(BUILD_TIME_HEX "00000000")
 endif()
 
-set(OT_PACKAGE_VERSION "${GIT_COMMIT_HASH}-${BUILD_TIME_4BYTE}" CACHE STRING "OpenThread Package Version")
+set(OT_PACKAGE_VERSION "${GIT_COMMIT_HASH}-${BUILD_TIME_4BYTE}" CACHE STRING "OpenThread Package Version" FORCE)
 
 configure_file(
     "${CMAKE_CURRENT_LIST_DIR}/miu_port/include/miu_bin_version.h.in"
@@ -93,7 +93,9 @@ add_compile_options(
 # === OT config ===
 add_compile_options(-DOPENTHREAD_CONFIG_PLATFORM_INFO="${CONFIG_BOARD}")
 
-if(CONFIG_MIU_DEVICE_TYPE_FTD)
+if(CONFIG_USER_PROJECT)
+    set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/user_project/${CONFIG_BUILD_PORJECT}/include")
+elseif(CONFIG_MIU_DEVICE_TYPE_FTD)
     set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/examples/sub-g/mesh-it-up/miu-ftd/include")
 elseif(CONFIG_MIU_DEVICE_TYPE_MTD)
     set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/examples/sub-g/mesh-it-up/miu-mtd/include")

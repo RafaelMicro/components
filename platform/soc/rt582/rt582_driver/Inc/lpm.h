@@ -145,8 +145,8 @@ typedef enum {
  */
 typedef enum {
     COMMUMICATION_SUBSYSTEM_PWR_STATE_TRANSITION = 0x00,    /*!< sub system transition mode */
-    COMMUMICATION_SUBSYSTEM_PWR_STATE_DEEP_SLEEP = 0x01,    /*!< sub system enter sleep mode */
-    COMMUMICATION_SUBSYSTEM_PWR_STATE_SLEEP      = 0x02,    /*!< sub system enter deep sleep mode */
+    COMMUMICATION_SUBSYSTEM_PWR_STATE_DEEP_SLEEP = 0x01,    /*!< sub system enter deep sleep mode */
+    COMMUMICATION_SUBSYSTEM_PWR_STATE_SLEEP      = 0x02,    /*!< sub system enter sleep mode */
     COMMUMICATION_SUBSYSTEM_PWR_STATE_NORMAL     = 0x03,    /*!< sub system normal mode */
 } commumication_subsystem_pwr_mode_cfg_t;
 

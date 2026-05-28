@@ -286,11 +286,11 @@ void otrUnlock(void);
  *
 *******************************************************************************/
 #define OT_THREAD_SAFE(...)                                                    \
-    otrLock();                                                                 \
     do {                                                                       \
+        otrLock();                                                             \
         __VA_ARGS__;                                                           \
-    } while (0);                                                               \
-    otrUnlock();
+        otrUnlock();                                                           \
+    } while (0);
 
 /****************************************************************************/ /**
  * @brief  Macro OT_THREAD_SAFE_RET provides a method to access OpenThread with
@@ -335,6 +335,7 @@ void otrUnlock(void);
         ot_system_event_var |= __b;                                            \
         for (int i = 0; i < 32; i++) {                                         \
             if ((__b >> i) & 1) {                                              \
+                assert(ot_EvtCount[i] < 255);                                  \
                 ot_EvtCount[i]++;                                              \
             }                                                                  \
         }                                                                      \
@@ -426,6 +427,8 @@ typedef struct {
 void otPlatRadioGetChannelRange(otRadioChRange_t* range);
 
 void otPlatRadioSetChannelRange(otRadioChRange_t range);
+
+bool otPlatRadioIsTransmitPending(void);
 
 #ifdef __cplusplus
 }

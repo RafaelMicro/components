@@ -34,7 +34,7 @@
 #define BLE_FOTA_IMAGE_COMPRESS_SUPPORT  (0x01)
 
 #ifndef BLE_VERSION
-#define BLE_VERSION "sys ver 0002"
+#define BLE_VERSION "sys ver 0001"
 #endif
 /**************************************************************************************************
  *    CONSTANTS AND DEFINES

@@ -528,6 +528,7 @@ void MleRouter::ResetAdvertiseInterval(void)
         mAdvertiseTrickleTimer.Start(TrickleTimer::kModeTrickle, kAdvIntervalMin, DetermineAdvertiseIntervalMax());
     }
 
+    // Reset the current interval to trigger an immediate advertisement.
     mAdvertiseTrickleTimer.IndicateInconsistent();
 
 exit:
@@ -1113,9 +1114,11 @@ Error MleRouter::ProcessRouteTlv(const RouteTlv &aRouteTlv, RxInfo &aRxInfo)
     }
 
     mRouterTable.UpdateRouterIdSet(aRouteTlv.GetRouterIdSequence(), aRouteTlv.GetRouterIdMask());
-
+    LogInfo("IsRoute=%d, !mRouterTable.IsAllocated(mRouterId)=%d",
+            IsRouter(), !mRouterTable.IsAllocated(mRouterId));
     if (IsRouter() && !mRouterTable.IsAllocated(mRouterId))
     {
+        LogInfo("No longer a router (removed from Router Table)");
         IgnoreError(BecomeDetached());
         error = kErrorNoRoute;
     }
@@ -1280,7 +1283,7 @@ Error MleRouter::HandleAdvertisementOnFtd(RxInfo &aRxInfo, uint16_t aSourceAddre
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Process `RouteTlv`
-
+    LogInfo("Process RouteTlv NeighborStateValid=%d ", aRxInfo.IsNeighborStateValid());
     if (aRxInfo.IsNeighborStateValid() && mRouterTable.IsRouteTlvIdSequenceMoreRecent(routeTlv))
     {
         SuccessOrExit(error = ProcessRouteTlv(routeTlv, aRxInfo));
@@ -1372,16 +1375,6 @@ Error MleRouter::HandleAdvertisementOnFtd(RxInfo &aRxInfo, uint16_t aSourceAddre
 
     // Send unicast link request if no link to router and no
     // unicast/multicast link request in progress
-    // if(IsRouter())
-    // {
-    //     info("form-%d route-%d  \r\n", aRxInfo.mNeighbor->GetRouterId(), mRouterId);
-    //     info("Foreign cost %d (%d/%d)\r\n",routeTlv.GetRouteCost(mRouterId),routeTlv.GetLinkQualityIn(mRouterId), routeTlv.GetLinkQualityOut(mRouterId));
-    //     info("Local cost %d (%d/%d)\r\n", router->GetCost(), aRxInfo.mNeighbor->GetLinkQualityIn(), router->GetLinkQualityOut());
-    // }
-    // if(!router->IsStateValid())
-    // {
-    //     info("[MLE] adv link (%04x) %d %d %d (%d) \r\n", router->GetRloc16(), router->GetState(), (linkMargin >= kLinkRequestMinMargin), routeTlv.IsRouterIdSet(mRouterId), aRxInfo.mMessage.GetAverageRss());
-    // }
     LogInfo("adv link %d %d %d %d\n", !router->IsStateValid(), !router->IsStateLinkRequest(), (linkMargin >= kLinkRequestMinMargin), routeTlv.IsRouterIdSet(mRouterId));
     if (!router->IsStateValid() && !router->IsStateLinkRequest() && (linkMargin >= kLinkRequestMinMargin) &&
         routeTlv.IsRouterIdSet(mRouterId))
@@ -1665,7 +1658,9 @@ void MleRouter::HandleTimeTick(void)
             ExitNow();
         }
 
-        OT_FALL_THROUGH;
+        /* comment, REED ignores leader age to prevent timeout.*/
+        // OT_FALL_THROUGH;
+        break;
 
     case kRoleRouter:
         LogDebg("Leader age %lu", ToUlong(mRouterTable.GetLeaderAge()));
@@ -1807,6 +1802,14 @@ void MleRouter::HandleTimeTick(void)
         if (IsLeader() && (mRouterTable.FindNextHopOf(router) == nullptr) &&
             (mRouterTable.GetLinkCost(router) >= kMaxRouteCost) && (age >= kMaxLeaderToRouterTimeout))
         {
+            LogInfo("LeaderCheck: Router:0x%04x, Extaddr %02x%02x%02x%02x%02x%02x%02x%02x Age:%lu/%lu, Cost:%d, NextHop:%p", 
+                    router.GetRloc16(), 
+                    router.GetExtAddress().m8[0], router.GetExtAddress().m8[1], router.GetExtAddress().m8[2], router.GetExtAddress().m8[3],
+                    router.GetExtAddress().m8[4], router.GetExtAddress().m8[5], router.GetExtAddress().m8[6], router.GetExtAddress().m8[7],
+                    ToUlong(age / 1000),
+                    ToUlong(kMaxLeaderToRouterTimeout / 1000),
+                    mRouterTable.GetLinkCost(router),
+                    static_cast<void*>(mRouterTable.FindNextHopOf(router)));
             LogInfo("Router 0x%04x ID timeout expired (no route)", router.GetRloc16());
             IgnoreError(mRouterTable.Release(router.GetRouterId()));
         }

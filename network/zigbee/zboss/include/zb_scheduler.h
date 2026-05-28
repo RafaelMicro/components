@@ -327,9 +327,12 @@ zb_ret_t zb_schedule_callback(zb_callback_t func, zb_uint8_t param);
    See sched sample
  */
 //#define ZB_SCHEDULE_CALLBACK(func, param) (void)zb_schedule_callback(func, param)
-#define ZB_SCHEDULE_CALLBACK(func, param) do { if(zb_schedule_callback(func, param) == RET_OVERFLOW) \
-                                                    if(param > 0 && param<= ZB_IOBUF_POOL_SIZE ) \
-                                                        zb_buf_free(param); } while(0)
+#define ZB_SCHEDULE_CALLBACK(func, param) do {                                          \
+    zb_uint8_t _buf_ref = (zb_uint8_t)(param);                                          \
+    if(zb_schedule_callback(func, _buf_ref) == RET_OVERFLOW)                            \
+        if(_buf_ref != 0 && _buf_ref <= (zb_uint8_t)(ZB_IOBUF_POOL_SIZE))              \
+            zb_buf_free(_buf_ref);                                                       \
+} while(0)
 
 zb_ret_t zb_schedule_callback2(zb_callback2_t func, zb_uint8_t param, zb_uint16_t user_param);
 
@@ -387,9 +390,12 @@ zb_ret_t zb_schedule_alarm(zb_callback_t func, zb_uint8_t param, zb_time_t timeo
    See any sample
  */
 //#define ZB_SCHEDULE_ALARM(func, param, timeout_bi) (void)zb_schedule_alarm(func, param, timeout_bi)
-#define ZB_SCHEDULE_ALARM(func, param, timeout_bi)  do { if(zb_schedule_alarm(func, param, timeout_bi) == RET_OVERFLOW) \
-                                                            if(param > 0 && param<= ZB_IOBUF_POOL_SIZE ) \
-                                                                zb_buf_free(param); } while(0)
+#define ZB_SCHEDULE_ALARM(func, param, timeout_bi)  do {                                \
+    zb_uint8_t _buf_ref = (zb_uint8_t)(param);                                          \
+    if(zb_schedule_alarm(func, _buf_ref, timeout_bi) == RET_OVERFLOW)                   \
+        if(_buf_ref != 0 && _buf_ref <= (zb_uint8_t)(ZB_IOBUF_POOL_SIZE))              \
+            zb_buf_free(_buf_ref);                                                       \
+} while(0)
 
 /**
    Cancel scheduled alarm.

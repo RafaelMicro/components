@@ -177,6 +177,7 @@ uint32_t flash_read_byte_check_addr(uint32_t* buf_addr, uint32_t read_addr) {
 }
 
 uint32_t flash_erase(flash_erase_mode_t mode, uint32_t flash_addr) {
+    
     if (mode > FLASH_ERASE_SECURE) {
         return STATUS_INVALID_PARAM;
     }

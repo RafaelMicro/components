@@ -4,7 +4,17 @@
 
 message("\t+ Configuring miu_port library")
 
-set(MIU_PORT_LIB_FILE ${CMAKE_CURRENT_LIST_DIR}/lib/libmiu_port_lib.a)
+# Select prebuilt lib by IC family
+if((${CONFIG_CHIP} STREQUAL "RT581") OR (${CONFIG_CHIP} STREQUAL "RT582") OR (${CONFIG_CHIP} STREQUAL "RT583"))
+    set(MIU_PORT_LIB_SUBDIR "rt58x")
+elseif((${CONFIG_CHIP} STREQUAL "RT584H") OR (${CONFIG_CHIP} STREQUAL "RT584HA4") OR
+       (${CONFIG_CHIP} STREQUAL "RT584L") OR (${CONFIG_CHIP} STREQUAL "RF1301"))
+    set(MIU_PORT_LIB_SUBDIR "rt584")
+else()
+    message(FATAL_ERROR "[miu_port] Unsupported chip: ${CONFIG_CHIP}")
+endif()
+
+set(MIU_PORT_LIB_FILE ${CMAKE_CURRENT_LIST_DIR}/lib/libmiu_port_${MIU_PORT_LIB_SUBDIR}_lib.a)
 
 # Check if source exists
 file(GLOB MIU_PORT_SRC_FILES
@@ -18,6 +28,7 @@ if(MIU_PORT_SRC_FILES)
 
     # === Build library from source ===
     sdk_generate_library(miu_port_lib)
+    set_target_properties(miu_port_lib PROPERTIES OUTPUT_NAME "miu_port_${MIU_PORT_LIB_SUBDIR}_lib")
 
     # Include headers
     sdk_add_include_directories(
@@ -56,9 +67,9 @@ else()
         get_filename_component(MIU_PORT_LIB_FILE_ABS ${MIU_PORT_LIB_FILE} ABSOLUTE)
         message(STATUS "[miu_port] Prebuilt lib found → use prebuilt lib: ${MIU_PORT_LIB_FILE_ABS}")
 
-        add_library(miu_port_lib STATIC IMPORTED GLOBAL)
+        add_library(miu_port_lib INTERFACE IMPORTED GLOBAL)
         set_target_properties(miu_port_lib PROPERTIES
-            IMPORTED_LOCATION ${MIU_PORT_LIB_FILE_ABS}
+            INTERFACE_LINK_OPTIONS "-Wl,--whole-archive;${MIU_PORT_LIB_FILE_ABS};-Wl,--no-whole-archive"
         )
         sdk_add_include_directories(include)
     else()

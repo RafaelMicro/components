@@ -28,8 +28,18 @@ void subg_ctrl_modem_config_set(subg_ctrl_modulation_t modulation,
     config.modulation_index = modulation_index;
 
     if (modulation == SUBG_CTRL_MODU_FSK) {
-        hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_FSK_MODEM_CONFIG_SET,
-                       (void*)&config);
+#if (defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583))
+        if (data_rate <= SUBG_CTRL_DATA_RATE_1M)
+        {
+            hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_BLE_MODEM_CONFIG_SET,
+                           (void*)&data_rate);
+        }
+        else
+#endif
+        {
+            hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_FSK_MODEM_CONFIG_SET,
+                           (void*)&config);
+        }
     } else if (modulation == SUBG_CTRL_MODU_OPQSK) {
         hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_OQPSK_DATA_RATE_SET,
                        (void*)&data_rate);
@@ -45,12 +55,22 @@ void subg_ctrl_mac_set(subg_ctrl_modulation_t modulation,
     mac_set.whiten_enable = whiten_enable;
 
     if (modulation == SUBG_CTRL_MODU_FSK) {
-        hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_FSK_PREAMBLE_SET, (void*)&mac_set);
+        hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_FSK_MAC_SET, (void*)&mac_set);
     } else if (modulation == SUBG_CTRL_MODU_OPQSK) {
         hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_OQPSK_MAC_SET, (void*)&mac_set);
     }
 }
+#if (defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583))
+void subg_ctrl_ble_mac_set(uint32_t sfd,
+                           subg_ctrl_whiten_t whiten_enable) {
+    hosal_rf_ble_mac_set_t ble_mac_set;
 
+    ble_mac_set.sfd = sfd;
+    ble_mac_set.whiten_enable = whiten_enable;
+
+    hosal_rf_ioctl(HOSAL_RF_IOCTL_SUBG_BLE_MAC_SET, (void*)&ble_mac_set);
+}
+#endif
 void subg_ctrl_preamble_set(subg_ctrl_modulation_t modulation,
                             uint32_t preamble_len) {
     if (modulation == SUBG_CTRL_MODU_FSK) {

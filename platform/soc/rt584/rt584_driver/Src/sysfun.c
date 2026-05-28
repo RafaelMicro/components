@@ -15,7 +15,7 @@
  */
 
 
-
+#include <stdio.h>
 #include <string.h>
 #include "mcu.h"
 #include "assert_help.h"
@@ -35,23 +35,31 @@
  */
 static int critical_counter = 0;
 static txpower_default_cfg_t   tx_pwr_level;
+static uint8_t critical_before_start = 0;
 
-void early_init_before_use(void) {
+void early_init_before_use(void)
+{
     critical_counter = 0;
+    critical_before_start = 1;
 }
 
 void enter_critical_section(void) {
 
 #if defined(CONFIG_FREERTOS)
-    if (portNVIC_INT_CTRL_REG & 0xFF) {
-        return;
-    }
-
-    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+    if( critical_before_start == 1 ) {
         __disable_irq();
     } else {
-        vPortEnterCritical();
+        if (portNVIC_INT_CTRL_REG & 0xFF) {
+        return;
+        }
+
+        if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+            __disable_irq();
+        } else {
+            vPortEnterCritical();
+        }
     }
+    
 #else
     __disable_irq();
 #endif
@@ -63,22 +71,31 @@ void enter_critical_section(void) {
 void leave_critical_section(void) {
 
 #if defined(CONFIG_FREERTOS)
-    if (portNVIC_INT_CTRL_REG & 0xFF) {
-        return;
-    }
-    critical_counter--;
-    assert_param(critical_counter >= 0);
-
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        vPortExitCritical();
-    }
-
-    if (critical_counter == 0) {
-
-        if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+    if( critical_before_start == 1 ) {
+        critical_counter--;
+        assert_param(critical_counter >= 0);
+        if (critical_counter == 0) {
             __enable_irq();
         }
+    } else {
+        if (portNVIC_INT_CTRL_REG & 0xFF) {
+            return;
+        }
+        critical_counter--;
+        assert_param(critical_counter >= 0);
+
+        if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+            vPortExitCritical();
+        }
+
+        if (critical_counter == 0) {
+
+            if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+                __enable_irq();
+            }
+        }
     }
+
 #else
     critical_counter--;
     assert_param(critical_counter >= 0);
@@ -293,7 +310,9 @@ slow_clock_mode_cfg_t sys_slow_clk_mode(void)
  */
 txpower_default_cfg_t sys_txpower_getdefault(void)
 {
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_10DBM)
+    /* 1) Build-time fixed default (highest priority) */
+#if defined(CONFIG_RF_POWER_20DBM) || defined(CONFIG_RF_POWER_14DBM) || \
+    defined(CONFIG_RF_POWER_10DBM) || defined(CONFIG_RF_POWER_0DBM)
 
     txpower_default_cfg_t    PowerDefault;
 
@@ -302,7 +321,7 @@ txpower_default_cfg_t sys_txpower_getdefault(void)
 #elif defined(CONFIG_RF_POWER_14DBM)
     PowerDefault = TX_POWER_14DBM_DEF;
 #elif defined(CONFIG_RF_POWER_10DBM)
-    PowerDefault = TX_POWER_10DBM_DEF;    
+    PowerDefault = TX_POWER_10DBM_DEF;
 #else
     PowerDefault = TX_POWER_0DBM_DEF;
 #endif
@@ -310,64 +329,73 @@ txpower_default_cfg_t sys_txpower_getdefault(void)
     return PowerDefault;
 
 #else
+    /* 2) Runtime default from MP sector record (FD8~FDF), fallback by chip_id */
+    uint32_t read_addr = 0;
+    uint16_t soc_chip_id = (uint16_t)SYSCTRL->soc_chip_info.bit.chip_id;
+    uint8_t  txpwrlevel  = 0xFF;
 
-    uint32_t read_addr=0, i=0;
-    uint16_t soc_chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
-    uint8_t  txpwrlevel;
-
-    if (flash_size() == FLASH_1024K)
-    {
-        #if defined(CONFIG_FLASHCTRL_SECURE_EN)
-                read_addr = 0x100FFFD8;
-        #else
-                read_addr = 0x000FFFD8;
-        #endif
-    }
-    else if (flash_size() == FLASH_2048K)
-    {
-        #if defined(CONFIG_FLASHCTRL_SECURE_EN)
-                read_addr = 0x101FFFD8;
-        #else
-                read_addr = 0x001FFFD8;
-        #endif
+    /* chip-based fallback default */
+    txpower_default_cfg_t chip_default;
+    if (soc_chip_id == 0x0584) {
+        chip_default = TX_POWER_20DBM_DEF;  /* 0584: High=14 */
+    } else if (soc_chip_id == 0x1584) {
+        chip_default = TX_POWER_10DBM_DEF;  /* 1584: High=10 */
+    } else if (soc_chip_id == 0x3584) {
+        chip_default = TX_POWER_20DBM_DEF;  /* 3584: High=20 */
+    } else {
+        chip_default = TX_POWER_20DBM_DEF;  /* safe default */
     }
 
-    i = (read_addr + 7); //FD8~FDF, 8bytes
+    /* locate FD8 base */
+    if (flash_size() == FLASH_1024K) {
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        read_addr = 0x100FFFD8u;
+#else
+        read_addr = 0x000FFFD8u;
+#endif
+    } else if (flash_size() == FLASH_2048K) {
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        read_addr = 0x101FFFD8u;
+#else
+        read_addr = 0x001FFFD8u;
+#endif
+    } else if (flash_size() == FLASH_4096K) {
+#if defined(CONFIG_FLASHCTRL_SECURE_EN)
+        read_addr = 0x103FFFD8u;
+#else
+        read_addr = 0x003FFFD8u;
+#endif
+    } else {
+        return chip_default;
+    }
 
-    for (read_addr = read_addr; read_addr < i; read_addr++)
+    /* scan 8 bytes: FD8 ~ FDF */
     {
+        uint32_t start = read_addr;
+        uint32_t limit = start + 8u; /* one-past-end */
+        uint32_t addr;
 
-        txpwrlevel = (*(uint8_t *)(read_addr));
+        for (addr = start; addr < limit; addr++) {
 
-        if ((txpwrlevel == TX_POWER_20DBM_DEF) || (txpwrlevel == TX_POWER_14DBM_DEF) || (txpwrlevel == TX_POWER_0DBM_DEF)  || (txpwrlevel == TX_POWER_10DBM_DEF))
-        {
+#if defined(CONFIG_RT584HA4)
+            /* RT584HA4: must read via flash API (do NOT dereference addr) */
+            txpwrlevel = flash_read_byte(addr);
 
-            break;
+#else
+            /* others: direct memory-mapped access */
+            txpwrlevel = *(volatile uint8_t *)(addr);
+#endif
+
+            if ((txpwrlevel == TX_POWER_20DBM_DEF) ||
+                (txpwrlevel == TX_POWER_14DBM_DEF) ||
+                (txpwrlevel == TX_POWER_10DBM_DEF) ||
+                (txpwrlevel == TX_POWER_0DBM_DEF)) {
+                return (txpower_default_cfg_t)txpwrlevel;
+            }
         }
-        else
-        {
-            if(soc_chip_id==0x0584)
-            {
-                txpwrlevel = TX_POWER_14DBM_DEF;
-            }
-            else if(soc_chip_id==0x1584)
-            {
-                txpwrlevel = TX_POWER_10DBM_DEF;   
-            }
-            else if(soc_chip_id==0x3584)
-            {
-                txpwrlevel = TX_POWER_20DBM_DEF;
-            }
-           else
-            {
-                txpwrlevel = TX_POWER_14DBM_DEF;
-            }
-                 
-        }
     }
-
-    return txpwrlevel;
-
+    /* no valid record -> chip default */
+    return chip_default;
 #endif
 
 }

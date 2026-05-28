@@ -111,6 +111,8 @@ typedef enum {
     HOSAL_RF_IOCTL_SUBG_FSK_SFD_SET,
     HOSAL_RF_IOCTL_SUBG_FSK_FILTER_SET,
 
+    HOSAL_RF_IOCTL_SUBG_BLE_MODEM_CONFIG_SET,
+    HOSAL_RF_IOCTL_SUBG_BLE_MAC_SET,
 } hosal_rf_ioctl_t;
 
 typedef enum {
@@ -231,6 +233,12 @@ typedef struct {
     uint8_t crc_type;
     uint8_t whiten_enable;
 } hosal_rf_mac_set_t;
+
+typedef struct
+{
+    uint32_t sfd;
+    uint8_t whiten_enable;
+} hosal_rf_ble_mac_set_t;
 
 typedef struct {
     uint8_t data_rate;

@@ -1411,7 +1411,7 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
     NVIC_EnableIRQ((IRQn_Type)(Sadc_IRQn));
 
     // Sadc_Compensation_Init(13);
-    Tx_Power_Compensation_Init(1);
+    Tx_Power_Compensation_Init(CONFIG_TEMP_VOL_COMP_PERIOD);
 #endif
 #elif ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569M0) && (RF_MCU_CHIP_VER == RF_MCU_CHIP_VER_B))
     /* Update PMU setting from FT info */

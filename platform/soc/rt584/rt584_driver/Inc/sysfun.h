@@ -148,7 +148,6 @@ typedef enum
 */
 void early_init_before_use(void);
 
-
 /**
 * \brief            Enter critical sections
 * \details          This function is nest function, that is, system call this function several times.

@@ -88,6 +88,7 @@ uint32_t crc32(uint32_t flash_addr, uint32_t data_len) {
     ChkSum = ~ChkSum;
     return ChkSum;
 }
+
 uint32_t file_offset_process = 0;
 uint32_t file_version_tmp = 0x01010101;
 uint32_t file_len = 0;
@@ -118,7 +119,7 @@ void raf_device_cb(zb_uint8_t param)
     zb_uint8_t endpoint;
     zb_zcl_attr_t *attr_desc;
     zb_uint8_t imgstatus = ZB_ZCL_OTA_UPGRADE_IMAGE_STATUS_NORMAL;
-    zb_uint8_t manuf;
+    zb_uint8_t manuf = 123;
     static uint32_t flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
 
     endpoint = get_endpoint_by_cluster(ZB_ZCL_CLUSTER_ID_OTA_UPGRADE, ZB_ZCL_CLUSTER_CLIENT_ROLE);

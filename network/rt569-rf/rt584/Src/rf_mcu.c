@@ -1243,15 +1243,3 @@ void CommSubsys_Handler(void)
     RfMcu_IsrHandler();
 }
 
-
-void BusFault_Handler (void)
-{
-    printf("BusFault_Handler\n");
-}
-
-
-void UsageFault_Handler(void)
-{
-    printf("UsageFault_Handler\n");
-}
-

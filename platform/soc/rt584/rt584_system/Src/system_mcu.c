@@ -14,13 +14,14 @@
  * Author: ives.lee
  */
 
-#include "sysctrl.h"
 #include "system_mcu.h"
 #include "flashctl.h"
-#include "sysfun.h"
-#include "mp_sector.h"
 #include "gpio.h"
-#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+#include "mp_sector.h"
+#include "sysctrl.h"
+#include "sysfun.h"
+
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #include "partition.h"
 #endif
 
@@ -28,18 +29,18 @@
  * \brief           Define clocks
  */
 #ifndef SET_SYS_CLK
-#define SET_SYS_CLK    SYS_CLK_48MHZ
+#define SET_SYS_CLK SYS_CLK_48MHZ
 #endif
 
 #if (SET_SYS_CLK == SYS_CLK_32MHZ)
-#define XTAL    (32000000UL)                    /*!< Oscillator frequency */
+#define XTAL (32000000UL) /*!< Oscillator frequency */
 #elif (SET_SYS_CLK == SYS_CLK_48MHZ)
-#define XTAL    (48000000UL)                    /*!< Oscillator frequency */
+#define XTAL (48000000UL) /*!< Oscillator frequency */
 #elif (SET_SYS_CLK == SYS_CLK_64MHZ)
-#define XTAL    (64000000UL)                    /*!< Oscillator frequency */
+#define XTAL (64000000UL) /*!< Oscillator frequency */
 #endif
 
-#define  SYSTEM_CLOCK    (XTAL)
+#define SYSTEM_CLOCK (XTAL)
 
 /**
  * \brief           Exception / Interrupt Vector table
@@ -49,17 +50,17 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[64];
 /**
  * \brief           System Core Clock Variable
  */
-uint32_t SystemCoreClock = SYSTEM_CLOCK;        /*!< System Core Clock Frequency */
+uint32_t SystemCoreClock = SYSTEM_CLOCK; /*!< System Core Clock Frequency */
 uint32_t SystemFrequency = SYSTEM_CLOCK;
 uint32_t set_sys_clk_value = SET_SYS_CLK;
 
-void systemcoreclockupdate (void) {
+void systemcoreclockupdate(void) {
     SystemCoreClock = SYSTEM_CLOCK;
     SystemFrequency = SYSTEM_CLOCK;
     set_sys_clk_value = SET_SYS_CLK;
 }
 
-void get_set_sys_clk_value (uint32_t *get_value) {
+void get_set_sys_clk_value(uint32_t* get_value) {
     *get_value = set_sys_clk_value;
 }
 
@@ -67,234 +68,229 @@ void get_set_sys_clk_value (uint32_t *get_value) {
  * \brief           System pmu update dcdc parameter
  */
 
-
-void systempmuupdatedcdc() 
-{
+void systempmuupdatedcdc() {
     uint32_t chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
-    
+    /* mpsector value: 1=High, 0=Low */
+    uint8_t value = 1u;
+    uint8_t eff_dbm = 0; /* just for local decision */
+
+    mpsectorgettxpwrcfg(&value);
+
+    /* map to "effective dBm" by chip */
+    /* 0x0584: High=20, Low=14
+     * 0x3584: High=20, Low=0
+     * 0x1584: High=10, Low=0
+     */
+
+    if (chip_id == 0x0584u) {
+        eff_dbm = (value == 1u) ? 20u : 14u;
+    } else if (chip_id == 0x3584u) {
+        eff_dbm = (value == 1u) ? 20u : 0u;
+    } else if (chip_id == 0x1584u) {
+        eff_dbm = (value == 1u) ? 10u : 0u;
+    } else {
+        /* unknown chip -> keep safe default behavior: treat as High */
+        eff_dbm = 20u;
+        value = 1u;
+    }
+#if defined(CONFIG_RF_POWER_20DBM)
+    eff_dbm = 20;
+#elif defined(CONFIG_RF_POWER_14DBM)
+    eff_dbm = 14;
+#elif defined(CONFIG_RF_POWER_10DBM)
+    eff_dbm = 10;
+#elif defined(CONFIG_RF_POWER_0DBM)
+    eff_dbm = 0;
+#endif
+
     //offset:608c
     PMU_CTRL->soc_pmu_rco1m.bit.tune_fine_rco_1m = 70;
     PMU_CTRL->soc_pmu_rco1m.bit.tune_coarse_rco_1m = 11;
     PMU_CTRL->soc_pmu_rco1m.bit.pw_rco_1m = 1;
     PMU_CTRL->soc_pmu_rco1m.bit.test_rco_1m = 0;
-    PMU_CTRL->soc_pmu_rco1m.bit.en_rco_1m = 0;      //1:rco1m enable, 0 : rco1m disable
+    PMU_CTRL->soc_pmu_rco1m.bit.en_rco_1m =
+        0; //1:rco1m enable, 0 : rco1m disable
 
     //offset:609c
-    PMU_CTRL->pmu_soc_pmu_timing.bit.force_dcdc_soc_pmu =   1;// sub system pmu modecontrol by cm33
+    PMU_CTRL->pmu_soc_pmu_timing.bit.force_dcdc_soc_pmu =
+        1; // sub system pmu modecontrol by cm33
 
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ppower_normal    =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_comp_normal   =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_npower_normal    =   0x06;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_zcd_normal    =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pdrive_normal    =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_mg_normal        =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ndrive_normal    =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_cm_normal     =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pw_normal        =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_hg_normal      =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pwmf_normal      =   0x0E;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_sc_normal      =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_pn_normal     =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_normal        =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_hg_normal        =   0x03;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_dly_normal       =   0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ppower_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_comp_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_npower_normal = 0x06;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_zcd_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pdrive_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_mg_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ndrive_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_cm_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pw_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_hg_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pwmf_normal = 0x0E;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_sc_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_pn_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_hg_normal = 0x03;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_dly_normal = 0x00;
     //offset:60a8
-    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_normal =    0x0;
+    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_normal = 0x0;
     //offset:60a0
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ppower_heavy      =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_comp_heavy     =   0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ppower_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_comp_heavy = 0x1;
     //0ffset:60a0
 
-    if(chip_id==0x0584)
-    {
-        #if defined(CONFIG_RF_POWER_14DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x2;
-        #elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x0;
-        #else
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x2;        //default 14dbm
-        #endif
-    }
-    else  //rt584h/rt584l support 0dam/10dbm/20dbm
-    {
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x0;
+    /* npower_heavy:
+     * original: 0x0584 -> 14dBm=0x2, 0/20=0x0 ; others fixed 0x0
+     */
+    if (chip_id == 0x0584u) {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy = (eff_dbm == 14u) ? 0x2
+                                                                          : 0x0;
+    } else {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy = 0x0;
     }
 
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_zcd_heavy      =   0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_zcd_heavy = 0x1;
 
-    if(chip_id==0x0584)
-    {  
-
-        #if defined(CONFIG_RF_POWER_14DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x6;
-        #elif defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x1;
-        #else
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x6;        //default 14dbm
-        #endif
+    /* pdrive_heavy:
+     * original: 0x0584 -> 14dBm=0x6, 0/20=0x1 ; others fixed 0x1
+     */
+    if (chip_id == 0x0584u) {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy = (eff_dbm == 14u) ? 0x6
+                                                                          : 0x1;
+    } else {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy = 0x1;
     }
-    else  //rt584h/rt584l support 0dam/10dbm/20dbm
-    {
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x1;
-    }
-   
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_mg_heavy          =   0x1;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ndrive_heavy      =   0x2;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_cm_heavy       =   0x1;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pw_heavy          =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_hg_heavy        =   0x1;
 
-    if(chip_id==0x0584)
-    {
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_mg_heavy = 0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ndrive_heavy = 0x2;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_cm_heavy = 0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pw_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_hg_heavy = 0x1;
 
-        #if defined(CONFIG_RF_POWER_14DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;
-        #elif defined(CONFIG_RF_POWER_0DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
-        #elif defined(CONFIG_RF_POWER_20DBM)
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;
-        #else
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;       //default 14dbm
-        #endif
+    /* pwmf_heavy:
+     * original:
+     *  - 0x0584: 14=0x0C, 0=0x08, 20=0x0E
+     *  - 0x1584: 0=0x08, 10=0x0C (default 10)
+     *  - 0x3584: 0=0x08, 20=0x0E (default 20)
+     */
+    if (chip_id == 0x0584u) {
+        if (eff_dbm == 14u)
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0C;
+        else if (eff_dbm == 0u)
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x08;
+        else
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0E; /* 20 */
+    } else if (chip_id == 0x1584u) {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = (eff_dbm == 0u)
+                                                           ? 0x08
+                                                           : 0x0C; /* 10 */
+    } else if (chip_id == 0x3584u) {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = (eff_dbm == 0u)
+                                                           ? 0x08
+                                                           : 0x0E; /* 20 */
+    } else {
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0E;
     }
-    else if(chip_id==0x1584) //rt584l
-    {
-        #if defined(CONFIG_RF_POWER_0DBM)
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
-        #elif defined(CONFIG_RF_POWER_10DBM)
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;
-        #else
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;       //default 10dbm
-        #endif
-    }
-    else if(chip_id==0x3584)  //rt584h
-    {
-        #if defined(CONFIG_RF_POWER_0DBM)
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
-        #elif defined(CONFIG_RF_POWER_20DBM)
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;
-        #else
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;       //default 20dbm
-        #endif
-    }  
 
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_sc_heavy        =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_pn_heavy       =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_heavy          =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_hg_heavy          =   0x3;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_dly_heavy         =   0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_sc_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_pn_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_hg_heavy = 0x3;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_dly_heavy = 0x0;
     //offset:60a8
-    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_heavy   =   0x0;
+    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_heavy = 0x0;
     //offset:60a4
-    if(chip_id==0x0584)
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light = 0x3;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light      =   0x3;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light = 0x0;
     }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light      =   0x0;
-    }
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_comp_light     =   0x1;
 
-    if(chip_id==0x0584)
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light      =   0x3;
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light     =   0x0;
-    }    
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_zcd_light      =   0x1;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_comp_light = 0x1;
 
-    if(chip_id==0x0584)
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light = 0x3;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light  =   0x7;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light = 0x0;
     }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light   =   0x5;
-    }  
 
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_mg_light          =   0x1;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_zcd_light = 0x1;
 
-    if(chip_id==0x0584)
-    { 
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light    =   0x7;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light = 0x7;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light    =   0x5;
-    }  
-   
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_cm_light       =   0x1;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light = 0x5;
+    }
 
-    if(chip_id==0x0584)
-    { 
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light        =  0x5;
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light     =  0x3;
-    }       
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_hg_light        =   0x1;
-    
-    if(chip_id==0x0584)
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light        =   0xE;
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light        =   0xF;
-    }    
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_sc_light        =   0x0;
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_pn_light       =   0x0;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_mg_light = 0x1;
 
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light          =  0x0;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light = 0x7;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light          =  0x3;
-    }      
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_hg_light          =   0x3;
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_dly_light         =   0x0;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light = 0x5;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_cm_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light = 0x5;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light = 0x3;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_hg_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light = 0xE;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light = 0xF;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_sc_light = 0x0;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_pn_light = 0x0;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light = 0x0;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light = 0x3;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_hg_light = 0x3;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_dly_light = 0x0;
     //offset:60a8
-    if(chip_id==0x0584)
-    { 
-        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light   =   0x0;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light = 0x0;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light   =  0x3;
-    }   
-    
-    //offset:60ac
-    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_ioc                 =   0x01;
+        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light = 0x3;
+    }
 
-    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_rup_en              =  0x01;
     //offset:60ac
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_sin               =   0x00;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_lout              =   0x01;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_ioc_nm            =   0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_ioc = 0x01;
 
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_sin                =   0x00;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_lout               =   0x01;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_ioc_nm             =   0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_rup_en = 0x01;
+    //offset:60ac
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_sin = 0x00;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_lout = 0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_ioc_nm = 0x01;
+
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_sin = 0x00;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_lout = 0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_ioc_nm = 0x01;
 
     //offset:60b8
-    PMU_CTRL->pmu_rfldo.bit.ldoana_lout                 =   0x01;
-    PMU_CTRL->pmu_rfldo.bit.ldoana_ioc_nm               =   0x01;
+    PMU_CTRL->pmu_rfldo.bit.ldoana_lout = 0x01;
+    PMU_CTRL->pmu_rfldo.bit.ldoana_ioc_nm = 0x01;
 
     //offset:6020
-    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_c          =   0x03;
-    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_r          =   0x01;
+    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_c = 0x03;
+    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_r = 0x01;
     //
     //offset:60b0
     //PMU_CTRL->pmu_en_control.bit.en_ldomv_nm = 1;
@@ -308,21 +304,14 @@ void systempmuupdatedcdc()
     // offset:6090
     PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal = 0x0A;
 
-    if(chip_id==0x0584)
-    {
-
-        #if defined(CONFIG_RF_POWER_14DBM)
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x17;
-        #elif defined(CONFIG_RF_POWER_0DBM) ||defined(CONFIG_RF_POWER_20DBM)
+    /* dcdc_vosel_heavy:
+     * original: 0x0584 -> 14dBm=0x17, 0/20=0x0A ; others always 0x0A
+     */
+    if (chip_id == 0x0584u) {
+        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = (eff_dbm == 14u) ? 0x17
+                                                                         : 0x0A;
+    } else { //rt584h/rt584l
         PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x0A;
-        #else
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x17;               //default 14dbm
-        #endif
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0xA;
-
     }
 
     PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_light = 0x0A;
@@ -330,20 +319,15 @@ void systempmuupdatedcdc()
     //offset:6094
     PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal = 0x0A;
 
-    if(chip_id==0x0584)
-    {
-        #if defined(CONFIG_RF_POWER_14DBM)
-            //offset:6094
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x17;
-        #elif defined(CONFIG_RF_POWER_0DBM) ||defined(CONFIG_RF_POWER_20DBM)
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
-        #else
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x17;             //default 14dbm
-        #endif
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0xA;
+    /* ldomv_vosel_heavy:
+     * original: 0x0584 -> 14dBm=0x17, 0/20=0x0A ; others 0x0A
+     */
+    if (chip_id == 0x0584u) {
+        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = (eff_dbm == 14u)
+                                                              ? 0x17
+                                                              : 0x0A;
+    } else { //rt584h/rt584l
+        PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
     }
 
     //offset:6094
@@ -375,7 +359,8 @@ void rco1m_and_rco32k_calibration() {
     SYSCTRL->sys_clk_ctrl2.bit.en_rco32k_div2 = 0;
 
     //RCO
-    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target = 128000; //per_clk = 32mhz is  128000'd
+    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target =
+        128000; //per_clk = 32mhz is  128000'd
     //per_clk = 16mhz is  64000'd
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_lock_err = 0x20;
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_avg_coarse = 1;
@@ -392,15 +377,16 @@ void rco1m_and_rco32k_calibration() {
     RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_en = 1;
 
     //offset 0x500060BC
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time = 12;   //mv  settle time = 400us (400us for 1.8v, 3.3v 200us)
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time = 5;    //lv  settle time = 150us
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time =
+        12; //mv  settle time = 400us (400us for 1.8v, 3.3v 200us)
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time =
+        5; //lv  settle time = 150us
     //offset 0x50006024
-    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time = 31;  //1ms
+    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time = 31; //1ms
     //offset 0x50006040
-    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 15;             //0.5ms
+    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 15; //0.5ms
     //offset 0x500060bc
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_pwrx_settle_time = 2;
-
 
 #elif defined(CONFIG_RCO16K_ENABLE)
     //32K DIV 2
@@ -412,7 +398,8 @@ void rco1m_and_rco32k_calibration() {
     SYSCTRL->sys_clk_ctrl2.bit.en_ck_div_32k = 1;
     SYSCTRL->sys_clk_ctrl2.bit.en_rco32k_div2 = 1;
 
-    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target = 128000; //per_clk = 32mhz, target ~= 20KHz is 204800'd
+    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target =
+        128000; //per_clk = 32mhz, target ~= 20KHz is 204800'd
     //per_clk = 16mhz, target ~= 20khz is 102400'd
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_lock_err = 0x20;
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_avg_coarse = 1;
@@ -429,12 +416,15 @@ void rco1m_and_rco32k_calibration() {
     RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_en = 1;
 
     //offset 0x500060BC
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time = 6;    //mv  settle time = 400us (400us for 1.8V, 3.3V 200us)
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time = 2;    //lv  settle time = 150
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time =
+        6; //mv  settle time = 400us (400us for 1.8V, 3.3V 200us)
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time =
+        2; //lv  settle time = 150
     //offset 0x50006024
-    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time = 15;   //slow clk 10k, 1ms
+    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time =
+        15; //slow clk 10k, 1ms
     //offset 0x50006040
-    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 7;              //slow clk 10k, 0.5ms
+    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 7; //slow clk 10k, 0.5ms
     //offset 0x500060bc
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_pwrx_settle_time = 1;
 
@@ -449,7 +439,8 @@ void rco1m_and_rco32k_calibration() {
     SYSCTRL->sys_clk_ctrl2.bit.en_rco32k_div2 = 0;
 
     //RCO
-    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target = 128000; //per_clk = 32mhz is  128000'd
+    RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_target =
+        128000; //per_clk = 32mhz is  128000'd
     //per_clk = 16mhz is  64000'd
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_lock_err = 0x20;
     RCO32K_CAL->cal32k_cfg1.bit.cfg_cal32k_avg_coarse = 1;
@@ -466,15 +457,16 @@ void rco1m_and_rco32k_calibration() {
     RCO32K_CAL->cal32k_cfg0.bit.cfg_cal32k_en = 1;
 
     //offset 0x500060bc
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time = 12;   //mv  settle time = 400us (400us for 1.8v, 3.3v 200us)
-    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time = 5;    //lv  settle time = 62.5us
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_mv_settle_time =
+        12; //mv  settle time = 400us (400us for 1.8v, 3.3v 200us)
+    PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_lv_settle_time =
+        5; //lv  settle time = 62.5us
     //offset 0x50006024
-    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time = 31;  //1ms
+    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_xtal_settle_time = 31; //1ms
     //offset 0x50006040
-    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 15;             //0.5ms
+    PMU_CTRL->pmu_rvd0.bit.cfg_xtal_fast_time = 15; //0.5ms
     //offset 0x500060bc
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_pwrx_settle_time = 2;
-
 
 #endif
 
@@ -483,10 +475,12 @@ void rco1m_and_rco32k_calibration() {
     PMU_CTRL->soc_pmu_rco1m.bit.tune_coarse_rco_1m = 11;
     PMU_CTRL->soc_pmu_rco1m.bit.pw_rco_1m = 1;
     PMU_CTRL->soc_pmu_rco1m.bit.test_rco_1m = 0;
-    PMU_CTRL->soc_pmu_rco1m.bit.en_rco_1m = 0;      //1:rco1m enable, 0 : rco1m disable
+    PMU_CTRL->soc_pmu_rco1m.bit.en_rco_1m =
+        0; //1:rco1m enable, 0 : rco1m disable
 
     //RCO1M
-    RCO1M_CAL->cal1m_cfg0.bit.cfg_cal_target = 0x22b8e; //per_clk = 32mhz is 0x22B8E' hper_clk = 16MHz is 115C7'h"
+    RCO1M_CAL->cal1m_cfg0.bit.cfg_cal_target =
+        0x22b8e; //per_clk = 32mhz is 0x22B8E' hper_clk = 16MHz is 115C7'h"
     //per_clk = 16mhz is 115c7'h
     RCO1M_CAL->cal1m_cfg1.bit.cfg_cal_lock_err = 0x20;
     RCO1M_CAL->cal1m_cfg1.bit.cfg_cal_avg_coarse = 1;
@@ -502,7 +496,6 @@ void rco1m_and_rco32k_calibration() {
     RCO1M_CAL->cal1m_cfg1.bit.en_ck_cal = 1;
     RCO1M_CAL->cal1m_cfg0.bit.cfg_cal_en = 1;
 
-
     SYSCTRL->sram_lowpower_0.reg = 0xffffffff;
 
     PMU_CTRL->pmu_bg_control.bit.pmu_res_dis = 1;
@@ -512,8 +505,7 @@ void rco1m_and_rco32k_calibration() {
     PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_bypass_xtal_settle = 0;
 }
 
-void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
-{
+void system_pmu_update_dcdc_txpwr_lvl(txpower_default_cfg_t txpwrlevel) {
     uint16_t chip_id = SYSCTRL->soc_chip_info.bit.chip_id;
     //Offset:608C
     //PMU_CTRL->soc_pmu_rco1m.bit.TUNE_FINE_RCO_1M = 70;
@@ -523,244 +515,206 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
     //PMU_CTRL->soc_pmu_rco1m.bit.EN_RCO_1M = 0;      //1:rco1m enable, 0 : rco1m disable
 
     //offset:609c
-    PMU_CTRL->pmu_soc_pmu_timing.bit.force_dcdc_soc_pmu =   1;// sub system pmu modecontrol by cm33
+    PMU_CTRL->pmu_soc_pmu_timing.bit.force_dcdc_soc_pmu =
+        1; // sub system pmu modecontrol by cm33
 
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ppower_normal    =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_comp_normal   =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_npower_normal    =   0x06;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_zcd_normal    =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pdrive_normal    =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_mg_normal        =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ndrive_normal    =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_cm_normal     =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pw_normal        =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_hg_normal      =   0x01;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pwmf_normal      =   0x0E;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_sc_normal      =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_pn_normal     =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_normal        =   0x00;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_hg_normal        =   0x03;
-    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_dly_normal       =   0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ppower_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_comp_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_npower_normal = 0x06;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_zcd_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pdrive_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_mg_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_ndrive_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_en_cm_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pw_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_hg_normal = 0x01;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_pwmf_normal = 0x0E;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_c_sc_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_pn_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_os_normal = 0x00;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_hg_normal = 0x03;
+    PMU_CTRL->pmu_dcdc_normal.bit.dcdc_dly_normal = 0x00;
     //offset:60a8
-    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_normal =    0x0;
+    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_normal = 0x0;
     //offset:60a0
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ppower_heavy      =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_comp_heavy     =   0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ppower_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_comp_heavy = 0x1;
     //0ffset:60a0
 
+    if (chip_id == 0x0584) {
+        if (txpwrlevel == TX_POWER_14DBM_DEF) {
 
-    if(chip_id==0x0584)
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy = 0x2;
+        } else if ((txpwrlevel == TX_POWER_0DBM_DEF)
+                   || (txpwrlevel == TX_POWER_20DBM_DEF)) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy = 0x0;
+        } else { //default power
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy =
+                0x2; //default 14dbm
+        }
+    } else //rt584h/rt584l
     {
-        if (txpwrlevel == TX_POWER_14DBM_DEF)  {
-
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x2;
-        }
-        else if ((txpwrlevel == TX_POWER_0DBM_DEF) || (txpwrlevel == TX_POWER_20DBM_DEF))  {
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x0;
-        }
-        else {//default power 
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x2;        //default 14dbm
-        }
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy      =   0x0;
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_npower_heavy = 0x0;
     }
 
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_zcd_heavy = 0x1;
 
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_zcd_heavy      =   0x1;
-
-
-    if(chip_id==0x0584)
-    {  
+    if (chip_id == 0x0584) {
 
         if (txpwrlevel == TX_POWER_14DBM_DEF) {
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x6;
-        }
-        else if ((txpwrlevel == TX_POWER_0DBM_DEF) || (txpwrlevel == TX_POWER_20DBM_DEF)) {
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x1;
-        }
-        else  {//default power
-        
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x6;        //default 14dbm
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy = 0x6;
+        } else if ((txpwrlevel == TX_POWER_0DBM_DEF)
+                   || (txpwrlevel == TX_POWER_20DBM_DEF)) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy = 0x1;
+        } else { //default power
+
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy =
+                0x6; //default 14dbm
         }
 
-    }
-    else //rt584h/rt584l
+    } else //rt584h/rt584l
     {
 
-        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy      =   0x1;
-
+        PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pdrive_heavy = 0x1;
     }
 
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_mg_heavy = 0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ndrive_heavy = 0x2;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_cm_heavy = 0x1;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pw_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_hg_heavy = 0x1;
 
+    if (chip_id == 0x0584) {
 
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_mg_heavy          =   0x1;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_ndrive_heavy      =   0x2;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_en_cm_heavy       =   0x1;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pw_heavy          =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_hg_heavy        =   0x1;
-
-    if(chip_id==0x0584)
-    {  
-
-        if (txpwrlevel == TX_POWER_14DBM_DEF){
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0c;
+        if (txpwrlevel == TX_POWER_14DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0c;
+        } else if (txpwrlevel == TX_POWER_0DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x08;
+        } else if (txpwrlevel == TX_POWER_20DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0E;
+        } else {                                                 //default power
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0C; //default 14dbm
         }
-        else if (txpwrlevel == TX_POWER_0DBM_DEF){
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
+    } else if (chip_id == 0x1584) {
+        if (txpwrlevel == TX_POWER_0DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x08;
+        } else if (txpwrlevel == TX_POWER_10DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0C;
+        } else {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0C; //default 10dbm
         }
-        else if (txpwrlevel == TX_POWER_20DBM_DEF){
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;
-        }
-        else{ //default power
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;       //default 14dbm
-        }
-    }
-    else if(chip_id==0x1584)
-    {
-            if (txpwrlevel == TX_POWER_0DBM_DEF) {
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
-            }
-            else if (txpwrlevel == TX_POWER_10DBM_DEF) {
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;
-            }
-            else{
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0C;       //default 10dbm
-            }
-    }
-    else if(chip_id==0x3584)  //rt584h
+    } else if (chip_id == 0x3584) //rt584h
     {
         if (txpwrlevel == TX_POWER_0DBM_DEF) {
-          PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x08;
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x08;
+        } else if (txpwrlevel == TX_POWER_20DBM_DEF) {
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0E;
+        } else {
+
+            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy = 0x0E; //default 20dbm
         }
-        else if (txpwrlevel == TX_POWER_20DBM_DEF) {
-          PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;
-        }
-        else{
+    }
 
-            PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_pwmf_heavy        =   0x0E;       //default 20dbm
-          }
-    }  
-
-
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_sc_heavy        =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_pn_heavy       =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_heavy          =   0x0;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_hg_heavy          =   0x3;
-    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_dly_heavy         =   0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_c_sc_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_pn_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_os_heavy = 0x0;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_hg_heavy = 0x3;
+    PMU_CTRL->pmu_dcdc_heavy.bit.dcdc_dly_heavy = 0x0;
     //offset:60a8
-    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_heavy   =   0x0;
+    PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_heavy = 0x0;
     //offset:60a4
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light  =   0x3;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light = 0x3;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light  =   0x0;
-    }   
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_comp_light     =   0x1;
-
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light  =  0x3;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ppower_light = 0x0;
     }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light  =  0x0;
-    }      
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_zcd_light      =   0x1;
 
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light  =   0x7;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_comp_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light = 0x3;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_npower_light = 0x0;
     }
-    else //rt584h/rt584l
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_zcd_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light = 0x7;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light   =   0x5;
-    }    
-
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_mg_light          =   0x1;
-
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light   =   0x7;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pdrive_light = 0x5;
     }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light   =   0x5;
-    }      
-   
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_cm_light       =   0x1;
 
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light        =  0x5;
-    }
-    else //rt584h/rt584l
-    {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light    =  0x3;
-    }        
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_hg_light        =   0x1;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_mg_light = 0x1;
 
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light        =   0xE;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light = 0x7;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light        =   0xF;
-    }     
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_sc_light        =   0x0;
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_pn_light       =   0x0;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_ndrive_light = 0x5;
+    }
 
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light          =  0x0;
-    }
-    else //rt584h/rt584l
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_en_cm_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light = 0x5;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light          =  0x3;
-    }      
-    
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_hg_light          =   0x3;
-    PMU_CTRL->pmu_dcdc_light.bit.dcdc_dly_light         =   0x0;
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pw_light = 0x3;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_hg_light = 0x1;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light = 0xE;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_pwmf_light = 0xF;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_c_sc_light = 0x0;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_pn_light = 0x0;
+
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light = 0x0;
+    } else //rt584h/rt584l
+    {
+        PMU_CTRL->pmu_dcdc_light.bit.dcdc_os_light = 0x3;
+    }
+
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_hg_light = 0x3;
+    PMU_CTRL->pmu_dcdc_light.bit.dcdc_dly_light = 0x0;
     //offset:60a8
-    if(chip_id==0x0584)
-    {  
-        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light   =   0x0;
-    }
-    else //rt584h/rt584l
+    if (chip_id == 0x0584) {
+        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light = 0x0;
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light  =  0x3;
-    }    
-    
-    //offset:60ac
-    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_ioc                 =   0x01;
+        PMU_CTRL->pmu_dcdc_reserved.bit.dcdc_pw_dig_light = 0x3;
+    }
 
-    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_rup_en              =  0x01;
     //offset:60ac
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_sin               =   0x00;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_lout              =   0x01;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_ioc_nm            =   0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_ioc = 0x01;
 
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_sin                =   0x00;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_lout               =   0x01;
-    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_ioc_nm             =   0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.dcdc_rup_en = 0x01;
+    //offset:60ac
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_sin = 0x00;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_lout = 0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldodig_ioc_nm = 0x01;
+
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_sin = 0x00;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_lout = 0x01;
+    PMU_CTRL->pmu_ldo_ctrl.bit.ldomv_ioc_nm = 0x01;
 
     //offset:60b8
-    PMU_CTRL->pmu_rfldo.bit.ldoana_lout                 =   0x01;
-    PMU_CTRL->pmu_rfldo.bit.ldoana_ioc_nm               =   0x01;
+    PMU_CTRL->pmu_rfldo.bit.ldoana_lout = 0x01;
+    PMU_CTRL->pmu_rfldo.bit.ldoana_ioc_nm = 0x01;
 
     //offset:6020
-    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_c          =   0x03;
-    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_r          =   0x01;
+    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_c = 0x03;
+    PMU_CTRL->pmu_soc_pmu_xtal0.bit.xosc_lpf_r = 0x01;
     //
     //offset:60b0
     //PMU_CTRL->pmu_en_control.bit.en_ldomv_nm = 1;
@@ -774,52 +728,43 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
     // offset:6090
     PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_normal = 0x0A;
 
-
-    if(chip_id==0x0584)
-    {  
+    if (chip_id == 0x0584) {
         if (txpwrlevel == TX_POWER_14DBM_DEF) {
             PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x17;
-        }
-        else if ((txpwrlevel == TX_POWER_0DBM_DEF) || (txpwrlevel == TX_POWER_20DBM_DEF)) {
+        } else if ((txpwrlevel == TX_POWER_0DBM_DEF)
+                   || (txpwrlevel == TX_POWER_20DBM_DEF)) {
             PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x0A;
+        } else { //default power
+
+            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy =
+                0x17; //default 14dbm
         }
-        else { //default power
-        
-            PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0x17;               //default 14dbm
-        }
-    }
-    else //rt584h/rt584l
+    } else //rt584h/rt584l
     {
-        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy          =  0xA;
-    } 
-
-
-
+        PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_heavy = 0xA;
+    }
 
     PMU_CTRL->pmu_dcdc_vosel.bit.dcdc_vosel_light = 0x0A;
 
     //offset:6094
     PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_normal = 0x0A;
 
-    if(chip_id==0x0584)
-    {
+    if (chip_id == 0x0584) {
         if (txpwrlevel == TX_POWER_14DBM_DEF) {
-        
+
             PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x17;
-        }
-        else if ((txpwrlevel == TX_POWER_0DBM_DEF) || (txpwrlevel == TX_POWER_20DBM_DEF)) { 
-        
+        } else if ((txpwrlevel == TX_POWER_0DBM_DEF)
+                   || (txpwrlevel == TX_POWER_20DBM_DEF)) {
+
             PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
+        } else { //default power
+            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy =
+                0x17; //default 14dbm
         }
-        else { //default power
-            PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x17;             //default 14dbm
-        }
-    }
-    else //rt584h/rt584l
+    } else //rt584h/rt584l
     {
         PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_heavy = 0x0A;
-    } 
-
+    }
 
     //offset:6094
     PMU_CTRL->pmu_ldomv_vosel.bit.ldomv_vosel_light = 0x0A;
@@ -831,7 +776,6 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
     PMU_CTRL->pmu_core_vosel.bit.ldodig_vosel = 0xa;
     //offset:6024
     PMU_CTRL->pmu_soc_pmu_xtal1.bit.xosc_cap_ini = 29;
-
 
     //low power config
     SYSCTRL->sram_lowpower_0.reg = 0xFFFFFFFF;
@@ -849,27 +793,20 @@ void SystemPmuUpdateDcdcTxPwrLvl(txpower_default_cfg_t txpwrlevel)
     DPD_CTRL->dpd_cmd.bit.dpd_flash_dpd_en = 1;
 }
 
-void systeminit (void) {
+void systeminit(void) {
 
-    early_init_before_use();
-    #if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-    #elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
-    #else
-        txpower_default_cfg_t txpwrlevel = sys_txpower_getdefault();
-    #endif
-
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     //  uint32_t blk_cfg, blk_max, blk_size, blk_cnt;
 #endif
 
-#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+#if defined(__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
     SCB->VTOR = (uint32_t) & (__VECTOR_TABLE[0]);
 #endif
 
-#if defined (__FPU_USED) && (__FPU_USED == 1U)
+#if defined(__FPU_USED) && (__FPU_USED == 1U)
     /* Coprocessor Access Control Register. It's banked for secure state and non-seure state */
-    SCB->CPACR |= ((3U << 10U * 2U) |         /* enable CP10 Full Access */
-                   (3U << 11U * 2U)  );       /* enable CP11 Full Access */
+    SCB->CPACR |= ((3U << 10U * 2U) | /* enable CP10 Full Access */
+                   (3U << 11U * 2U)); /* enable CP11 Full Access */
 
     /*Notice: CPACR Secure state address 0xE000ED88.  CPACR_NS is 0xE002ED88
      *   Secure software can also define whether non-secure software
@@ -879,31 +816,22 @@ void systeminit (void) {
 
 #endif
 
-
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
     /* Enable BusFault, UsageFault, MemManageFault and SecureFault to ease diagnostic */
-    SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk  |
-                   SCB_SHCSR_BUSFAULTENA_Msk  |
-                   SCB_SHCSR_MEMFAULTENA_Msk  |
-                   SCB_SHCSR_SECUREFAULTENA_Msk);
+    SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk
+                   | SCB_SHCSR_MEMFAULTENA_Msk | SCB_SHCSR_SECUREFAULTENA_Msk);
 
     /* BFSR register setting to enable precise errors */
     SCB->CFSR |= SCB_CFSR_PRECISERR_Msk;
 
-	TZ_SAU_Setup();
-	
-#endif
+    TZ_SAU_Setup();
 
-#if defined(CONFIG_RF_POWER_14DBM) || defined(CONFIG_RF_POWER_0DBM) || defined(CONFIG_RF_POWER_20DBM)
-    systempmuupdatedcdc();
-#elif defined(CONFIG_BASIC_EXAMPLE) || defined(CONFIG_HELLOWORLD)
-    systempmuupdatedcdc();
-#else
-    SystemPmuUpdateDcdcTxPwrLvl(txpwrlevel);
 #endif
+    early_init_before_use();
+    systempmuupdatedcdc();
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 #if defined(CONFIG_FLASHCTRL_SECURE_EN)
     /*set flash timing.*/
@@ -931,12 +859,12 @@ void systeminit (void) {
 
     change_ahb_system_clk(SYS_64MHZ_CLK);
     change_peri_clk(PERCLK_SEL_32M);
-    
-#endif
 
 #endif
 
-     //slow_clock_calibration(RCO32K_ENABLE);
+#endif
+
+    //slow_clock_calibration(RCO32K_ENABLE);
 #else
 
 #if defined(CONFIG_SYSCTRL_SECURE_EN)
@@ -950,11 +878,10 @@ void systeminit (void) {
 
     rco1m_and_rco32k_calibration();
 
-    
 #endif
 
 #if (SET_SYS_CLK == SYS_CLK_32MHZ)
-   
+
     change_ahb_system_clk(SYS_32MHZ_CLK);
     change_peri_clk(PERCLK_SEL_32M);
 
@@ -974,7 +901,7 @@ void systeminit (void) {
 #endif
 
 #if !CONFIG_HOSAL_SOC_DISABLE_MP_SECTOR_INIT
-        mpsectorinit();
+    mpsectorinit();
 #endif
 
     SystemCoreClock = SYSTEM_CLOCK;
@@ -983,7 +910,6 @@ void systeminit (void) {
     set_ext32k_pin(GPIO5);
     set_slow_clock_source(EXT_GPIO_RCO32K);
 #endif
-
 }
 
 //#if  (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -1000,4 +926,3 @@ void systeminit (void) {
 //}
 
 //#endif
-

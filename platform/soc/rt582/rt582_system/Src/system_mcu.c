@@ -85,11 +85,9 @@ void systemcoreclockupdate(void) /* Get Core Clock Frequency */
     set_sys_clk_value = SET_SYS_CLK;
 }
 
-
 void get_set_sys_clk_value (uint32_t *get_value) {
     *get_value = set_sys_clk_value;
 }
-
 
 void systemfrequencyupdate(void) /* Update System clock Frequency */
 {

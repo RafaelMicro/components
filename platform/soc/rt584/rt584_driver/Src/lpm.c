@@ -33,6 +33,7 @@ static volatile  uint32_t low_power_wakeup_gpio = 0;
 static volatile  uint32_t low_power_timer_pwm = 0;
 static volatile  uint32_t low_power_aux_level = 0;
 static volatile  uint32_t low_power_bod_level = 0;
+static volatile  uint32_t low_power_peri_keep_on_mask = 0;
 
 #define LPM_SRAM0_RETAIN 0x1F
 
@@ -47,7 +48,19 @@ void lpm_init() {
     low_power_timer_pwm = 0;
     low_power_aux_level = 0;
     low_power_bod_level = 0;
+    low_power_peri_keep_on_mask = 0;
 }
+
+void lpm_peri_group_low_power_off_mask(uint32_t mask) {
+
+     low_power_peri_keep_on_mask|=mask;
+}
+
+void lpm_peri_group_low_power_off_unmask(uint32_t mask) {
+
+    low_power_peri_keep_on_mask&=~mask;
+}
+
 
 void lpm_low_power_mask(uint32_t mask) {
     low_power_mask_status |= mask;
@@ -197,42 +210,52 @@ void lpm_set_platform_low_power_wakeup(low_power_platform_enter_mode_cfg_t platf
         }
 
         low_power_wakeup_update = 0;
+        uint32_t volatile keep_on = low_power_peri_keep_on_mask;
 
         if (platform_low_power_mode == LOW_POWER_PLATFORM_ENTER_SLEEP) {
-            lpm_set_peripheral_power_off(MCU_PERI2_PWR_OFF_SLEEP, ENABLE);
-            lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, ENABLE);
-            /* UART0 sleep wake enable selection in Sleep */
-            if (low_power_wakeup_uart & (1 << 0)) {
+
+            bool peri2_off = true;
+            bool peri3_off = true;
+
+            if (low_power_wakeup_uart & (1u << 0)) {
                 UART0->wake_sleep_en = 1;
-            } else if (low_power_wakeup_uart & (1 << 3)) {
-                lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, DISABLE);  //Disable Power off in sleep
+            } else if (low_power_wakeup_uart & (1u << 3)) {
+                peri3_off = false;
                 UART0->wake_sleep_en = 1;
             } else {
                 UART0->wake_sleep_en = 0;
             }
 
-            /* UART1 sleep wake enable selection in Sleep */
-            if (low_power_wakeup_uart & (1 << 1) || low_power_wakeup_uart & (1 << 4)) {
-                lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, DISABLE);
+            if ( (low_power_wakeup_uart & (1u << 1)) || (low_power_wakeup_uart & (1u << 4)) ) {
+                peri3_off = false;
                 UART1->wake_sleep_en = 1;
             } else {
                 UART1->wake_sleep_en = 0;
             }
 
-            /* UART2 sleep wake enable selection in Sleep */
-            if (low_power_wakeup_uart & (1 << 2) || low_power_wakeup_uart & (1 << 5)) {
-               
-             lpm_set_peripheral_power_off(MCU_PERI2_PWR_OFF_SLEEP, DISABLE);
-             lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, DISABLE);  //Disable Power off in sleep
+            if ( (low_power_wakeup_uart & (1u << 2)) || (low_power_wakeup_uart & (1u << 5)) ) {
+                peri2_off = false;  // need keep-on
+                peri3_off = false;
                 UART2->wake_sleep_en = 1;
             } else {
                 UART2->wake_sleep_en = 0;
             }
 
-            if ( low_power_timer_pwm == 1) {
-                lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, DISABLE);  //Disable Power off in sleep
+            if (low_power_timer_pwm == 1u) {
+                peri3_off = false;
             }
+
+            if (keep_on & MCU_PERI2_PWR_OFF_SLEEP) peri2_off = false;
+            if (keep_on & MCU_PERI3_PWR_OFF_SLEEP) peri3_off = false;
+
+            lpm_set_peripheral_power_off(MCU_PERI2_PWR_OFF_SLEEP, peri2_off ? ENABLE : DISABLE);
+            lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_SLEEP, peri3_off ? ENABLE : DISABLE);
+
         } else if (platform_low_power_mode == LOW_POWER_PLATFORM_ENTER_DEEP_SLEEP) {
+
+            bool peri1_off_ds = true;
+            bool peri2_off_ds = true;
+            bool peri3_off_ds = true;
 
             SYSCTRL->sram_lowpower_3.bit.cfg_ds_rco32k_off = 1;  //Disable RCO32K in Deepsleep Mode
 
@@ -260,6 +283,15 @@ void lpm_set_platform_low_power_wakeup(low_power_platform_enter_mode_cfg_t platf
                 }
                 BOD_COMP->comp_dig_ctrl0.bit.comp_en_ds = 1;
             }
+            
+            if (keep_on & MCU_PERI1_PWR_OFF_DEEP_SLEEP) peri1_off_ds = false;
+            if (keep_on & MCU_PERI2_PWR_OFF_DEEP_SLEEP) peri2_off_ds = false;
+            if (keep_on & MCU_PERI3_PWR_OFF_DEEP_SLEEP) peri3_off_ds = false;
+
+            lpm_set_peripheral_power_off(MCU_PERI1_PWR_OFF_DEEP_SLEEP, peri1_off_ds ? ENABLE : DISABLE);
+            lpm_set_peripheral_power_off(MCU_PERI2_PWR_OFF_DEEP_SLEEP, peri2_off_ds ? ENABLE : DISABLE);
+            lpm_set_peripheral_power_off(MCU_PERI3_PWR_OFF_DEEP_SLEEP, peri3_off_ds ? ENABLE : DISABLE);
+
         } else if (platform_low_power_mode == LOW_POWER_PLATFORM_ENTER_POWER_DOWN_MODE) {
         }
     } while (0);

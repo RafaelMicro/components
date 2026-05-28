@@ -56,6 +56,13 @@
 #define MP_SECTOR_SIZE                                0x10000             /**< Total Size for MP sector area.*/
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#define BOOTLOADER_START_ADDRESS                      0x00000000          /**< Start address of bootloader code.*/
+#elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
+   || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
+#define BOOTLOADER_START_ADDRESS                      0x10000000          /**< Start address of bootloader code.*/
+#endif
+
+#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
 #define FOTA_UPDATE_BANK_INFO_ADDRESS                 0x00007000          /**< Address of FOTA update information*/
 #define APP_START_ADDRESS                             0x00008000          /**< Start address of application code.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \

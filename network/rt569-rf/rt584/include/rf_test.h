@@ -50,6 +50,7 @@ bool rf_set_rfe_rx_enable_direct(uint8_t data_type);
 bool rf_set_rfe_tx_disable(void);
 bool rf_set_rfe_rx_disable(void);
 uint32_t rf_get_pkt_count_direct(void);
+bool rf_set_agc(uint8_t agc_en, uint8_t lna_gain, uint8_t tia_gain, uint8_t vga_gain);
 
 #endif  //_RF_TEST_H__
 

@@ -77,6 +77,7 @@ typedef enum {
 typedef enum {
     SUBG_CTRL_CRC_TYPE_16 = 0,   /*!< SubG 16-bit CRC */
     SUBG_CTRL_CRC_TYPE_32,       /*!< SubG 32-bit CRC */
+    SUBG_CTRL_CRC_TYPE_24,       /*!< SubG 32-bit CRC */
 } subg_ctrl_crc_type_t;
 
 /**
@@ -128,6 +129,15 @@ void subg_ctrl_modem_config_set(subg_ctrl_modulation_t modulation,
  */
 void subg_ctrl_mac_set(subg_ctrl_modulation_t modulation,
                        subg_ctrl_crc_type_t crc_type,
+                       subg_ctrl_whiten_t whiten_enable);
+
+/**
+ * \brief           Setting SubG BLE MAC parameters.
+ * \param[in]       sfd: 4-byte frame start field.
+ * \param[in]       whiten_enable: whitening function enable flag.
+ * \return          None
+ */
+void subg_ctrl_ble_mac_set(uint32_t sfd,
                        subg_ctrl_whiten_t whiten_enable);
 
 /**

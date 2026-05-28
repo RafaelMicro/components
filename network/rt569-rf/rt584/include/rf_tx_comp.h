@@ -55,7 +55,12 @@ typedef struct __attribute__((packed))
     uint8_t poly_gain;
     uint8_t pa_pw_pre;
 #else
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
     uint8_t  txp_offset;
+#elif (defined(CONFIG_RF1301))
+    uint8_t  txp_offset;
+    uint8_t  txp_offset_915MHz;
+#endif
 #endif
 }
 tx_pwr_comp_element_t;

@@ -713,7 +713,7 @@ void bbpll_init(sys_clk_sel_t sys_clk_mode) {
         PMU_CTRL->soc_bbpll0.bit.bbpll_en_div_man = 0;
     }
     PMU_CTRL->soc_bbpll0.bit.bbpll_setting_auto = 1;
-    PMU_CTRL->soc_bbpll0.bit.bbpll_byp_ldo = 0;
+    PMU_CTRL->soc_bbpll0.bit.bbpll_byp_ldo = 1;
     PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 0;
     PMU_CTRL->soc_bbpll0.bit.bbpll_trigger_bg = 0;
     PMU_CTRL->soc_bbpll0.bit.bbpll_byp = 0;

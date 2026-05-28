@@ -192,6 +192,19 @@ bool rf_set_rfe_rx_disable(void)
     return RUCI_SEND_CMD(cmd);
 }
 
+bool rf_set_agc(uint8_t agc_en, uint8_t lna_gain, uint8_t tia_gain, uint8_t vga_gain)
+{
+    uint8_t cmd[] =
+    {
+        0x31, 0x01, 0x04,
+        (uint8_t)(agc_en),
+        (uint8_t)(lna_gain),
+        (uint8_t)(tia_gain),
+        (uint8_t)(vga_gain),
+    };
+
+    return RUCI_SEND_CMD(cmd);
+}
 
 /******************************************************************************
  *  Statistics

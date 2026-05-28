@@ -762,7 +762,13 @@ uint32_t mpcalrftrimwrite(uint32_t mp_id, MPK_RF_TRIM_T *mp_cal_rf);
  * \retval          STATUS_INVALID_REQUEST read mp sector value is invaild
  */
 uint32_t mpcalrftrimread(uint32_t mp_id, uint32_t byte_cnt, uint8_t *mp_sec_data);
-
+/**
+ * \brief           Function rf tx power mp secotr value
+ * \param[in]       value:
+ * \retval          STATUS_SUCCESS read mp sector value is succesful
+ * \retval          STATUS_INVALID_REQUEST read mp sector value is invaild
+ */
+uint32_t mpsectorgettxpwrcfg(uint8_t *value);
 /**
  * \brief           Mp sector adc intinal
  */

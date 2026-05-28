@@ -27,10 +27,10 @@
 #include "rf_common_init.h"
 #include "rf_mcu.h"
 #include "rf_tx_comp.h"
+#include "lpm.h"
 
 #include "FreeRTOS.h"
 #include "timers.h"
-#include "lpm.h"
 
 #if (RF_TX_POWER_COMP)
 #include "mp_sector.h"
@@ -50,12 +50,19 @@
 #define TX_PWR_COMP_TEMPERATURE_LOW       0
 #define TX_PWR_COMP_TEMPERATURE_DEFAULT   3
 
+#define TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL   3
+#define TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL  (TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL - 1)
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
 #define TX_PWR_COMP_TEMPERATURE_ELEMENT   2
 #define TX_PWR_COMP_VBAT_ELEMENT          2
-#define TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL   3
 #define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
-#define TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL  (TX_PWR_COMP_TEMPERATURE_ELEMENT_PLL - 1)
+#elif (defined(CONFIG_RF1301))
+#define TX_PWR_COMP_TEMPERATURE_ELEMENT   3
+#define TX_PWR_COMP_VBAT_ELEMENT          3
+#define TX_PWR_COMP_TEMPERATURE_BOUNDARY  (TX_PWR_COMP_TEMPERATURE_ELEMENT - 1)
+#define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
+#endif
 
 #define TX_PWR_COMP_DEBUG                 1
 #else
@@ -86,30 +93,45 @@ sadc_value_t tx_pwr_comp_value_vbat = 0;
 uint8_t tx_pwr_comp_region_pre  = TX_PWR_COMP_TEMPERATURE_DEFAULT;
 uint8_t tx_pwr_comp_region      = TX_PWR_COMP_TEMPERATURE_NORMAL;
 uint8_t tx_pwr_comp_pre         = TX_PWR_COMP_TEMPERATURE_NORMAL;
-
-sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
-sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450};
-#if (defined(CONFIG_RT584HA4))
-sadc_value_t tx_pwr_comp_boundary_temperature_pll[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 55};
-#elif (defined(CONFIG_RT584H) || defined(CONFIG_RT584L))
-sadc_value_t tx_pwr_comp_boundary_temperature_pll[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 80};
+#if (defined(CONFIG_RF1301))
+uint8_t tx_pwr_comp_pre_915MHz  = TX_PWR_COMP_TEMPERATURE_NORMAL;
 #endif
 
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
+sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20};
+sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450};
+#elif (defined(CONFIG_RF1301))
+sadc_value_t tx_pwr_comp_boundary_temperature[TX_PWR_COMP_TEMPERATURE_BOUNDARY] = {-20, -20};
+sadc_value_t tx_pwr_comp_boundary_vbat[TX_PWR_COMP_VBAT_BOUNDARY] = {3450, 3450};
+#endif
+#if (defined(CONFIG_RT584HA4) || defined(CONFIG_RF1301))
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_H[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 45};
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_N[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {-10, 55};
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_L[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 55};
+#elif (defined(CONFIG_RT584H) || defined(CONFIG_RT584L))
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_H[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 70};
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_N[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {-10, 80};
+sadc_value_t tx_pwr_comp_boundary_temperature_pll_L[TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL] = {0, 80};
+#endif
+
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
 tx_pwr_comp_element_t tx_pwr_comp_table_h_20dbm[TX_PWR_COMP_TEMPERATURE_ELEMENT][TX_PWR_COMP_VBAT_ELEMENT] =
 {
     {{0}, {1}},
     {{2}, {2}}
 };
-
+#elif (defined(CONFIG_RF1301))
 tx_pwr_comp_element_t tx_pwr_comp_table_s_20dbm[TX_PWR_COMP_TEMPERATURE_ELEMENT][TX_PWR_COMP_VBAT_ELEMENT] =
 {
-    {{0}, {2}},
-    {{3}, {4}}
+    {{1, 3}, {1, 4}, {1, 4}},
+    {{0, 0}, {1, 2}, {1, 2}},
+    {{0, 0}, {1, 2}, {1, 2}}
 };
+#endif
 
 #if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
 tx_pwr_comp_element_t (*ptr_tx_pwr_comp_table)[TX_PWR_COMP_VBAT_ELEMENT] = tx_pwr_comp_table_h_20dbm;
-#elif (defined(CONFIG_RT584S))
+#elif (defined(CONFIG_RF1301))
 tx_pwr_comp_element_t (*ptr_tx_pwr_comp_table)[TX_PWR_COMP_VBAT_ELEMENT] = tx_pwr_comp_table_s_20dbm;
 #endif
 #else
@@ -153,23 +175,105 @@ void Tx_Power_Sadc_Int_Callback_Handler(sadc_cb_t *p_cb)
 
 }
 
+#include <inttypes.h>
+
+
+typedef struct {
+    uint32_t pw_vco_auto            : 4;
+    uint32_t rf_pll_vtbit           : 2;
+    uint32_t rf_vco_amp_ok          : 1;
+    uint32_t rf_pll_lock            : 1;
+    uint32_t rf_vco_bank            : 6;
+    uint32_t reserved               : 2;
+    uint32_t rf_read_rvd            : 16;
+} rf_pll_reads_t, *rf_pll_reads_ptr_t;
+
+typedef struct
+{
+    uint32_t chmap_pll_sdm      : 16;   /* [15:0]  SDM fractional value        */
+    uint32_t chmap_pll_n        : 6;    /* [21:16] PLL integer divider N        */
+    uint32_t chmap_pll_s        : 2;    /* [23:22] PLL S divider                */
+    uint32_t vcob_fast_sel_vco  : 6;    /* [29:24] VCO fast selection           */
+    uint32_t vcob_fast_error_flag : 1;  /* [30]    VCO fast lock error flag     */
+    uint32_t reserved           : 1;    /* [31]    reserved                     */
+} pll_auto_reads_t, *pll_auto_reads_ptr_t;
+
+
+
+void rf_common_radio_reg_rf_pll_dump (void)
+{
+    uint32_t reg_val, reg_val2;
+    uint16_t reg_addr = 0x328, reg_addr2 = 0x3D4;
+
+
+    reg_val = RfMcu_RegGet(reg_addr);
+    printf("rf_vt_bit: %d, rf_vco_bank:%d\r\n", 
+        ((rf_pll_reads_ptr_t)&reg_val)->rf_pll_vtbit, 
+        ((rf_pll_reads_ptr_t)&reg_val)->rf_vco_bank);
+    printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
+    reg_val2 = RfMcu_RegGet(reg_addr2);
+    printf("RF vcob_fast_sel_vco: %d, vcob_fast_error_flag:%d\r\n", 
+        ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_sel_vco, 
+        ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
+    printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr2, reg_val2);
+}
+
 void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
 {
     uint32_t tx_pwr_comp_temperature_index = 0;
     uint32_t tx_pwr_comp_vbat_index = 0;
     tx_pwr_comp_element_t tx_pwr_comp;
+    #if 0
+    uint32_t vt_bit = 0;
+
+    vt_bit = PLL_VIBIT_STATUS();
+    printf("PMU_CTRL->soc_bbpll0: 0x%08x"PRIx32"\r\n", PMU_CTRL->soc_bbpll0);
+    printf("PMU_CTRL->soc_bbpll1: 0x%08x"PRIx32"\r\n", PMU_CTRL->soc_bbpll1);
+    rf_common_radio_reg_rf_pll_dump();
+    printf("vt_bit: %d, vco bank: %d\r\n", vt_bit, PLL_BANK_VCO_STATUS());
+    if(vt_bit == 3) {
+        printf("!!!!!!!!!!!!");
+        printf("!!!!!!!!!!!!");
+        printf("!vt_bit = 3!");
+        printf("!!!!!!!!!!!!");
+        printf("!!!!!!!!!!!!");
+    }
+    #endif
+
+
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
-#if (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L))
+
     for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY_PLL; tx_pwr_comp_temperature_index++)
     {
-        if (temperature < tx_pwr_comp_boundary_temperature_pll[tx_pwr_comp_temperature_index])
+        if (tx_pwr_comp_region_pre == TX_PWR_COMP_TEMPERATURE_HIGH)
         {
-            break;
+            if (temperature < tx_pwr_comp_boundary_temperature_pll_H[tx_pwr_comp_temperature_index])
+            {
+                break;
+            }
+        }
+        else if (tx_pwr_comp_region_pre == TX_PWR_COMP_TEMPERATURE_NORMAL)
+        {
+            if (temperature < tx_pwr_comp_boundary_temperature_pll_N[tx_pwr_comp_temperature_index])
+            {
+                break;
+            }
+        }
+        else
+        {
+            if (temperature < tx_pwr_comp_boundary_temperature_pll_L[tx_pwr_comp_temperature_index])
+            {
+                break;
+            }
         }
     }
-    tx_pwr_comp_region = tx_pwr_comp_temperature_index;
+#if (TX_PWR_COMP_DEBUG == 1)
+    printf("Region Ref : %d", tx_pwr_comp_region_pre);
 #endif
-#if ((CONFIG_RF_POWER_20DBM == 1) && (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RT584S)))
+    tx_pwr_comp_region = tx_pwr_comp_temperature_index;
+
+#if ((CONFIG_RF_POWER_20DBM == 1) && (defined(CONFIG_RT584H) ||  defined(CONFIG_RT584HA4) || defined(CONFIG_RF1301)))
+#if (defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4))
     for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY; tx_pwr_comp_temperature_index++)
     {
         if (temperature >= tx_pwr_comp_boundary_temperature[tx_pwr_comp_temperature_index])
@@ -199,6 +303,38 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
         printf("Change Region to %d %d", tx_pwr_comp_region, tx_pwr_comp.txp_offset);
 #endif
     }
+#elif (defined(CONFIG_RF1301))
+    for (tx_pwr_comp_temperature_index = 0; tx_pwr_comp_temperature_index < TX_PWR_COMP_TEMPERATURE_BOUNDARY; tx_pwr_comp_temperature_index++)
+    {
+        if (temperature <= tx_pwr_comp_boundary_temperature[tx_pwr_comp_temperature_index])
+        {
+            break;
+        }
+    }
+
+    for (tx_pwr_comp_vbat_index = 0; tx_pwr_comp_vbat_index < TX_PWR_COMP_VBAT_BOUNDARY; tx_pwr_comp_vbat_index++)
+    {
+        if (vbat <= tx_pwr_comp_boundary_vbat[tx_pwr_comp_vbat_index])
+        {
+            break;
+        }
+    }
+
+    tx_pwr_comp = ptr_tx_pwr_comp_table[tx_pwr_comp_temperature_index][tx_pwr_comp_vbat_index];
+#if (TX_PWR_COMP_DEBUG == 1)
+    printf("txp_offset: %d , txp_offset_915MHz: %d\n", tx_pwr_comp.txp_offset, tx_pwr_comp.txp_offset_915MHz);
+#endif
+    if ((tx_pwr_comp_region != tx_pwr_comp_region_pre) || (tx_pwr_comp.txp_offset != tx_pwr_comp_pre) || (tx_pwr_comp.txp_offset_915MHz != tx_pwr_comp_pre_915MHz))
+    {
+        tx_pwr_comp_region_pre = tx_pwr_comp_region;
+        tx_pwr_comp_pre = tx_pwr_comp.txp_offset;
+        tx_pwr_comp_pre_915MHz = tx_pwr_comp.txp_offset_915MHz;
+        rf_common_tx_pwr_comp_set(0, tx_pwr_comp_region, (uint8_t) ((tx_pwr_comp.txp_offset_915MHz << 4) | tx_pwr_comp.txp_offset), 0);
+#if (TX_PWR_COMP_DEBUG == 1)
+        printf("Change Region to %d %d %d", tx_pwr_comp_region, tx_pwr_comp.txp_offset, tx_pwr_comp.txp_offset_915MHz);
+#endif
+    }
+#endif
 #else
     if (tx_pwr_comp_region != tx_pwr_comp_region_pre)
     {

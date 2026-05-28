@@ -141,6 +141,14 @@ __STATIC_FORCEINLINE BaseType_t __rf_signal(void) {
 }
 
 static void __rf_event_callback(uint8_t intStatus) {
+    /* wake up RF to clear interrupt status */
+    RfMcu_HostWakeUpMcu();
+    if (RfMcu_PowerStateCheck() != 0x03) {
+        /* FOR LEVEL TRIGGER ONLY, the MCU will keep entering INT if status not cleared */
+        printf("[W] PWR state error in rfb_isr_handler\n");
+        return;
+    }
+
     /* clean interrupt status first */
     RfMcu_InterruptClear(intStatus);
 
@@ -151,7 +159,7 @@ static void __rf_event_callback(uint8_t intStatus) {
     if (intStatus & HOSAL_RF_TRAP_STS) {
         uint32_t debug_value;
 
-        RfMcu_MemoryGet(0x4008, (uint8_t *)&debug_value, sizeof(debug_value));
+        RfMcu_MemoryGet(0x4008, (uint8_t*)&debug_value, sizeof(debug_value));
         printf("TRAP 0x%08x\n", debug_value);
         configASSERT(0);
     }
@@ -251,7 +259,7 @@ __STATIC_FORCEINLINE void handle_tx_done_status(void) {
     if (g_pci_tx_done_cb) {
         g_pci_tx_done_cb((void*)tx_status);
     }
-    RfMcu_HostCmdSet((tx_status & 0xF4));
+    RfMcu_HostCmdSet((tx_status & 0xF8));
 }
 
 static void __rf_check_state(void) {
@@ -490,18 +498,14 @@ static hosal_rf_status_t __rf_tx_continuous_wave_set(uint32_t tx_enable) {
     tx_data.control = 0;
     tx_data.dsn = 0;
     tx_data.pData = dummy_tx_data;
-    
-    if (tx_enable)
-    {
+
+    if (tx_enable) {
         status = __rf_single_tone_mode_set(2);
-        if (status != HOSAL_RF_STATUS_SUCCESS)
-        {
+        if (status != HOSAL_RF_STATUS_SUCCESS) {
             return status;
         }
         status = __rf_tx_data_start_set(&tx_data);
-    }
-    else
-    {
+    } else {
         status = __rf_single_tone_mode_set(0);
     }
 
@@ -772,7 +776,7 @@ __rf_15p4_ack_packet_get(hosal_rf_15p4_ack_packet_t* ack) {
     ack->ptime[2] = tmp_rtc_time;
     /* Start from 0x4000 + (page*64), the 9th 4-byte*/
     temp_addr = 0x4000 + (page * 64) + (12 * 4);
-    RfMcu_MemoryGet(temp_addr, (uint8_t *)&temp_data, 4);
+    RfMcu_MemoryGet(temp_addr, (uint8_t*)&temp_data, 4);
     *ack->prssi = (temp_data & 0xff);
 
     return HOSAL_RF_STATUS_SUCCESS;

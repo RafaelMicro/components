@@ -27,6 +27,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #include <string.h>             /* memcpy */
 #include <stdio.h>
 //#include "zb_types.h"
@@ -38,7 +39,9 @@ extern "C" {
 #define ZB_HAVE_IOCTX
 #endif
 
+#ifndef __weak
 #define __weak                      __attribute__ ((weak))
+#endif
 
 #define ZB_VOLATILE
 #define ZB_SDCC_XDATA
@@ -243,6 +246,7 @@ void zbStartRun(void);
 void zigbee_do_factory_reset(void);
 void register_app_cb(void* cb);
 void register_zcl_cb(void* cb);
+
 #ifdef __cplusplus
 }
 #endif

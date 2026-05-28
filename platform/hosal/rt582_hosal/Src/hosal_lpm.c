@@ -88,6 +88,14 @@ int hosal_lpm_ioctrl(int ctl, uint32_t para) {
         case HOSAL_LPM_SUBSYSTEM_DISABLE_LDO_MODE:
             lpm_comm_subsystem_disable_ldo_mode();
             break;
+
+        case HOSAL_LPM_PERIGRP1_PWR_OFF_DEEP_SLEEP:
+        case HOSAL_LPM_PERIGRP2_PWR_OFF_SLEEP:
+        case HOSAL_LPM_PERIGRP2_PWR_OFF_DEEP_SLEEP:
+        case HOSAL_LPM_PERIGRP3_PWR_OFF_SLEEP:
+        case HOSAL_LPM_PERIGRP3_PWR_OFF_DEEP_SLEEP:
+        return HOSAL_STATUS_UNSUPPORTED;  
+
         default: return -1;
     }
 

@@ -340,11 +340,7 @@ public:
 #endif
 
 private:
-#if OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT || OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT
-    static constexpr uint8_t kFailedRouterTransmissions      = 10;
-#else
     static constexpr uint8_t kFailedRouterTransmissions      = 4;
-#endif
     static constexpr uint8_t kFailedCslDataPollTransmissions = 15;
 
     static constexpr uint8_t kReassemblyTimeout      = OPENTHREAD_CONFIG_6LOWPAN_REASSEMBLY_TIMEOUT; // in seconds.

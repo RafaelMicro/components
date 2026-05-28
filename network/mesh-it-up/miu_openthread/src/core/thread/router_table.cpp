@@ -629,7 +629,7 @@ void RouterTable::UpdateRoutes(const Mle::RouteTlv &aRouteTlv, uint8_t aNeighbor
 
         if ((nextHop == nullptr) || (nextHop == neighbor))
         {
-            // `router` has no next hop or next hop is neighbor (sender)
+            // `router` has no next hop or next hop is neighbor (sender)            
 
             if (cost + linkCostToNeighbor < Mle::kMaxRouteCost)
             {
@@ -640,6 +640,15 @@ void RouterTable::UpdateRoutes(const Mle::RouteTlv &aRouteTlv, uint8_t aNeighbor
             }
             else if (nextHop == neighbor)
             {
+                LogInfo(
+                    "[RouteInvalidate] byNbr:%02u dst:%02u "
+                    "costFromNbr:%u linkCost:%u "
+                    "nbrAge:%lu",
+                    aNeighborId,
+                    routerId,
+                    cost,
+                    linkCostToNeighbor,
+                    ToUlong((TimerMilli::GetNow() - neighbor->GetLastHeard()) / 1000));
                 router->SetNextHopToInvalid();
                 router->SetLastHeard(TimerMilli::GetNow());
                 SignalTableChanged();
