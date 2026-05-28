@@ -1,18 +1,12 @@
-/*
- * Copyright (c) 2022-2025 Rafael Microelectronics Inc. All rights reserved.
- * 
- * SPDX-License-Identifier: LicenseRef-RafaelMicro-Proprietary-1.0
- *
- */
-
 /******************************************************************************
 *
 * @File         ruci_sf_event.h
 * @Version
-* $Revision: 8070
-* $Date: 2026-03-25
+* $Revision: 8174
+* $Date: 2026-05-25
 * @Brief
 * @Note
+* Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
 *
 ******************************************************************************/
 #ifndef _RUCI_SF_EVENT_H

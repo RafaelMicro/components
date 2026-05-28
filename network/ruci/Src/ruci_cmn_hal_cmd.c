@@ -1,18 +1,12 @@
-/*
- * Copyright (c) 2022-2025 Rafael Microelectronics Inc. All rights reserved.
- * 
- * SPDX-License-Identifier: LicenseRef-RafaelMicro-Proprietary-1.0
- *
- */
-
 /******************************************************************************
 *
 * @File         ruci_cmn_hal_cmd.c
 * @Version
-* $Revision:8070
-* $Date: 2026-03-25
+* $Revision:8174
+* $Date: 2026-05-25
 * @Brief
 * @Note
+* Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
 *
 *****************************************************************************/
 
@@ -175,6 +169,16 @@ const uint8_t ruci_elmt_type_set_calibration_setting_s[] =
 const uint8_t ruci_elmt_num_set_calibration_setting_s[] =
 {
     1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 5
+};
+
+// RUCI: restart_vco_bank_search_g2p4 ------------------------------------------
+const uint8_t ruci_elmt_type_restart_vco_bank_search_g2p4[] =
+{
+    1, 1, 1
+};
+const uint8_t ruci_elmt_num_restart_vco_bank_search_g2p4[] =
+{
+    1, 1, 1
 };
 
 #endif /* RUCI_ENABLE_CMN */

@@ -18,7 +18,7 @@ extern void systemcoreclockupdate(void);
 extern void get_set_sys_clk_value(uint32_t* get_value);
 
 void _dump_boot_info(void) {
-    uint32_t ver_major, ver_minor, tar_sys_clk;
+    uint32_t ver_major, ver_minor, tar_sys_clk, check_pll_times = 0;
     sys_clk_sel_t now_sys_clk;
 
     puts("\r\n");
@@ -75,12 +75,34 @@ void _dump_boot_info(void) {
                                                      : "64MHz");
 
 #if defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RF1301) || defined(CONFIG_RT584HA4)
-    printf("PMU_CTRL->soc_bbpll_read: %.8x\r\n", PMU_CTRL->soc_bbpll_read);
+    printf("PMU_CTRL->soc_bbpll_read: 0x%.8x\r\n", PMU_CTRL->soc_bbpll_read.reg);
     printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
-    printf("PMU_CTRL->soc_bbpll0: %.8x\r\n", PMU_CTRL->soc_bbpll0);
-    printf("PMU_CTRL->soc_bbpll1: %.8x\r\n", PMU_CTRL->soc_bbpll1);
+    printf("PMU_CTRL->soc_bbpll0: 0x%.8x\r\n", PMU_CTRL->soc_bbpll0.reg);
+    printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
 #endif
     systemcoreclockupdate();
+    check_pll_times = 1;
+    do{
+        now_sys_clk = get_ahb_system_clk();
+        get_set_sys_clk_value(&tar_sys_clk);
+        if (tar_sys_clk != now_sys_clk) {
+            change_ahb_system_clk(tar_sys_clk);
+            puts(
+            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
+            printf("retry lock pll times :%d\r\n",check_pll_times);
+            printf("PMU_CTRL->soc_bbpll_read: 0x%.8x\r\n", PMU_CTRL->soc_bbpll_read.reg);
+            printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
+            printf("PMU_CTRL->soc_bbpll0: 0x%.8x\r\n", PMU_CTRL->soc_bbpll0.reg);
+            printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
+            puts(
+            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n\r\n");
+            
+        }
+        check_pll_times ++;
+    }while(check_pll_times < 4);
+
+    
+
     now_sys_clk = get_ahb_system_clk();
     get_set_sys_clk_value(&tar_sys_clk);
     if (tar_sys_clk != now_sys_clk) {
@@ -89,11 +111,11 @@ void _dump_boot_info(void) {
         puts(
             "!!!!!!!!!!!!!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
         printf("target system clock %s, now system clock %s\r\n",
-               (tar_sys_clk == SYS_CLK_32MHZ)   ? "32MHz"
-               : (tar_sys_clk == SYS_CLK_48MHZ) ? "48MHz"
+            (tar_sys_clk == SYS_CLK_32MHZ)   ? "32MHz"
+            : (tar_sys_clk == SYS_CLK_48MHZ) ? "48MHz"
                                                 : "64MHz",
-               (now_sys_clk == SYS_CLK_32MHZ)   ? "32MHz"
-               : (now_sys_clk == SYS_CLK_48MHZ) ? "48MHz"
+            (now_sys_clk == SYS_CLK_32MHZ)   ? "32MHz"
+            : (now_sys_clk == SYS_CLK_48MHZ) ? "48MHz"
                                                 : "64MHz");
         puts(
             "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n");

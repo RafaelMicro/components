@@ -814,42 +814,41 @@ uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode) {
             SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
             return STATUS_SUCCESS;
         }
-        else if ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) && (PLL_BANK_VCO_STATUS() == PLL_LOCK_BANK_VCO_7))
+        else if ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3))
         {
             /* Auto mode saturated at bank 7 without locking — switch to manual bank search */
             SYSCTRL->sys_clk_ctrl.reg &= ~MCU_BBPLL_ENABLE;
 
             PMU_CTRL->soc_bbpll0.bit.bbpll_setting_auto = 0;
             bank1_man = PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man;
-            PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man = bank1_man + 1;
-            PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 1;
-            bank_n = 0;
-            PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
+            for (i = bank1_man; i < (bank1_man + 2); i++) {
+                PMU_CTRL->soc_bbpll0.bit.bbpll_bank1_man = i;
+                PMU_CTRL->soc_bbpll0.bit.bbpll_manubank = 1;
+                bank_n = 0;
+                PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
 
-            SYSCTRL->sys_clk_ctrl.reg |= MCU_BBPLL_ENABLE;
-            for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
+                SYSCTRL->sys_clk_ctrl.reg |= MCU_BBPLL_ENABLE;
+                for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
 
-            /* Step 3: Manual bank scan loop (no PLL restart needed between banks) */
-            while (1)
-            {
-                if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1)
-                {
-                    SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
-                    return STATUS_SUCCESS;
-                }
-                else if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3)
-                {
-                    bank_n++;
-                    if (bank_n == 8)
-                    {
-                        return STATUS_INVALID_REQUEST;  /* all banks exhausted */
+                /* Step 3: Manual bank scan loop (no PLL restart needed between banks) */
+                while (1) {
+                    if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1) {
+                        SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
+                        return STATUS_SUCCESS;
+                    } else if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3) {
+                        bank_n++;
+                        if (bank_n == 8) {
+                            if( i < (bank1_man + 2) ) {
+                                break;
+                            } else {
+                                return STATUS_INVALID_REQUEST;  /* all banks exhausted */
+                            }
+                        }
+                        PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
+                        for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
+                    } else {
+                        return STATUS_INVALID_REQUEST;  /* BBPLL abnormal */
                     }
-                    PMU_CTRL->soc_bbpll1.bit.bbpll_ini_bank = bank_n;
-                    for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
-                }
-                else
-                {
-                    return STATUS_INVALID_REQUEST;  /* BBPLL abnormal */
                 }
             }
         }

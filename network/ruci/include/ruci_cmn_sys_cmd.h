@@ -1,18 +1,12 @@
-/*
- * Copyright (c) 2022-2025 Rafael Microelectronics Inc. All rights reserved.
- * 
- * SPDX-License-Identifier: LicenseRef-RafaelMicro-Proprietary-1.0
- *
- */
-
 /******************************************************************************
 *
 * @File         ruci_cmn_sys_cmd.h
 * @Version
-* $Revision: 8070
-* $Date: 2026-03-25
+* $Revision: 8174
+* $Date: 2026-05-25
 * @Brief
 * @Note
+* Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
 *
 ******************************************************************************/
 #ifndef _RUCI_CMN_SYS_CMD_H

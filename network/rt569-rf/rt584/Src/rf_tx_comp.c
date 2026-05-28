@@ -218,6 +218,7 @@ void rf_common_radio_reg_rf_pll_dump (void)
     printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr2, reg_val2);
 }
 
+#if (RF_TX_POWER_COMP)
 void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
 {
     uint32_t tx_pwr_comp_temperature_index = 0;
@@ -426,7 +427,6 @@ void Tx_Power_Compensation_Sadc_Int_Handler(sadc_cb_t *p_cb)
     }
 }
 
-#if (RF_TX_POWER_COMP)
 #if defined(CONFIG_FREERTOS)
 void Tx_Power_Compensation_Periodic_Callback(TimerHandle_t pxTimer)
 {

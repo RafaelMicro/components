@@ -26,7 +26,7 @@
 #define RF_CAL_FT_MODE              (0x04)
 
 #ifndef RF_CAL_TYPE
-#if (defined(CONFIG_RF1301))
+#if (defined(CONFIG_RF1301Z) || defined(CONFIG_RF1301))
 #define RF_CAL_TYPE                 (RF_CAL_PWR_ON_MODE)
 #else
 #define RF_CAL_TYPE                 (RF_CAL_OFF)
@@ -54,7 +54,7 @@
 #endif
 
 #ifndef RF_TX_POWER_COMP
-#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
+#if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) && (!(CONFIG_RF1301Z)))
 #define RF_TX_POWER_COMP            (TRUE)
 #else
 #define RF_TX_POWER_COMP            (FALSE)
@@ -106,6 +106,7 @@ bool rf_common_tx_pwr_ch_seg_set(int8_t segA, int8_t segB, int8_t segC, int8_t m
 bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 bool rf_common_init_fw_preload(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 void rf_common_radio_reg_dump (void);
+bool rf_common_restart_vco_bank_search_g2p4(void);
 
 #endif  //_RF_COMMON_INIT_H__
 

@@ -1,18 +1,12 @@
-/*
- * Copyright (c) 2022-2025 Rafael Microelectronics Inc. All rights reserved.
- * 
- * SPDX-License-Identifier: LicenseRef-RafaelMicro-Proprietary-1.0
- *
- */
-
 /******************************************************************************
 *
 * @File         ruci_cmn_hal_cmd.h
 * @Version
-* $Revision: 8070
-* $Date: 2026-03-25
+* $Revision: 8174
+* $Date: 2026-05-25
 * @Brief
 * @Note
+* Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
 *
 ******************************************************************************/
 #ifndef _RUCI_CMN_HAL_CMD_H
@@ -530,6 +524,31 @@ typedef struct ruci_para_set_calibration_setting_s_s
         ((ruci_para_set_calibration_setting_s_t *)msg)->tx_hd3[2]                      = tx_hd3_2_in;                            \
         ((ruci_para_set_calibration_setting_s_t *)msg)->tx_hd3[3]                      = tx_hd3_3_in;                            \
         ((ruci_para_set_calibration_setting_s_t *)msg)->tx_hd3[4]                      = tx_hd3_4_in;                            \
+        }while(0)
+
+// RUCI: restart_vco_bank_search_g2p4 ------------------------------------------
+#define RUCI_RESTART_VCO_BANK_SEARCH_G2P4       RUCI_NUM_RESTART_VCO_BANK_SEARCH_G2P4, ruci_elmt_type_restart_vco_bank_search_g2p4, ruci_elmt_num_restart_vco_bank_search_g2p4
+#define RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4  0x10
+#define RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4   3
+#define RUCI_NUM_RESTART_VCO_BANK_SEARCH_G2P4   3
+#define RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH_G2P4 0
+#if (RUCI_ENDIAN_INVERSE)
+extern const uint8_t ruci_elmt_type_restart_vco_bank_search_g2p4[];
+extern const uint8_t ruci_elmt_num_restart_vco_bank_search_g2p4[];
+#endif /* RUCI_ENDIAN_INVERSE */
+typedef struct ruci_para_restart_vco_bank_search_g2p4_s
+{
+    ruci_head_t     ruci_header;
+    uint8_t         sub_header;
+    uint8_t         length;
+} ruci_para_restart_vco_bank_search_g2p4_t;
+
+/* User should provide msg buffer is greater than sizeof(ruci_para_restart_vco_bank_search_g2p4_t) */
+#define SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(msg)        \
+        do{                                                                                                            \
+        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->ruci_header.u8                 = RUCI_CMN_HAL_CMD_HEADER;                \
+        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->sub_header                     = RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4; \
+        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->length                         = RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH_G2P4;\
         }while(0)
 
 #pragma pack(pop)

@@ -291,7 +291,7 @@ void Delay(uint16_t times)
 bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
 {
     ruci_para_initiate_ble_t sBleInitCmd;
-#if (RF_MCU_CHIP_MODEL != RF_MCU_CHIP_569S)
+#if ((RF_MCU_CHIP_MODEL != RF_MCU_CHIP_569S)  || (defined(CONFIG_RF1301)))
     ruci_para_initiate_fsk_t sFskInitCmd;
 #else
     ruci_para_initiate_zwave_t sZwaveInitCmd;
@@ -308,9 +308,10 @@ bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
     uint16_t                            int_enable;
 
     /* Send HW initialization command */
-#if (RF_MCU_CHIP_MODEL != RF_MCU_CHIP_569S)
-#if (0)
-    if (band_idx == RF_BAND_2P4G)
+#if ((RF_MCU_CHIP_MODEL != RF_MCU_CHIP_569S)  || (defined(CONFIG_RF1301)))
+#if (1)
+    // if (band_idx == RF_BAND_2P4G)
+    if (0)
 #else
     if (1)      /* Forced RF calibration at 2.4GHz RF band */
 #endif
@@ -334,8 +335,14 @@ bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
     }
     else
     {
+        /* Store interrupt setting and disable all interrupt */
+        int_enable = RfMcu_InterruptEnGet();
+        RfMcu_InterruptEnSet(0x0000);
+
         SET_RUCI_PARA_INITIATE_FSK(&sFskInitCmd, 0);
+#if (RUCI_ENDIAN_INVERSE)
         RUCI_ENDIAN_CONVERT((uint8_t *)&sFskInitCmd, RUCI_INITIATE_FSK);
+#endif
 
         enter_critical_section();
         event_len = 0;
@@ -344,15 +351,20 @@ bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
         event_status = rf_common_event_get(&event_len, (uint8_t *)&sCnfEvent);
         leave_critical_section();
 
+#if (RUCI_ENDIAN_INVERSE)
         RUCI_ENDIAN_CONVERT((uint8_t *)&sCnfEvent, RUCI_CNF_EVENT);
+#endif
         if ((event_status != RF_MCU_RX_CMDQ_GET_SUCCESS) ||
                 (sCnfEvent.pci_cmd_subheader != RUCI_CODE_INITIATE_FSK) ||
                 (sCnfEvent.status != 0))
         {
+            /* Enable interrupt */
+            RfMcu_InterruptClear(0xFF);
+            RfMcu_InterruptEnSet(int_enable);
             return false;
         }
     }
-#else
+#elif (defined(CONFIG_RF1301Z))
     /* Store interrupt setting and disable all interrupt */
     int_enable = RfMcu_InterruptEnGet();
     RfMcu_InterruptEnSet(0x0000);
@@ -525,7 +537,7 @@ bool rf_common_cal_init(COMM_SUBSYSTEM_ISR_t isr_func)
         }
         else
         {
-
+            mpIdIdx = band_idx;
         }
 
         /* Read from MP sector */
@@ -645,7 +657,7 @@ bool rf_common_cal_set()
         }
         else
         {
-
+            mpIdIdx = band_idx;
         }
 
         /* Read setting from MP sector */
@@ -1512,4 +1524,50 @@ void rf_common_radio_reg_dump (void)
         reg_val = RfMcu_RegGet(reg_addr);
         printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
     }
+}
+
+bool rf_common_restart_vco_bank_search_g2p4(void)
+{
+#if (0) // Workaround for UART bridge and DTM project issue
+    uint16_t                                        int_enable;
+    ruci_para_restart_vco_bank_search_g2p4_t        sRestartVcoBankSearchG2p4;
+    ruci_para_cmn_cnf_event_t                       sCmnCnfEvent;
+    uint8_t                                         event_len = 0;
+    RF_MCU_RX_CMDQ_ERROR                            event_status = RF_MCU_RX_CMDQ_ERR_INIT;
+
+    /* Store interrupt setting and disable all interrupt */
+    int_enable = RfMcu_InterruptEnGet();
+    RfMcu_InterruptEnSet(0x0000);
+
+    /* Restart VCO bank search 2p4g to lower layer HW */
+    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(&sRestartVcoBankSearchG2p4);
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_RESTART_VCO_BANK_SEARCH_G2P4);
+
+    enter_critical_section();
+    event_len = 0;
+    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4);
+    event_status = rf_common_event_get(&event_len, (uint8_t *)&sCmnCnfEvent);
+    leave_critical_section();
+
+    /* Enable interrupt */
+    RfMcu_InterruptClear(0xFF);
+    RfMcu_InterruptEnSet(int_enable);
+
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sCmnCnfEvent, RUCI_CMN_CNF_EVENT);
+    if ((event_status != RF_MCU_RX_CMDQ_GET_SUCCESS) ||
+            (sCmnCnfEvent.cmn_cmd_subheader != RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4) ||
+            (sCmnCnfEvent.status != 0))
+    {
+        return false;
+    }
+#else
+    ruci_para_restart_vco_bank_search_g2p4_t        sRestartVcoBankSearchG2p4;
+
+    /* Restart VCO bank search 2p4g to lower layer HW */
+    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(&sRestartVcoBankSearchG2p4);
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_RESTART_VCO_BANK_SEARCH_G2P4);
+
+    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4);
+#endif
+    return true;
 }
