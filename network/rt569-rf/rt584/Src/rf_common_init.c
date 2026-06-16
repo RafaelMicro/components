@@ -339,7 +339,7 @@ bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
         int_enable = RfMcu_InterruptEnGet();
         RfMcu_InterruptEnSet(0x0000);
 
-        SET_RUCI_PARA_INITIATE_FSK(&sFskInitCmd, 0);
+        SET_RUCI_PARA_INITIATE_FSK(&sFskInitCmd, (band_idx == 1) ? 0 : band_idx);
 #if (RUCI_ENDIAN_INVERSE)
         RUCI_ENDIAN_CONVERT((uint8_t *)&sFskInitCmd, RUCI_INITIATE_FSK);
 #endif
@@ -452,7 +452,14 @@ bool rf_common_cal_enable(RF_BAND band_idx, MPK_RF_TRIM_T *p_rf_cal_info)
     }
 
     /* Update calibration results */
-    p_rf_cal_info->cal_cfg = sRfCalCmdEvent.status;
+    if (!((p_rf_cal_info->rx_iq_gain == 0xFF) && (p_rf_cal_info->rx_iq_gain_sel == 0xFF) && (p_rf_cal_info->rx_iq_phase == 0xFF) && (p_rf_cal_info->rx_iq_phase_sel == 0xFF)))
+    {
+        p_rf_cal_info->cal_cfg = (sRfCalCmdEvent.status | BIT5);
+    }
+    else
+    {
+        p_rf_cal_info->cal_cfg = sRfCalCmdEvent.status;
+    }
     p_rf_cal_info->rx_filter_cap = sRfCalCmdEvent.rx_filter;
     p_rf_cal_info->rx_tia_dc_i_code = sRfCalCmdEvent.rx_tia_dc[0];
     p_rf_cal_info->rx_tia_dc_i_path = sRfCalCmdEvent.rx_tia_dc[1];
@@ -1526,11 +1533,11 @@ void rf_common_radio_reg_dump (void)
     }
 }
 
-bool rf_common_restart_vco_bank_search_g2p4(void)
+bool rf_common_restart_vco_bank_search(void)
 {
 #if (0) // Workaround for UART bridge and DTM project issue
     uint16_t                                        int_enable;
-    ruci_para_restart_vco_bank_search_g2p4_t        sRestartVcoBankSearchG2p4;
+    ruci_para_restart_vco_bank_search_t             sRestartVcoBankSearch;
     ruci_para_cmn_cnf_event_t                       sCmnCnfEvent;
     uint8_t                                         event_len = 0;
     RF_MCU_RX_CMDQ_ERROR                            event_status = RF_MCU_RX_CMDQ_ERR_INIT;
@@ -1539,13 +1546,13 @@ bool rf_common_restart_vco_bank_search_g2p4(void)
     int_enable = RfMcu_InterruptEnGet();
     RfMcu_InterruptEnSet(0x0000);
 
-    /* Restart VCO bank search 2p4g to lower layer HW */
-    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(&sRestartVcoBankSearchG2p4);
-    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_RESTART_VCO_BANK_SEARCH_G2P4);
+    /* Restart VCO bank search to lower layer HW */
+    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH(&sRestartVcoBankSearch);
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearch, RUCI_RESTART_VCO_BANK_SEARCH);
 
     enter_critical_section();
     event_len = 0;
-    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4);
+    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearch, RUCI_LEN_RESTART_VCO_BANK_SEARCH);
     event_status = rf_common_event_get(&event_len, (uint8_t *)&sCmnCnfEvent);
     leave_critical_section();
 
@@ -1555,19 +1562,19 @@ bool rf_common_restart_vco_bank_search_g2p4(void)
 
     RUCI_ENDIAN_CONVERT((uint8_t *)&sCmnCnfEvent, RUCI_CMN_CNF_EVENT);
     if ((event_status != RF_MCU_RX_CMDQ_GET_SUCCESS) ||
-            (sCmnCnfEvent.cmn_cmd_subheader != RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4) ||
+            (sCmnCnfEvent.cmn_cmd_subheader != RUCI_CODE_RESTART_VCO_BANK_SEARCH) ||
             (sCmnCnfEvent.status != 0))
     {
         return false;
     }
 #else
-    ruci_para_restart_vco_bank_search_g2p4_t        sRestartVcoBankSearchG2p4;
+    ruci_para_restart_vco_bank_search_t        sRestartVcoBankSearch;
 
-    /* Restart VCO bank search 2p4g to lower layer HW */
-    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(&sRestartVcoBankSearchG2p4);
-    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_RESTART_VCO_BANK_SEARCH_G2P4);
+    /* Restart VCO bank search to lower layer HW */
+    SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH(&sRestartVcoBankSearch);
+    RUCI_ENDIAN_CONVERT((uint8_t *)&sRestartVcoBankSearch, RUCI_RESTART_VCO_BANK_SEARCH);
 
-    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearchG2p4, RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4);
+    rf_common_cmd_send((uint8_t *)&sRestartVcoBankSearch, RUCI_LEN_RESTART_VCO_BANK_SEARCH);
 #endif
     return true;
 }

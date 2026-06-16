@@ -74,7 +74,7 @@ typedef enum {
     I2S_IMCLK_12P288M,                          /*!< PLL_CK = 32M, I2S_WCK = 48K */
     I2S_IMCLK_8P192M,                           /*!< PLL_CK = 32M, I2S_WCK = 8/16/32K */
     I2S_IMCLK_24P576M,                          /*!< PLL_CK = 64M, I2S_WCK = 48K */
-    I2S_IMCLK_16P384M,                          /*!< PLL_CK = 64M, I2S_WCK = 64K */
+    I2S_IMCLK_16P384M,                          /*!< PLL_CK = 64M, I2S_WCK = 8/16/32K */
     I2S_IMCLK_MAX,                              /*!< imclk selection max */
 } i2s_cfg_imck_rate_t;
 

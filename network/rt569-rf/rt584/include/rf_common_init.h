@@ -106,7 +106,7 @@ bool rf_common_tx_pwr_ch_seg_set(int8_t segA, int8_t segB, int8_t segC, int8_t m
 bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 bool rf_common_init_fw_preload(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 void rf_common_radio_reg_dump (void);
-bool rf_common_restart_vco_bank_search_g2p4(void);
+bool rf_common_restart_vco_bank_search(void);
 
 #endif  //_RF_COMMON_INIT_H__
 

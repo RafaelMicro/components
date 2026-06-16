@@ -79,7 +79,8 @@ uint32_t gpio_cfg(uint32_t pin_number, gpio_pin_dir_t dir, gpio_pin_int_mode_t i
 
         case GPIO_PIN_NOINT:
         default:
-            GPIO->disable_int = MASK;
+            GPIO->both_edge_clr = MASK;
+            GPIO->edge_int_clr = MASK;
             break;
     }
 
@@ -243,6 +244,7 @@ void gpio_handler(void) {
     uint32_t  i = 0, Mask = 1;
 
     irq_state = GPIO->int_status;
+    printf("handler GPIO->int_status:%.8x\r\n",GPIO->int_status);
     for (i = 0; i < MAX_NUMBER_OF_PINS; i++, Mask <<= 1) {
         if (irq_state & Mask) {
             app_isr = user_isr[i].gpio_handler;

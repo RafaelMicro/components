@@ -395,6 +395,12 @@ void delay_ms(volatile uint32_t ms);
 uint32_t pin_get_mode(uint32_t pin_number);
 
 /**
+ * \brief           Disable pin function
+ * \param[in]       mode: The specail function mode want to disable
+ */
+void pin_disable_in_mode(uint32_t mode);
+
+/**
  * \brief           Set pin function mode
  * \param[in]       pin_number: Specifies the pin number
  * \param[in]       mode: The specail function mode for the pin_number

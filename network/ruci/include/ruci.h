@@ -2,8 +2,8 @@
 *
 * @File         ruci.h
 * @Version
-* $Revision: 8174
-* $Date: 2026-05-25
+* $Revision: 8199
+* $Date: 2026-06-04
 * @Brief
 * @Note
 * Copyright (C)  2026 Rafael Microelectronics Inc. All rights reserved.
@@ -37,7 +37,7 @@
 /*****************************************************************************
 * DEFINES
 ******************************************************************************/
-#define RUCI_VERSION  (8174) 
+#define RUCI_VERSION  (8199) 
 
 #if (RUCI_ENDIAN_INVERSE)
 #define RUCI_ENDIAN_CONVERT(pData, para)        RUCI_endianConvert(pData, para)

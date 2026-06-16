@@ -26,6 +26,7 @@ uint32_t i2s_callback_register(i2s_cb_fn i2s_int_callback) {
 uint32_t i2s_init(i2s_para_set_t *i2s_para) {
     i2s_t *i2s = I2S_MASTER;
     i2s_xdma_ctrl_ptr_t *i2s_xdma_config;
+    i2s_mclk_isel_t cfg_imck = I2S_MCLK_ISEL_MAX;
     uint8_t blk_osr = 0;
 
     if ((i2s_para->fmt >= I2S_FMT_MAX) |
@@ -37,8 +38,39 @@ uint32_t i2s_init(i2s_para_set_t *i2s_para) {
     // Make I2S reset
     i2s->ms_ctl1.bit.cfg_i2s_rst = 1;
 
+    switch (SystemCoreClock) {
+        /* 32MHz */
+        case (32000000UL):
+            if (i2s_para->imck_rate == I2S_IMCLK_12P288M) {
+                cfg_imck = I2S_MCLK_ISEL_0;
+            } else if (i2s_para->imck_rate == I2S_IMCLK_8P192M) {
+                cfg_imck = I2S_MCLK_ISEL_1;
+            }
+            break;
+        /* 48MHz */
+        case (48000000UL):
+            if (i2s_para->imck_rate == I2S_IMCLK_12P288M) {
+                cfg_imck = I2S_MCLK_ISEL_2;
+            } else if (i2s_para->imck_rate == I2S_IMCLK_8P192M) {
+                cfg_imck = I2S_MCLK_ISEL_3;
+            }
+            break;
+        /* 64MHz */
+        case (64000000UL):
+            if (i2s_para->imck_rate == I2S_IMCLK_24P576M) {
+                cfg_imck = I2S_MCLK_ISEL_4;
+            } else if (i2s_para->imck_rate == I2S_IMCLK_16P384M) {
+                cfg_imck = I2S_MCLK_ISEL_5;
+            }
 
-    i2s->mclk_set0.bit.cfg_mck_isel = i2s_para->imck_rate;
+            break;
+        default: break;
+    }
+    if (cfg_imck == I2S_MCLK_ISEL_MAX) {
+        return STATUS_INVALID_PARAM;
+    }
+
+    i2s->mclk_set0.bit.cfg_mck_isel = cfg_imck;
 
     i2s->mclk_set1.bit.cfg_mck_div = i2s_para->mck_div;
 

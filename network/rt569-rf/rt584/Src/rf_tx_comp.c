@@ -28,6 +28,8 @@
 #include "rf_mcu.h"
 #include "rf_tx_comp.h"
 #include "lpm.h"
+#include "dpd.h"
+#include "sysctrl.h"
 
 #include "FreeRTOS.h"
 #include "timers.h"
@@ -175,6 +177,8 @@ void Tx_Power_Sadc_Int_Callback_Handler(sadc_cb_t *p_cb)
 
 }
 
+extern void get_set_sys_clk_value(uint32_t* get_value);
+
 #include <inttypes.h>
 
 
@@ -200,22 +204,55 @@ typedef struct
 
 
 
-void rf_common_radio_reg_rf_pll_dump (void)
+void rf_pll_and_bbpll_check (void)
 {
     uint32_t reg_val, reg_val2;
     uint16_t reg_addr = 0x328, reg_addr2 = 0x3D4;
-
+    uint32_t bbpll_vt_bit = 0;
 
     reg_val = RfMcu_RegGet(reg_addr);
-    printf("rf_vt_bit: %d, rf_vco_bank:%d\r\n", 
-        ((rf_pll_reads_ptr_t)&reg_val)->rf_pll_vtbit, 
-        ((rf_pll_reads_ptr_t)&reg_val)->rf_vco_bank);
-    printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr, reg_val);
     reg_val2 = RfMcu_RegGet(reg_addr2);
-    printf("RF vcob_fast_sel_vco: %d, vcob_fast_error_flag:%d\r\n", 
-        ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_sel_vco, 
-        ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
-    printf("Addr: 0x%04"PRIx16", Val: 0x%08"PRIx32" \r\n", reg_addr2, reg_val2);
+    bbpll_vt_bit = PLL_VIBIT_STATUS();
+
+    if( DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE 
+     || bbpll_vt_bit != 1
+     || ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag == 1){
+        printf("\r\n");
+        printf("Addr: 0x%04"PRIx16", Val: 0x%.8x\r\n", reg_addr, reg_val);
+        printf("rf_vt_bit: %d, rf_vco_bank:%d\r\n", 
+            ((rf_pll_reads_ptr_t)&reg_val)->rf_pll_vtbit, 
+            ((rf_pll_reads_ptr_t)&reg_val)->rf_vco_bank);
+        
+        printf("Addr: 0x%04"PRIx16", Val: 0x%.8x\r\n", reg_addr2, reg_val2);
+        printf("RF vcob_fast_sel_vco: %d, vcob_fast_error_flag:%d\r\n", 
+            ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_sel_vco, 
+            ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
+
+        printf("PMU_CTRL->soc_bbpll0: 0x%.8x\r\n", PMU_CTRL->soc_bbpll0.reg);
+        printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
+        printf("PMU_CTRL->soc_bbpll_read: 0x%.8x\r\n", PMU_CTRL->soc_bbpll_read.reg);
+        printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
+    
+        if( bbpll_vt_bit != 1) {
+            uint32_t tar_sys_clk;
+            printf("!!!!!!!!!!!!!!!!\r\n");
+            printf("bbpll_vtbit = %d\r\n", bbpll_vt_bit);
+            printf("!!!!!!!!!!!!!!!!\r\n");
+            get_set_sys_clk_value(&tar_sys_clk);
+            change_ahb_system_clk(tar_sys_clk);
+            printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
+        }
+
+        if( ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag == 1 ) {
+            printf("!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
+            printf("vcob_fast_error_flag = 1\r\n", ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
+            printf("!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
+            #if (defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584HA4))
+            rf_common_restart_vco_bank_search();
+            #endif
+        }
+        printf("\r\n");
+    }
 }
 
 #if (RF_TX_POWER_COMP)
@@ -224,22 +261,8 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
     uint32_t tx_pwr_comp_temperature_index = 0;
     uint32_t tx_pwr_comp_vbat_index = 0;
     tx_pwr_comp_element_t tx_pwr_comp;
-    #if 0
-    uint32_t vt_bit = 0;
-
-    vt_bit = PLL_VIBIT_STATUS();
-    printf("PMU_CTRL->soc_bbpll0: 0x%08x"PRIx32"\r\n", PMU_CTRL->soc_bbpll0);
-    printf("PMU_CTRL->soc_bbpll1: 0x%08x"PRIx32"\r\n", PMU_CTRL->soc_bbpll1);
-    rf_common_radio_reg_rf_pll_dump();
-    printf("vt_bit: %d, vco bank: %d\r\n", vt_bit, PLL_BANK_VCO_STATUS());
-    if(vt_bit == 3) {
-        printf("!!!!!!!!!!!!");
-        printf("!!!!!!!!!!!!");
-        printf("!vt_bit = 3!");
-        printf("!!!!!!!!!!!!");
-        printf("!!!!!!!!!!!!");
-    }
-    #endif
+    
+    rf_pll_and_bbpll_check();
 
 
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)

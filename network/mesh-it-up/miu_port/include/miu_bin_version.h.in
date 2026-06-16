@@ -22,6 +22,7 @@ typedef struct {
 
 #define GIT_COMMIT_HASH_STR    "@GIT_COMMIT_HASH@"
 #define OT_PACKAGE_VERSION_STR "@OT_PACKAGE_VERSION@"
+#define MIU_PORT_LIB_HASH      "@MIU_PORT_GIT_HASH@"
 // =======================================================
 
 #define SYSTEMINFO_INIT(BIN_TYPE_ARR)                                          \

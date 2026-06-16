@@ -46,7 +46,7 @@
 #define FLASH_PROGRAM_SIZE                            FLASH_PROGRAM_SIZE_1BYTE
 
 
-#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
 #define BOOTLOADER_SIZE                               0x8000              /**< Total Size for bootloader area.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
@@ -55,14 +55,14 @@
 
 #define MP_SECTOR_SIZE                                0x10000             /**< Total Size for MP sector area.*/
 
-#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
 #define BOOTLOADER_START_ADDRESS                      0x00000000          /**< Start address of bootloader code.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
 #define BOOTLOADER_START_ADDRESS                      0x10000000          /**< Start address of bootloader code.*/
 #endif
 
-#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
 #define FOTA_UPDATE_BANK_INFO_ADDRESS                 0x00007000          /**< Address of FOTA update information*/
 #define APP_START_ADDRESS                             0x00008000          /**< Start address of application code.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
@@ -81,7 +81,7 @@
 #define SIZE_OF_FOTA_BANK_1MB                         0x00054000          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_1MB          /**< Total Size for saving FOTA update data.*/
-#elif defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
 //64K MP + 64K matter data + 32K bootloader
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB             0x0012F000          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_2MB                         0x000B1000          /**< Total Size for saving FOTA update data.*/
@@ -116,7 +116,7 @@
 #define SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS              0x00070000          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS      FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                  SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
-#elif defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS)
+#elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
 //64K MP + 64K matter data + 32K bootloader
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS   0x000F4000          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS               0x000EC000          /**< Total Size for saving FOTA update data.*/

@@ -1292,10 +1292,10 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select,
 
     /* Enable TX power compensation */
 #if (RF_TX_POWER_COMP)
-    Sadc_Config_Enable(SADC_RES_12BIT, SADC_OVERSAMPLE_256,
+    sadc_config_enable(SADC_RES_12BIT, SADC_OVERSAMPLE_256,
                        Tx_Power_Sadc_Int_Callback_Handler);
-    Sadc_Disable();
-    Sadc_Compensation_Init(13);
+    sadc_disable();
+    //sadc_compensation_init(13);
     Tx_Power_Compensation_Init(10);
 #endif
 #elif ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569M0)                                \

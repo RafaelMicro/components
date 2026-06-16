@@ -2,6 +2,8 @@ sdk_generate_library(rt584_hosal)
 sdk_add_include_directories(Inc)
 if(CONFIG_BOOTLOADER)
 sdk_library_add_sources(
+    Src/hosal_sysctrl.c
+    Src/hosal_gpio.c
     Src/hosal_uart.c
     Src/hosal_wdt.c
 ) 

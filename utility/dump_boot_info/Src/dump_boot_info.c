@@ -79,7 +79,7 @@ void _dump_boot_info(void) {
     printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
     printf("PMU_CTRL->soc_bbpll0: 0x%.8x\r\n", PMU_CTRL->soc_bbpll0.reg);
     printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
-#endif
+
     systemcoreclockupdate();
     check_pll_times = 1;
     do{
@@ -96,11 +96,10 @@ void _dump_boot_info(void) {
             printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
             puts(
             "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n\r\n");
-            
         }
         check_pll_times ++;
     }while(check_pll_times < 4);
-
+#endif
     
 
     now_sys_clk = get_ahb_system_clk();

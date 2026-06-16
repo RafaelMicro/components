@@ -56,6 +56,19 @@ if(GIT_HASH_RESULT EQUAL 0)
     set(GIT_COMMIT_HASH "${GIT_COMMIT_HASH_TMP}")
 endif()
 
+set(MIU_PORT_GIT_HASH "00000000")
+execute_process(
+    COMMAND git rev-list -1 HEAD -- .
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/miu_port
+    OUTPUT_VARIABLE MIU_PORT_GIT_HASH_FULL
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+if(MIU_PORT_GIT_HASH_FULL)
+    string(SUBSTRING "${MIU_PORT_GIT_HASH_FULL}" 0 8 MIU_PORT_GIT_HASH)
+endif()
+message(STATUS "[miu_port] lib hash: ${MIU_PORT_GIT_HASH}")
+
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 execute_process(

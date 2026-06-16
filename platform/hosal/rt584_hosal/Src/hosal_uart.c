@@ -17,7 +17,7 @@
 #include "mcu.h"
 #include "hosal_sysctrl.h"
 #include "hosal_uart.h"
-
+#include "gpio.h"
 
 #define MAX_NUMBER_OF_UART  3
 #define UART0_BASE_CLK      0
@@ -80,8 +80,30 @@ ISR_DMA_TX_INTR); /*write 1 to clear*/
 
     uart->uart_en = UART_DISABLE;           /*Disablea  UART*/
 
-    return rval;
+    if (cfg->uart_id == HOSAL_UART2_ID)
+    {
+        pin_disable_in_mode(MODE_UART2_RX); 
 
+        if((cfg->flow_control==UART_HWFC_ENABLED))
+        {
+            pin_disable_in_mode(MODE_UART2_CTSN);
+        }
+    }
+    else if (cfg->uart_id == HOSAL_UART1_ID)
+    {
+        pin_disable_in_mode(MODE_UART1_RX);
+        
+        if((cfg->flow_control==UART_HWFC_ENABLED))
+        {
+            pin_disable_in_mode(MODE_UART1_CTSN);
+        }      
+    }
+    else    //UART0 
+    {
+        pin_disable_in_mode(MODE_UART0_RX); 
+    } 
+
+    return rval;
 }
 
 int hosal_uart_init(hosal_uart_dev_t* uart_dev) {
@@ -91,107 +113,117 @@ int hosal_uart_init(hosal_uart_dev_t* uart_dev) {
     uart_t* uart;
     uint32_t cval;
 
-        uart = g_uart_handle[cfg->uart_id].uart;
+    uart = g_uart_handle[cfg->uart_id].uart;
     
-        if (cfg->uart_id == HOSAL_UART2_ID)
+    pin_set_mode(cfg->rx_pin, MODE_GPIO);
+    gpio_cfg(cfg->rx_pin, GPIO_PIN_DIR_INPUT, GPIO_PIN_NOINT);
+    gpio_debounce_disable(cfg->rx_pin);
+    gpio_int_disable(cfg->rx_pin);
+
+    pin_set_mode(cfg->tx_pin, MODE_GPIO);
+    gpio_cfg(cfg->tx_pin, GPIO_PIN_DIR_INPUT, GPIO_PIN_NOINT);
+    gpio_debounce_disable(cfg->tx_pin);
+    gpio_int_disable(cfg->tx_pin);
+
+    if (cfg->uart_id == HOSAL_UART2_ID)
+    {
+        pin_set_mode(cfg->rx_pin, MODE_UART2_RX); 
+        pin_set_mode(cfg->tx_pin, MODE_UART2_TX); 
+
+        if((cfg->flow_control==UART_HWFC_ENABLED))
         {
-            pin_set_mode(cfg->rx_pin, MODE_UART2_RX); 
-            pin_set_mode(cfg->tx_pin, MODE_UART2_TX); 
-
-            if((cfg->flow_control==UART_HWFC_ENABLED))
-            {
-                pin_set_mode(cfg->rts_pin, MODE_UART2_RTSN); 
-                pin_set_mode(cfg->cts_pin, MODE_UART2_CTSN);              
-            }
+            pin_set_mode(cfg->rts_pin, MODE_UART2_RTSN); 
+            pin_set_mode(cfg->cts_pin, MODE_UART2_CTSN);              
         }
-        else if (cfg->uart_id == HOSAL_UART1_ID)
+    }
+    else if (cfg->uart_id == HOSAL_UART1_ID)
+    {
+        pin_set_mode(cfg->tx_pin, MODE_UART1_TX);
+        pin_set_mode(cfg->rx_pin, MODE_UART1_RX);
+        
+        if((cfg->flow_control==UART_HWFC_ENABLED))
         {
-            pin_set_mode(cfg->tx_pin, MODE_UART1_TX);
-            pin_set_mode(cfg->rx_pin, MODE_UART1_RX);
-            
-            if((cfg->flow_control==UART_HWFC_ENABLED))
-            {
-                pin_set_mode(cfg->rts_pin, MODE_UART1_RTSN); 
-                pin_set_mode(cfg->cts_pin, MODE_UART1_CTSN);              
-            }      
-        }
-        else    //UART0 
-        {
-            pin_set_mode(cfg->rx_pin, MODE_UART0_RX); 
-            pin_set_mode(cfg->tx_pin, MODE_UART0_TX); 
-        } 
-        NVIC_DisableIRQ(g_uart_handle[cfg->uart_id].irq_num);
-        NVIC_SetPriority(g_uart_handle[cfg->uart_id].irq_num, 4);
-        // Clear UART IRQ
-        NVIC_ClearPendingIRQ(g_uart_handle[cfg->uart_id].irq_num);
+            pin_set_mode(cfg->rts_pin, MODE_UART1_RTSN); 
+            pin_set_mode(cfg->cts_pin, MODE_UART1_CTSN);              
+        }      
+    }
+    else    //UART0 
+    {
+        pin_set_mode(cfg->rx_pin, MODE_UART0_RX); 
+        pin_set_mode(cfg->tx_pin, MODE_UART0_TX); 
+    } 
+    NVIC_DisableIRQ(g_uart_handle[cfg->uart_id].irq_num);
+    NVIC_SetPriority(g_uart_handle[cfg->uart_id].irq_num, 4);
+    // Clear UART IRQ
+    NVIC_ClearPendingIRQ(g_uart_handle[cfg->uart_id].irq_num);
 
-        uart->uart_en = UART_DISABLE;           /*Disablea  UART*/
+    uart->uart_en = UART_DISABLE;           /*Disablea  UART*/
 
-        //enable_perclk((UART0_CLK + cfg->uart_id));
-        /*clear FIFO, REMAKR: FCR is write-only*/
-        uart->fcr = 0;
-        uart->fcr |= FCR_DEFVAL; /*reset FIFO*/
+    //enable_perclk((UART0_CLK + cfg->uart_id));
+    /*clear FIFO, REMAKR: FCR is write-only*/
+    uart->fcr = 0;
+    uart->fcr |= FCR_DEFVAL; /*reset FIFO*/
 
-        // Disable interrupts
-        uart->ier = 0;
+    // Disable interrupts
+    uart->ier = 0;
 
-        /*set baudrate*/
-        uart->dlx = cfg->baud_rate & 0xFFFF ;
-        uart->fdl = (cfg->baud_rate >> UART_BR_FRCT_SHIFT) & 0xFF;
-           
-        if (cfg->baud_rate & ENABLE_LSM)
-        {
-          uart->lsm = 1;
-        }
-       else
-       {
-          uart->lsm = 0;
-       } 
+    /*set baudrate*/
+    uart->dlx = cfg->baud_rate & 0xFFFF ;
+    uart->fdl = (cfg->baud_rate >> UART_BR_FRCT_SHIFT) & 0xFF;
+    
+    if (cfg->baud_rate & ENABLE_LSM)
+    {
+    uart->lsm = 1;
+    }
+else
+{
+    uart->lsm = 0;
+} 
 
-        /*bits mode only use two bits.*/
-        cval = cfg->data_width & 0x03;
+    /*bits mode only use two bits.*/
+    cval = cfg->data_width & 0x03;
 
-        /*set stop bits*/
-        if (cfg->stop_bits == UART_STOPBIT_TWO) {
-            cval |= LCR_STOP;
-        }
+    /*set stop bits*/
+    if (cfg->stop_bits == UART_STOPBIT_TWO) {
+        cval |= LCR_STOP;
+    }
 
-        /*set parity*/
-        if (cfg->parity & PARENB) {
-            cval |= LCR_PARITY;
-        }
-        if (!(cfg->parity & PARODD)) {
-            cval |= LCR_EPAR;
-        }
-        if (cfg->parity & CMSPAR) {
-            cval |= LCR_SPAR;
-        }
+    /*set parity*/
+    if (cfg->parity & PARENB) {
+        cval |= LCR_PARITY;
+    }
+    if (!(cfg->parity & PARODD)) {
+        cval |= LCR_EPAR;
+    }
+    if (cfg->parity & CMSPAR) {
+        cval |= LCR_SPAR;
+    }
 
-        uart->lcr = cval;
+    uart->lcr = cval;
 
-        uart->mcr = 0; /*Initial default modem control register.*/
-        uart->ier = 0; /*disable uart all interrupt*/
+    uart->mcr = 0; /*Initial default modem control register.*/
+    uart->ier = 0; /*disable uart all interrupt*/
 
-        uart->xdma_rx_enable = xDMA_Stop;
-        uart->xdma_tx_enable = xDMA_Stop;
+    uart->xdma_rx_enable = xDMA_Stop;
+    uart->xdma_tx_enable = xDMA_Stop;
 
-        uart->xdma_tx_len = 0;
-        uart->xdma_rx_len = 0;
+    uart->xdma_tx_len = 0;
+    uart->xdma_rx_len = 0;
 
-        /*clear uart all interrupt status*/
-        uart->isr |= (ISR_RDA_INTR | ISR_THRE_INTR | ISR_RX_TIMEOUT | ISR_LSR_INTR| ISR_DMA_RX_INTR | ISR_DMA_TX_INTR);/*write 1 to clear*/
+    /*clear uart all interrupt status*/
+    uart->isr |= (ISR_RDA_INTR | ISR_THRE_INTR | ISR_RX_TIMEOUT | ISR_LSR_INTR| ISR_DMA_RX_INTR | ISR_DMA_TX_INTR);/*write 1 to clear*/
 
-        /*enable uart rx line status */
-        uart->ier |= UART_IER_RLSI;
+    /*enable uart rx line status */
+    uart->ier |= UART_IER_RLSI;
 
-        uart->lsr |= UART_LSR_BRK_ERROR_BITS;
+    uart->lsr |= UART_LSR_BRK_ERROR_BITS;
 
-        uart->fcr |= (FCR_TRIGGER_8|FCR_DMA_SELECT|FCR_DEFVAL);
+    uart->fcr |= (FCR_TRIGGER_8|FCR_DMA_SELECT|FCR_DEFVAL);
 
-         /*enable uart */
-        uart->uart_en = UART_ENABLE;
+    /*enable uart */
+    uart->uart_en = UART_ENABLE;
 
-        return (uart->rbr & 0xFF);
+    return (uart->rbr & 0xFF);
 }
 
 int hosal_uart_send(hosal_uart_dev_t* uart_dev, const void* data,

@@ -62,6 +62,15 @@ extern "C" {
 #define RESET_BY_SOFT_RESET                         0x20
 #define RESET_BY_MCU_LOCKUP                         0x40
 
+
+/**
+ * \brief           RET3 Bit Field
+ */
+#define BOOTROM_USE1_BIT_FIELD                      0xFFFF0000
+#define RESERVED_BIT_FIELD                          0x0000FFE0
+#define PLL_DEBUG_MESSAGE                           0x00000010
+#define BOOTROM_USE2_BIT_FIELD                      0x0000000F
+
 /**
  * \brief           Get reset all cause.
  * \param[out]      reset_cause: reset cause
@@ -202,6 +211,14 @@ __STATIC_INLINE void get_Retention_reg2(uint32_t *value) {
 __STATIC_INLINE void dpd_set_deepsleep_wakeup_fast_boot(void) {
     DPD_CTRL->dpd_ret3_reg |= (DPD_RET3_SKIP_ISP | DPD_RET3_DS_FAST_BOOT);
 }
+
+/**
+ * \brief           Set Deep slee wake up fast boot
+ */
+__STATIC_INLINE void dpd_set_pll_debug_message(void) {
+    DPD_CTRL->dpd_ret3_reg |= PLL_DEBUG_MESSAGE;
+}
+
 
 /**
  * \brief           Clear dpd latch enable

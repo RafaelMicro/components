@@ -520,6 +520,10 @@ __rf_tx_pwr_set(hosal_rf_tx_power_t* hosal_rf_tx_power) {
     band_type_ruci = (hosal_rf_tx_power->band_type < HOSAL_RF_BAND_SUBG_868M)
                          ? (hosal_rf_tx_power->band_type ^ 1)
                          : hosal_rf_tx_power->band_type;
+    if(band_type_ruci == HOSAL_RF_BAND_SUBG_470M)
+    {
+        band_type_ruci = HOSAL_RF_BAND_SUBG_433M;
+    }
 
     if (hosal_rf_tx_power->modem == HOSAL_RF_MODEM_FSK) {
         SET_RUCI_PARA_SET_TX_POWER(cmd_ptr, band_type_ruci,

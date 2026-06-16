@@ -1,5 +1,5 @@
 if(CONFIG_BOOTLOADER)
-    if((${CONFIG_CHIP} STREQUAL "RT582_NONE_OS"))
+    if((${CONFIG_CHIP} STREQUAL "RT582_NONE_OS") OR (${CONFIG_CHIP} STREQUAL "RT583_NONE_OS") )
         sdk_add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_bootloader)
         sdk_add_subdirectory_ifdef(CONFIG_DRIVER ${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_driver) 
         sdk_add_subdirectory_ifdef(CONFIG_CRYPTO ${CMAKE_CURRENT_LIST_DIR}/rt582/rt582_crypto)

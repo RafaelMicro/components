@@ -103,6 +103,174 @@ void pin_set_in_mode_ex(uint32_t pin_number, uint32_t mode) {
     return;
 }
 
+void pin_clear_in_mode(uint32_t mode) {
+    uint32_t reg_shift, enable;
+    uint32_t index;
+    uint32_t temp_value;
+    
+    index = 0;
+    reg_shift = 0;
+
+    index = (mode >> 28 & 0x07);
+    reg_shift = (mode & 0x18);
+    enable = ((mode & 0x18) + 7);
+
+
+    temp_value = (SYSCTRL->sys_gpio_imux[index]&~(0x3F<<reg_shift));
+            
+    temp_value = (temp_value & (~(1<< enable)) );
+
+    SYSCTRL->sys_gpio_imux[index] = temp_value;
+    return;
+}
+
+
+void pin_disable_in_mode(uint32_t mode){
+    /*
+     * avoid to set pin 10 & 11 these two is SWD/SWI
+     */
+    if ((mode >= MODE_MAX)) {
+        return; /*Invalid setting mode.*/
+    }
+    switch (mode) {
+        case MODE_UART0_RX:
+            pin_clear_in_mode(MODE_UART0_RX_REG_VALUE);
+            break;
+
+        case MODE_UART1_RX:
+            pin_clear_in_mode(MODE_UART1_RX_REG_VALUE);
+            break;
+
+        case MODE_UART1_CTSN:
+            pin_clear_in_mode(MODE_UART1_CTSN_REG_VALUE);
+            break;
+
+        case MODE_UART2_RX:
+            pin_clear_in_mode(MODE_UART2_RX_REG_VALUE);
+            break;
+
+        case MODE_UART2_CTSN:
+            pin_clear_in_mode(MODE_UART2_CTSN_REG_VALUE);
+            break;
+
+        case MODE_I2CM0_SCL:
+            pin_clear_in_mode(MODE_I2CM0_SCL_REG_VALUE);
+            break;
+
+        case MODE_I2CM0_SDA:
+            pin_clear_in_mode(MODE_I2CM0_SDA_REG_VALUE);
+            break;
+
+        case MODE_I2CM1_SCL:
+            pin_clear_in_mode(MODE_I2CM1_SCL_REG_VALUE);
+            break;
+
+        case MODE_I2CM1_SDA:
+            pin_clear_in_mode(MODE_I2CM1_SDA_REG_VALUE);
+            break;
+
+        case MODE_I2CS_SCL:
+            pin_clear_in_mode(MODE_I2CS_SCL_REG_VALUE);
+            break;
+
+        case MODE_I2CS_SDA:
+            pin_clear_in_mode(MODE_I2CS_SDA_REG_VALUE);
+            break;
+
+        case MODE_SPI0_MASTER_MISO:
+            pin_clear_in_mode(MODE_QSPI0_SDATA1_REG_VALUE);
+            break;
+
+        case MODE_SPI0_MASTER_SDATA0:
+            pin_clear_in_mode(MODE_QSPI0_SDATA0_REG_VALUE);
+            break;
+
+        case MODE_SPI0_MASTER_SDATA1:
+            pin_clear_in_mode(MODE_QSPI0_SDATA1_REG_VALUE);
+            break;
+
+        case MODE_SPI0_MASTER_SDATA2:
+            pin_clear_in_mode(MODE_QSPI0_SDATA2_REG_VALUE);
+            break;
+
+        case MODE_SPI0_MASTER_SDATA3:
+            pin_clear_in_mode(MODE_QSPI0_SDATA3_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_SCLK:
+            pin_clear_in_mode(MODE_QSPI0_SCLK_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_CSN0:
+            pin_clear_in_mode(MODE_QSPI0_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_MOSI:
+            pin_clear_in_mode(MODE_QSPI0_SDATA0_REG_VALUE);
+            break;
+
+        case MODE_SPI1_MASTER_MISO:
+            pin_clear_in_mode(MODE_QSPI1_SDATA1_REG_VALUE);
+            break;
+
+        case MODE_SPI1_MASTER_SDATA0:
+            pin_clear_in_mode(MODE_QSPI0_SDATA0_REG_VALUE);
+            break;
+
+        case MODE_SPI1_MASTER_SDATA1:
+            pin_clear_in_mode(MODE_QSPI0_SDATA1_REG_VALUE);
+            break;
+
+        case MODE_SPI1_MASTER_SDATA2:
+            pin_clear_in_mode(MODE_QSPI0_SDATA2_REG_VALUE);
+            break;
+
+        case MODE_SPI1_MASTER_SDATA3:
+            pin_clear_in_mode(MODE_QSPI0_SDATA3_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_SCLK:
+            pin_clear_in_mode(MODE_QSPI1_SCLK_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_CSN0:
+            pin_clear_in_mode(MODE_QSPI1_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_MOSI:
+            pin_clear_in_mode(MODE_QSPI1_SDATA0_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_CSN1:
+            pin_clear_in_mode(MODE_QSPI0_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_CSN2:
+            pin_clear_in_mode(MODE_QSPI0_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI0_SLAVE_CSN3:
+            pin_clear_in_mode(MODE_QSPI0_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_CSN1:
+            pin_clear_in_mode(MODE_QSPI1_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_CSN2:
+            pin_clear_in_mode(MODE_QSPI1_CSN_REG_VALUE);
+            break;
+
+        case MODE_SPI1_SLAVE_CSN3:
+            pin_clear_in_mode(MODE_QSPI1_CSN_REG_VALUE);
+            break;
+
+        case MODE_I2S_SDI:
+            pin_clear_in_mode(MODE_I2S_SDI_REG_VALUE);
+            break;
+    }
+}
+
 void pin_set_mode(uint32_t pin_number, uint32_t mode) {
     /*
      * avoid to set pin 10 & 11 these two is SWD/SWI
@@ -809,13 +977,10 @@ uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode) {
         for (i = 0; i < PLL_WAIT_PERIOD; i++) { __NOP(); }
 
         /* Check auto mode result */
-        if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1)
-        {
+        if (PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_1) {
             SYSCTRL->sys_clk_ctrl.reg = (SYSCTRL->sys_clk_ctrl.reg & ~MCU_HCLK_SEL_MASK) | MCU_HCLK_SEL_PLL;
             return STATUS_SUCCESS;
-        }
-        else if ((PLL_VIBIT_STATUS() == PLL_LOCK_VIBIT_3))
-        {
+        } else {
             /* Auto mode saturated at bank 7 without locking — switch to manual bank search */
             SYSCTRL->sys_clk_ctrl.reg &= ~MCU_BBPLL_ENABLE;
 
@@ -851,10 +1016,6 @@ uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode) {
                     }
                 }
             }
-        }
-        else
-        {
-            return STATUS_INVALID_REQUEST;  /* BBPLL abnormal */
         }
     }
     else

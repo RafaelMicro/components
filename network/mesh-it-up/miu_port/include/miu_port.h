@@ -430,6 +430,8 @@ void otPlatRadioSetChannelRange(otRadioChRange_t range);
 
 bool otPlatRadioIsTransmitPending(void);
 
+const char* miu_port_lib_version(void);
+
 #ifdef __cplusplus
 }
 #endif

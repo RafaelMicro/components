@@ -2,8 +2,8 @@
 *
 * @File         ruci_cmn_hal_cmd.h
 * @Version
-* $Revision: 8174
-* $Date: 2026-05-25
+* $Revision: 8199
+* $Date: 2026-06-04
 * @Brief
 * @Note
 * Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
@@ -526,29 +526,29 @@ typedef struct ruci_para_set_calibration_setting_s_s
         ((ruci_para_set_calibration_setting_s_t *)msg)->tx_hd3[4]                      = tx_hd3_4_in;                            \
         }while(0)
 
-// RUCI: restart_vco_bank_search_g2p4 ------------------------------------------
-#define RUCI_RESTART_VCO_BANK_SEARCH_G2P4       RUCI_NUM_RESTART_VCO_BANK_SEARCH_G2P4, ruci_elmt_type_restart_vco_bank_search_g2p4, ruci_elmt_num_restart_vco_bank_search_g2p4
-#define RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4  0x10
-#define RUCI_LEN_RESTART_VCO_BANK_SEARCH_G2P4   3
-#define RUCI_NUM_RESTART_VCO_BANK_SEARCH_G2P4   3
-#define RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH_G2P4 0
+// RUCI: restart_vco_bank_search -----------------------------------------------
+#define RUCI_RESTART_VCO_BANK_SEARCH            RUCI_NUM_RESTART_VCO_BANK_SEARCH, ruci_elmt_type_restart_vco_bank_search, ruci_elmt_num_restart_vco_bank_search
+#define RUCI_CODE_RESTART_VCO_BANK_SEARCH       0x10
+#define RUCI_LEN_RESTART_VCO_BANK_SEARCH        3
+#define RUCI_NUM_RESTART_VCO_BANK_SEARCH        3
+#define RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH   0
 #if (RUCI_ENDIAN_INVERSE)
-extern const uint8_t ruci_elmt_type_restart_vco_bank_search_g2p4[];
-extern const uint8_t ruci_elmt_num_restart_vco_bank_search_g2p4[];
+extern const uint8_t ruci_elmt_type_restart_vco_bank_search[];
+extern const uint8_t ruci_elmt_num_restart_vco_bank_search[];
 #endif /* RUCI_ENDIAN_INVERSE */
-typedef struct ruci_para_restart_vco_bank_search_g2p4_s
+typedef struct ruci_para_restart_vco_bank_search_s
 {
     ruci_head_t     ruci_header;
     uint8_t         sub_header;
     uint8_t         length;
-} ruci_para_restart_vco_bank_search_g2p4_t;
+} ruci_para_restart_vco_bank_search_t;
 
-/* User should provide msg buffer is greater than sizeof(ruci_para_restart_vco_bank_search_g2p4_t) */
-#define SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH_G2P4(msg)        \
+/* User should provide msg buffer is greater than sizeof(ruci_para_restart_vco_bank_search_t) */
+#define SET_RUCI_PARA_RESTART_VCO_BANK_SEARCH(msg)        \
         do{                                                                                                            \
-        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->ruci_header.u8                 = RUCI_CMN_HAL_CMD_HEADER;                \
-        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->sub_header                     = RUCI_CODE_RESTART_VCO_BANK_SEARCH_G2P4; \
-        ((ruci_para_restart_vco_bank_search_g2p4_t *)msg)->length                         = RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH_G2P4;\
+        ((ruci_para_restart_vco_bank_search_t *)msg)->ruci_header.u8                 = RUCI_CMN_HAL_CMD_HEADER;                \
+        ((ruci_para_restart_vco_bank_search_t *)msg)->sub_header                     = RUCI_CODE_RESTART_VCO_BANK_SEARCH;      \
+        ((ruci_para_restart_vco_bank_search_t *)msg)->length                         = RUCI_PARA_LEN_RESTART_VCO_BANK_SEARCH;  \
         }while(0)
 
 #pragma pack(pop)

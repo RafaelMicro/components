@@ -18,7 +18,6 @@
 #include "mcu.h"
 #include "hosal_gpio.h"
 
-
 uint32_t hosal_gpio_cfg_output(uint32_t pin_number) {
     uint32_t rval;
 
@@ -162,6 +161,7 @@ uint32_t hosal_gpio_cfg_input_parameters(uint32_t pin_number,
 
     rval = gpio_cfg(pin_number, GPIO_PIN_DIR_INPUT, 
              (gpio_pin_int_mode_t)input_cfg.pin_int_mode);
+
     if (rval == STATUS_SUCCESS) {
         if (input_cfg.usr_cb != NULL) {
             rval = gpio_register_callback(pin_number, input_cfg.usr_cb, input_cfg.param);
@@ -170,9 +170,13 @@ uint32_t hosal_gpio_cfg_input_parameters(uint32_t pin_number,
 
     if ( debounce_en ) {
         rval = gpio_debounce_enable(pin_number);
+    } else {
+        rval = gpio_debounce_disable(pin_number);
     }
 
-    if ( input_cfg.pin_int_mode != GPIO_PIN_NOINT) {
+    if ( input_cfg.pin_int_mode == HOSAL_GPIO_PIN_NOINT) {
+        rval = gpio_int_disable(pin_number);
+    } else {
         rval = gpio_int_enable(pin_number);
     }
     return rval;

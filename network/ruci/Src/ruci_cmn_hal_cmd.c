@@ -2,8 +2,8 @@
 *
 * @File         ruci_cmn_hal_cmd.c
 * @Version
-* $Revision:8174
-* $Date: 2026-05-25
+* $Revision:8199
+* $Date: 2026-06-04
 * @Brief
 * @Note
 * Copyright (C) 2026 Rafael Microelectronics Inc. All rights reserved.
@@ -171,12 +171,12 @@ const uint8_t ruci_elmt_num_set_calibration_setting_s[] =
     1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 5
 };
 
-// RUCI: restart_vco_bank_search_g2p4 ------------------------------------------
-const uint8_t ruci_elmt_type_restart_vco_bank_search_g2p4[] =
+// RUCI: restart_vco_bank_search -----------------------------------------------
+const uint8_t ruci_elmt_type_restart_vco_bank_search[] =
 {
     1, 1, 1
 };
-const uint8_t ruci_elmt_num_restart_vco_bank_search_g2p4[] =
+const uint8_t ruci_elmt_num_restart_vco_bank_search[] =
 {
     1, 1, 1
 };
