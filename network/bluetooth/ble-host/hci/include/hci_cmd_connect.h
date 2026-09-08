@@ -72,13 +72,13 @@ ble_err_t hci_disconn_cmd(ble_hci_cmd_disconnect_param_t *p_param);
  *
  * @ingroup hci_cmd_conn.
  *
- * @param p_param : a pointer to disconnect parameter.
+ * @param p_param : a pointer to read remote version information parameter.
  *
  * @return BLE_ERR_OK   : success.
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
  * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
  */
-ble_err_t hci_read_remote_version_info_cmd(ble_hci_cmd_disconnect_param_t *p_param);
+ble_err_t hci_read_remote_version_info_cmd(ble_hci_cmd_read_remote_ver_info_param_t *p_param);
 
 
 /** Read RSSI command.
@@ -110,8 +110,6 @@ ble_err_t hci_le_create_conn_cmd(ble_hci_cmd_create_conn_param_t *p_param);
 /** LE Create Connection Cancel command.
  *
  * @ingroup hci_cmd_conn
- *
- * @param p_param : a pointer to cancel connection parameter.
  *
  * @return BLE_ERR_OK   : success.
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
@@ -150,6 +148,8 @@ ble_err_t hci_le_set_host_channel_classif_cmd(ble_hci_cmd_le_channel_classificat
  *
  * @ingroup hci_cmd_conn
  *
+ * @param p_param : a pointer to read channel map parameter.
+ *
  * @return BLE_ERR_OK   : success.
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
  * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
@@ -160,6 +160,8 @@ ble_err_t hci_le_read_channel_map_cmd(ble_hci_cmd_le_read_channel_map_t *p_param
 /** LE Read Remote Features command.
  *
  * @ingroup hci_cmd_conn
+ *
+ * @param p_param : a pointer to read remote features parameter.
  *
  * @return BLE_ERR_OK   : success.
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
@@ -207,7 +209,7 @@ ble_err_t hci_le_remote_conn_param_req_neg_reply_cmd(ble_hci_cmd_le_remote_conn_
 ble_err_t hci_le_set_data_length_cmd(ble_hci_cmd_set_data_length_param_t *p_param);
 
 
-/** LE Read suggest default data length command.
+/** LE Read Suggested Default Data Length command.
  *
  * @ingroup hci_cmd_conn
  *
@@ -218,7 +220,7 @@ ble_err_t hci_le_set_data_length_cmd(ble_hci_cmd_set_data_length_param_t *p_para
 ble_err_t hci_le_read_suggested_default_data_length_cmd(void);
 
 
-/** LE Read Suggested Default Data Length command.
+/** LE Write Suggested Default Data Length command.
  *
  * @ingroup hci_cmd_conn
  *

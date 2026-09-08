@@ -8,7 +8,7 @@
 /**
  * @file mmdl_trsp_cl_main.c
  * @author Jeffrey (jeffrey.lin@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the Rafael vendor Transparent Transport Client model.
  * @version 0.1
  * @date 2022-08-01
  *
@@ -40,6 +40,7 @@ static uint8_t              ttl = 4;
 //=============================================================================
 static void mmdl_rafael_trsp_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
 
+/** @brief Dispatch an incoming Transparent Transport model message (Status) to the appropriate opcode handler. */
 void mmdl_rafael_trsp_cl_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
     ttl                     = 4;
@@ -57,6 +58,7 @@ void mmdl_rafael_trsp_cl_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh
     }
 }
 
+/** @brief Handle a received Transparent Transport Status message by forwarding its raw payload to the user callback. */
 static void mmdl_rafael_trsp_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t in_is_broadcast)
 {
     raf_trsp_cb_params_t *p_raf_trsp_cb_params;
@@ -83,6 +85,7 @@ static void mmdl_rafael_trsp_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_m
     } while (0);
 }
 
+/** @brief Send an acknowledged Transparent Transport Set message with the given raw data payload. */
 int mmdl_rafael_trsp_send_set(mmdl_transmit_info_t tx_info, raf_trsp_set_msg_t *p_raf_trsp_set_msg)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -131,6 +134,7 @@ int mmdl_rafael_trsp_send_set(mmdl_transmit_info_t tx_info, raf_trsp_set_msg_t *
     return status;
 }
 
+/** @brief Send an unacknowledged Transparent Transport Set message with the given raw data payload. */
 int mmdl_rafael_trsp_send_unack_set(mmdl_transmit_info_t tx_info, raf_trsp_set_msg_t *p_raf_trsp_set_msg)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

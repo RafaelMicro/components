@@ -232,28 +232,28 @@ extern "C" {
 #define MP_CNT_IMRR                 (sizeof(mp_cal_imrr_t))
 
 
-#define FT_DCDC_OFFSET            0x20
-#define FT_LDOMV_OFFSET           0x30
-#define FT_LDOANA_OFFSET          0x40
-#define FT_LDODIG_OFFSET          0x50
-#define FT_REDLDO_OFFSET          0x60
+#define FT_DCDC_OFFSET            (0x20)
+#define FT_LDOMV_OFFSET           (0x30)
+#define FT_LDOANA_OFFSET          (0x40)
+#define FT_LDODIG_OFFSET          (0x50)
+#define FT_REDLDO_OFFSET          (0x60)
 
-#define FT_VBAT_OFFSET            0x70
-#define FT_AIO_OFFSET             0x80
-#define FT_VCM_OFFSET             0x90
-#define FT_TEMP_ADC_OFFSET        0xA0
-#define FT_0V_ADC_OFFSET          0xB0
-#define FT_ANA_OFFSET             0xC0
-#define FT_BOD_OFFSET             0xD0
-#define FT_AGC_OFFSET             0xE0
-#define FT_RX_IMAGE_K             0xF0
+#define FT_VBAT_OFFSET            (0x70)
+#define FT_AIO_OFFSET             (0x80)
+#define FT_VCM_OFFSET             (0x90)
+#define FT_TEMP_ADC_OFFSET        (0xA0)
+#define FT_0V_ADC_OFFSET          (0xB0)
+#define FT_ANA_OFFSET             (0xC0)
+#define FT_BOD_OFFSET             (0xD0)
+#define FT_AGC_OFFSET             (0xE0)
+#define FT_RX_IMAGE_K             (0xF0)
 
-#define MP_ID_VOSEL_MIN                     0
-#define MP_ID_DCDC_LDOMV_VOSEL_MAX         31
-#define MP_ID_LDOANA_DIG_RET_VOSEL_MAX     15
+#define MP_ID_VOSEL_MIN                     (0)
+#define MP_ID_DCDC_LDOMV_VOSEL_MAX         (31)
+#define MP_ID_LDOANA_DIG_RET_VOSEL_MAX     (15)
 
-#define MP_ID_BOD_VOSEL_MAX                 10
-#define MP_ID_ANA_VOSEL_MAX                 0
+#define MP_ID_BOD_VOSEL_MAX                 (10)
+#define MP_ID_ANA_VOSEL_MAX                 (0)
 
 
 

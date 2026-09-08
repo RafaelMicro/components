@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_default_trans_time_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Default Transition Time model.
  * @version 0.1
  * @date 2022-06-09
  *
@@ -44,6 +44,7 @@ static void mmdl_generic_default_trans_time_set(uint32_t ack_flag, mesh_app_mdl_
 static void mmdl_generic_default_trans_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 
+/** @brief Dispatch an incoming Generic Default Transition Time model message to the matching opcode handler. */
 void mmdl_generic_default_trans_time_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -68,6 +69,7 @@ void mmdl_generic_default_trans_time_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_ev
 
 }
 
+/** @brief Publish the current Generic Default Transition Time state to the model's configured publish address. */
 void mmdl_generic_default_trans_time_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t           *pt_req;
@@ -123,6 +125,7 @@ void mmdl_generic_default_trans_time_publish_state(ble_mesh_element_param_t *p_e
 
 }
 
+/** @brief Update the default transition time state from an extended (parent) model and publish the change. */
 void mmdl_generic_default_trans_time_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t transition_time)
 {
     gen_default_trans_time_state_t  *p_gen_default_trans_time_state = (gen_default_trans_time_state_t *)p_model->p_state_var;
@@ -147,12 +150,14 @@ void mmdl_generic_default_trans_time_extend_set(ble_mesh_element_param_t *p_elem
 
 }
 
+/** @brief Handle a Generic Default Transition Time Get request by replying with the current state. */
 static void mmdl_generic_default_trans_time_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_default_trans_time_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Default Transition Time Set request, forwarding to the extended model if applicable, and optionally acknowledge. */
 static void mmdl_generic_default_trans_time_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_default_trans_time_set_msg_t  *p_gen_default_trans_time_set_msg = (gen_default_trans_time_set_msg_t *)p_evt_msg->parameter;
@@ -184,6 +189,7 @@ static void mmdl_generic_default_trans_time_set(uint32_t ack_flag, mesh_app_mdl_
 }
 
 
+/** @brief Build and send a Generic Default Transition Time Status message back to the requester. */
 static void mmdl_generic_default_trans_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t           *pt_req;

@@ -12,7 +12,7 @@
  * @brief    API layer of Communication subsystem
 
  ******************************************************************************/
-
+#include "sysctrl.h"
 #include "rf_mcu.h"
 #include "mcu.h"
 #include "rf_mcu_chip.h"
@@ -232,10 +232,20 @@ uint8_t RfMcu_PowerStateCheck(void)
     return (uint8_t)(power_state);
 }
 
+void RfMcu_SetRtcSlowAon(bool status)
+{
+    RfMcu_SetRtcSlowAonAhb(status);
+}
+
+uint32_t RfMcu_GetRtcFromHost(void)
+{
+    return RfMcu_GetRtcFromHostAhb();
+}
 
 void RfMcu_DmaInit(void)
 {
     NVIC_EnableIRQ(CommSubsystem_IRQn);
+    NVIC_SetPriority(CommSubsystem_IRQn, 0x4);
     RfMcu_InterruptEnSetAhb(COMM_SUBSYSTEM_DMA_INT_ENABLE);
 }
 
@@ -441,6 +451,17 @@ uint8_t RfMcu_PowerStateCheck(void)
     return (uint8_t)(power_state);
 }
 
+void RfMcu_SetRtcSlowAon(bool status)
+{
+    UNUSED(status);
+}
+
+uint32_t RfMcu_GetRtcFromHost(void)
+{
+    /* Unsupported */
+    return 0;
+}
+
 void RfMcu_GpioIsrHandler(uint32_t pin, void *isr_param)
 {
     if (RF_MCU_SPI_GPIO_ISR_SELECT == pin)
@@ -605,9 +626,49 @@ uint32_t RfMcu_RegGet(uint16_t reg_address)
 }
 
 
+void RfMcu_BmuReset(void)
+{
+    RfMcu_RegSet(0x0000, BIT0);
+}
+
+
+void RfMcu_EventQueueReset(void)
+{
+#define MAX_RF_MCU_EVT_LEN 64
+    uint8_t state = 0;
+    uint8_t clear_space[MAX_RF_MCU_EVT_LEN];
+    RF_MCU_RX_CMDQ_ERROR rx_confirm_error;
+
+    delay_us(250);
+
+    while (RfMcu_EvtQueueCheck())
+    {
+        do
+        {
+            state = (uint8_t)RfMcu_McuStateRead();
+            state = state & RF_MCU_STATE_EVENT_DONE;
+        } while (RF_MCU_STATE_EVENT_DONE != state);
+        RfMcu_HostCmdSet(RF_MCU_STATE_EVENT_DONE);
+        state = 0;
+
+        do
+        {
+            state = (uint8_t)RfMcu_McuStateRead();
+            state = state & RF_MCU_STATE_EVENT_DONE;
+        } while (0 != state);
+
+        RfMcu_EvtQueueRead(clear_space, &rx_confirm_error);
+
+        delay_us(50);
+    }
+}
+
+
 void RfMcu_SysInitNotify(void)
 {
+#if (RF_MCU_FW_PRELOAD_SUPPORTED)   
     if (!bFwInitialized)
+#endif
     {
         while (RfMcu_McuStateRead() != RF_MCU_STATE_INIT_SUCCEED);
         RfMcu_HostCmdSet(RF_MCU_STATE_INIT_SUCCEED);
@@ -673,6 +734,14 @@ void RfMcu_PmToDmControl(bool Enable)
 void RfMcu_ImageLoad(const uint8_t *fw_image, uint32_t image_size)
 {
     RfMcu_PmPageSelect(RF_MCU_PM_PAGE_SEL_0);
+
+#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
+    if (image_size > (3 * COMM_SUBSYS_FW_PAGE_SIZE - RF_MCU_RESERVED_RAM_SIZE))
+    {
+        printf("[Error] Radio MCU load image larger than reserved size:0x%06x\n", image_size);
+        while (1);
+    }
+#endif
 
     if (image_size > 2 * COMM_SUBSYS_FW_PAGE_SIZE)
     {

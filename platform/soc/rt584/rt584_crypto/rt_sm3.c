@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
 extern void crypto_mutex_lock(void);
 extern void crypto_mutex_unlock(void);

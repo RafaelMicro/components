@@ -54,22 +54,22 @@ extern "C" {
 /**
  * \brief           Cause of the reset
  */
-#define RESET_BY_POWER_ON                           0x01
-#define RESET_BY_EXT_RESET                          0x02
-#define RESET_BY_DEEP_POWER_DOWN                    0x04
-#define RESET_BY_DEEP_SLEEP                         0x08
-#define RESET_BY_WATCH_DOG                          0x10
-#define RESET_BY_SOFT_RESET                         0x20
-#define RESET_BY_MCU_LOCKUP                         0x40
+#define RESET_BY_POWER_ON                           (0x01)
+#define RESET_BY_EXT_RESET                          (0x02)
+#define RESET_BY_DEEP_POWER_DOWN                    (0x04)
+#define RESET_BY_DEEP_SLEEP                         (0x08)
+#define RESET_BY_WATCH_DOG                          (0x10)
+#define RESET_BY_SOFT_RESET                         (0x20)
+#define RESET_BY_MCU_LOCKUP                         (0x40)
 
 
 /**
  * \brief           RET3 Bit Field
  */
-#define BOOTROM_USE1_BIT_FIELD                      0xFFFF0000
-#define RESERVED_BIT_FIELD                          0x0000FFE0
-#define PLL_DEBUG_MESSAGE                           0x00000010
-#define BOOTROM_USE2_BIT_FIELD                      0x0000000F
+#define BOOTROM_USE1_BIT_FIELD                      (0xFFFF0000)
+#define RESERVED_BIT_FIELD                          (0x0000FFE0)
+#define PLL_DEBUG_MESSAGE                           (0x00000010)
+#define BOOTROM_USE2_BIT_FIELD                      (0x0000000F)
 
 /**
  * \brief           Get reset all cause.

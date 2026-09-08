@@ -207,6 +207,12 @@ typedef struct reg_rf_mcu_ahb_sys_info_s
 #define RF_MCU_SYS_INFO_REG \
         (COMM_SUBSYSTEM_AHB->COMM_SUBSYSTEM_INFO)
 
+#define RF_MCU_RTC_SLOW_PTR \
+        ((uint32_t*)&COMM_SUBSYSTEM_AHB->COMM_SUBSYSTEM_RTC_SLOW)
+
+#define RF_MCU_RTC_SLOW_REG \
+        (COMM_SUBSYSTEM_AHB->COMM_SUBSYSTEM_RTC_SLOW)
+
 void RfMcu_MemorySetAhb(uint16_t sys_addr, const uint8_t *p_data, uint16_t data_length);
 void RfMcu_MemoryGetAhb(uint16_t sys_addr, uint8_t *p_data, uint16_t data_length);
 void RfMcu_IoSetAhb(uint8_t queue_id, const uint8_t *p_data, uint16_t data_length);
@@ -234,6 +240,8 @@ void RfMcu_SysRdySignalWaitAhb(void);
 RF_MCU_PWR_STATE RfMcu_PowerStateGetAhb(void);
 uint8_t RfMcu_PowerStateCheckAhb(void);
 void RfMcu_HostWakeUpMcuAhb (void);
+void RfMcu_SetRtcSlowAonAhb(bool status);
+uint32_t RfMcu_GetRtcFromHostAhb(void);
 void RfMcu_SysInitNotifyAhb(void);
 void RfMcu_AhbIsrHandler(COMM_SUBSYSTEM_ISR_t isr_cb);
 

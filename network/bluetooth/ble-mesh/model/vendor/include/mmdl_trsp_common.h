@@ -5,6 +5,11 @@
  *
  */
 
+/**
+ * @file mmdl_trsp_common.h
+ * @brief Common types, model/opcode IDs and message layouts shared by the Rafael vendor Transparent Transport models.
+ */
+
 #ifndef __MMDL_TRSP_COMMON_H__
 #define __MMDL_TRSP_COMMON_H__
 
@@ -26,6 +31,7 @@ extern "C" {
 #define MMDL_RAFAEL_TRSP_SET_NO_ACK_OPCODE       MMDL_RAFAEL_TRSP_OPCODE_DEF(0x02)
 
 
+/** @brief Parameters passed to the user callback when a Transparent Transport Set/Status message is received. */
 typedef struct  raf_trsp_cb_params_s
 {
     uint16_t    dst_addr;
@@ -36,6 +42,7 @@ typedef struct  raf_trsp_cb_params_s
     uint8_t     data[];
 } raf_trsp_cb_params_t;
 
+/** @brief Persistent Transparent Transport Server model state: last received raw command buffer. */
 typedef struct raf_trsp_state_s
 {
     uint16_t    cmd_length;
@@ -43,6 +50,7 @@ typedef struct raf_trsp_state_s
     uint8_t     data[64];
 } raf_trsp_state_t;
 
+/** @brief Payload of the Transparent Transport Set(/Unacknowledged) message: a raw variable-length data blob. */
 typedef struct  raf_trsp_set_msg_s
 {
     uint16_t    data_len;
@@ -50,6 +58,7 @@ typedef struct  raf_trsp_set_msg_s
 } raf_trsp_set_msg_t;
 
 
+/** @brief User callback invoked with the raw payload of a received Transparent Transport message. */
 typedef void (*model_rafael_trsp_user_call_back)(raf_trsp_cb_params_t *p_raf_trsp_cb_params);
 
 

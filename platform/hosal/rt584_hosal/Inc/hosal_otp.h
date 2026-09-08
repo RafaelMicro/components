@@ -36,17 +36,17 @@ extern "C"
  * \brief           Gosal OTP prescale definitions.
  */
 
-#define HOSAL_PUF_READ_VERSION      0
-#define HOSAL_PUF_READ_UID          1
-#define HOSAL_PUF_GET_RAND          2
-#define HOSAL_PUF_READ_OTP1         3
-#define HOSAL_PUF_READ_OTP2         4
-#define HOSAL_PUF_GET_LOCK_OTP2     5
-#define HOSAL_PUF_WRITE_OTP2        6
-#define HOSAL_PUF_SET_LOCK_OTP2     7
-#define HOSAL_PUF_GET_LOCK_OTP1     8
-#define HOSAL_PUF_WRITE_OTP1        9
-#define HOSAL_PUF_SET_LOCK_OTP1     10
+#define HOSAL_PUF_READ_VERSION      (0)
+#define HOSAL_PUF_READ_UID          (1)
+#define HOSAL_PUF_GET_RAND          (2)
+#define HOSAL_PUF_READ_OTP1         (3)
+#define HOSAL_PUF_READ_OTP2         (4)
+#define HOSAL_PUF_GET_LOCK_OTP2     (5)
+#define HOSAL_PUF_WRITE_OTP2        (6)
+#define HOSAL_PUF_SET_LOCK_OTP2     (7)
+#define HOSAL_PUF_GET_LOCK_OTP1     (8)
+#define HOSAL_PUF_WRITE_OTP1        (9)
+#define HOSAL_PUF_SET_LOCK_OTP1     (10)
 
 /**
  * \brief           hosal_otp_init

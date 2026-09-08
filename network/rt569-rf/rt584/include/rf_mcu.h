@@ -45,7 +45,8 @@ extern bool RfMcu_CmdQueueFullCheck(void);
 extern RF_MCU_TX_CMDQ_ERROR RfMcu_CmdQueueSend(const uint8_t *cmd, uint32_t cmd_length);
 extern bool RfMcu_TxQueueFullCheck(void);
 extern RF_MCU_TXQ_ERROR RfMcu_TxQueueSend(uint8_t *tx_data, uint32_t data_length);
-
+extern void RfMcu_BmuReset(void);
+extern void RfMcu_EventQueueReset(void);
 
 /* Internal APIs */
 RF_MCU_INIT_STATUS RfMcu_SysInit(
@@ -99,6 +100,8 @@ void RfMcu_HostBusySet(bool status);
 RF_MCU_TXQ_ERROR RfMcu_TxQueueSendById(uint8_t queue_id, const uint8_t *tx_data, uint32_t data_length);
 void RfMcu_SysRdySignalWait(void);
 uint8_t RfMcu_PowerStateCheck(void);
+void RfMcu_SetRtcSlowAon(bool status);
+uint32_t RfMcu_GetRtcFromHost(void);
 void RfMcu_SysInitNotify(void);
 void RfMcu_DmaInit(void);
 void RfMcu_SpiSfrSet(uint8_t sfrOffset, uint8_t value);

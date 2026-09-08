@@ -95,6 +95,10 @@ extern "C"
 
 #define RF_MCU_FW_PRELOAD_SUPPORTED         (0x00)
 
+/* FW Reserved Size */
+extern unsigned int _comm_subsys_reserved_ram;
+#define RF_MCU_RESERVED_RAM_SIZE            ((unsigned int)&_comm_subsys_reserved_ram)
+
 #ifdef __cplusplus
 }
 #endif

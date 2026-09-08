@@ -1885,7 +1885,7 @@ uint32_t mpsectorcheckft(uint8_t ft_offset)
 {
 
     //uint32_t     i = 0, offset = 0;
-    uint8_t      ft_rd_buf_addr[256], ft_filed_flag;
+    volatile uint8_t      ft_rd_buf_addr[256], ft_filed_flag;
 
 
     if (flash_read_otp_sec_page((uint32_t)ft_rd_buf_addr) != STATUS_SUCCESS)
@@ -1903,7 +1903,7 @@ uint32_t mpsectorcalswupdate()
 {
 
     uint32_t                    i = 0, offset = 0;
-    uint8_t                     ft_rd_buf_addr[256];
+    volatile uint8_t                     ft_rd_buf_addr[256];
     uint32_t                    result, status;
     ft_cal_regulator_t          ft_pmu_temp;
     ft_cal_adc_t                ft_adc;
@@ -2284,7 +2284,7 @@ uint32_t mpsectorcalswupdate()
 uint32_t fttompcalibration()
 {
 
-    static uint8_t ft_rd_buf_addr[256];
+    volatile uint8_t ft_rd_buf_addr[256];
     uint32_t result;
     ft_cal_regulator_t         ft_pmu_temp;
     ft_cal_adc_t               ft_adc;

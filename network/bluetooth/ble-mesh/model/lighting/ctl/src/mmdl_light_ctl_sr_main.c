@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_control_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Light CTL server and setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -48,11 +48,13 @@ static void mmdl_light_ctl_send_status(uint16_t opcode, uint32_t paramter_size, 
 static void mmdl_light_ctl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model);
 
 
+/** @brief Initialize the Light CTL server model instance on an element. */
 void mmdl_light_ctl_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Light CTL message to the handler matching its opcode. */
 void mmdl_light_ctl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -100,6 +102,7 @@ void mmdl_light_ctl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
     }
 }
 
+/** @brief Handle a state update from an extended child model and propagate/publish the change. */
 void mmdl_light_ctl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t     *p_parent_model;
@@ -149,6 +152,7 @@ void mmdl_light_ctl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_
     } while (0);
 }
 
+/** @brief Apply the Light CTL state recalled from a scene and propagate it to the extended Lightness model. */
 void mmdl_light_ctl_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     light_ctl_state_t       *p_light_ctl_state;
@@ -169,6 +173,7 @@ void mmdl_light_ctl_scene_set(ble_mesh_element_param_t *p_current_element)
     }
 }
 
+/** @brief Handle the Light CTL Get message by replying with the current CTL status. */
 static void mmdl_light_ctl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_ctl_send_status(MMDL_LIGHT_CTL_STATUS_OPCODE,
@@ -176,6 +181,7 @@ static void mmdl_light_ctl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
                                p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light CTL Set / Set Unacknowledged message, updating lightness/temperature/delta UV and optionally replying with status. */
 static void mmdl_light_ctl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_ctl_state_t    *p_light_ctl_state = (light_ctl_state_t *)p_model->p_state_var;
@@ -195,6 +201,7 @@ static void mmdl_light_ctl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_
     }
 }
 
+/** @brief Handle the Light CTL Default Get message by replying with the default CTL status. */
 static void mmdl_light_ctl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_ctl_send_status(MMDL_LIGHT_CTL_DEFAULT_STATUS_OPCODE,
@@ -203,6 +210,7 @@ static void mmdl_light_ctl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
 
 }
 
+/** @brief Handle the Light CTL Default Set / Set Unacknowledged message, updating the default temperature/delta UV/lightness. */
 static void mmdl_light_ctl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_ctl_state_t               *p_light_ctl_state = (light_ctl_state_t *)p_model->p_state_var;
@@ -220,6 +228,7 @@ static void mmdl_light_ctl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_i
     }
 }
 
+/** @brief Handle the Light CTL Temperature Range Get message by replying with the current range status. */
 static void mmdl_light_ctl_temperature_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_ctl_send_status(MMDL_LIGHT_CTL_TEMPER_RANGE_STATUS_OPCODE,
@@ -228,6 +237,7 @@ static void mmdl_light_ctl_temperature_range_get(mesh_app_mdl_evt_msg_idc_t *p_e
 
 }
 
+/** @brief Handle the Light CTL Temperature Range Set / Set Unacknowledged message, updating the min/max temperature range. */
 static void mmdl_light_ctl_temperature_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_ctl_state_t                         *p_light_ctl_state = (light_ctl_state_t *)p_model->p_state_var;
@@ -244,6 +254,7 @@ static void mmdl_light_ctl_temperature_range_set(uint32_t ack_flag, mesh_app_mdl
     }
 }
 
+/** @brief Build and send a Light CTL status-family message (Status/Range Status/Default Status) to the requester. */
 static void mmdl_light_ctl_send_status(uint16_t opcode, uint32_t paramter_size, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -322,6 +333,7 @@ static void mmdl_light_ctl_send_status(uint16_t opcode, uint32_t paramter_size, 
 
 }
 
+/** @brief Push the current CTL lightness state down to the extended Light Lightness model. */
 static void mmdl_light_ctl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     light_ctl_state_t       *p_light_ctl_state = (light_ctl_state_t *)p_parent_model->p_state_var;
@@ -338,6 +350,7 @@ static void mmdl_light_ctl_update_extend(ble_mesh_element_param_t *p_current_ele
     }
 }
 
+/** @brief Publish the current Light CTL status to the model's configured publish address. */
 void mmdl_light_ctl_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

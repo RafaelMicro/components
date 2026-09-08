@@ -29,20 +29,21 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-#define RT581 0x01            /* CHIP_TYPE definition for chip RT581 */
-#define RT582 0x02            /* CHIP_TYPE definition for chip RT582 */
-#define RT583 0x03            /* CHIP_TYPE definition for chip RT583 */
-#define RT584 0x04            /* CHIP_TYPE definition for chip RT584 */
+#define RT581 (0x01)            /* CHIP_TYPE definition for chip RT581 */
+#define RT582 (0x02)            /* CHIP_TYPE definition for chip RT582 */
+#define RT583 (0x03)            /* CHIP_TYPE definition for chip RT583 */
+#define RT584 (0x04)            /* CHIP_TYPE definition for chip RT584 */
 
-#define RT58X_SHUTTLE 0x00            /* CHIP_VERSION definition for 
+#define RT58X_SHUTTLE (0x00)            /* CHIP_VERSION definition for 
                                         RT58x series Shuttle version */
-#define RT58X_MPA     0x01            /* CHIP_VERSION definition for 
+#define RT58X_MPA     (0x01)            /* CHIP_VERSION definition for 
                                         RT58x series MPA version */
-#define RT58X_MPB     0x02            /* CHIP_VERSION definition for 
+#define RT58X_MPB     (0x02)            /* CHIP_VERSION definition for 
                                         RT58x series MPB version */
-#define RT58X_MPC     0x03            /* CHIP_VERSION definition for 
+#define RT58X_MPC     (0x03)            /* CHIP_VERSION definition for 
                                         RT58x series MPC version */
-
+#define RT58X_MPD     (0x04)            /* CHIP_VERSION definition for 
+                                        RT58x series MPD version */
 
 #define CHIP_ID(TYPE, VER) ((TYPE << 8) | VER)
 
@@ -57,6 +58,9 @@ extern "C" {
 #define RT581_MPB                                                              \
     CHIP_ID(RT581,                                                             \
             RT58X_MPB) /*CHIP_MODEL definition for chip RT581 MPB version*/
+#define RT581_MPD                                                              \
+    CHIP_ID(RT581,                                                             \
+            RT58X_MPD) /*CHIP_MODEL definition for chip RT581 MPD version*/
 #define RT582_SHUTTLE                                                          \
     CHIP_ID(                                                                   \
         RT582,                                                                 \
@@ -80,6 +84,9 @@ extern "C" {
 #define RT583_MPB                                                              \
     CHIP_ID(RT583,                                                             \
             RT58X_MPB) /*CHIP_MODEL definition for chip RT583 MPB version*/
+#define RT583_MPD                                                              \
+    CHIP_ID(RT583,                                                             \
+            RT58X_MPD) /*CHIP_MODEL definition for chip RT583 MPD version*/
 #define RT584_SHUTTLE                                                          \
     CHIP_ID(                                                                   \
         RT584,                                                                 \

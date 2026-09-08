@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_control_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Light Lightness server and setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -54,11 +54,13 @@ static void mmdl_light_lightness_send_status(uint16_t opcode, uint32_t paramter_
 static void mmdl_light_lightness_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model);
 
 
+/** @brief Initialize the Light Lightness server model instance on an element. */
 void mmdl_light_lightness_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Light Lightness message to the handler matching its opcode. */
 void mmdl_light_lightness_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -123,6 +125,7 @@ void mmdl_light_lightness_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
 
 }
 
+/** @brief Handle a state update from an extended Generic OnOff/Level model and map it into the lightness state. */
 void mmdl_light_lightness_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t   *p_parent_model;
@@ -195,6 +198,7 @@ void mmdl_light_lightness_ex_cb(ble_mesh_element_param_t *p_current_element, ble
 }
 
 
+/** @brief Apply the recalled scene lightness and propagate it to the extended Generic OnOff/Level models. */
 void mmdl_light_lightness_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     light_lightness_state_t  *p_light_lightness_state;
@@ -226,6 +230,7 @@ void mmdl_light_lightness_scene_set(ble_mesh_element_param_t *p_current_element)
 
 }
 
+/** @brief Handle the Light Lightness Get message by replying with the current lightness status. */
 static void mmdl_light_lightness_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_lightness_send_status(MMDL_LIGHT_LIGHTNESS_STATUS_OPCODE,
@@ -233,6 +238,7 @@ static void mmdl_light_lightness_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
                                      p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light Lightness Set / Set Unacknowledged message, updating the actual lightness and optionally replying with status. */
 static void mmdl_light_lightness_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_lightness_state_t    *p_light_lightness_state = (light_lightness_state_t *)p_model->p_state_var;
@@ -274,6 +280,7 @@ static void mmdl_light_lightness_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc
     }
 }
 
+/** @brief Handle the Light Lightness Linear Get message by replying with the current linear lightness status. */
 static void mmdl_light_lightness_linear_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_lightness_send_status(MMDL_LIGHT_LIGHTNESS_LINEAR_STATUS_OPCODE,
@@ -282,6 +289,7 @@ static void mmdl_light_lightness_linear_get(mesh_app_mdl_evt_msg_idc_t *p_evt_ms
 
 }
 
+/** @brief Handle the Light Lightness Linear Set / Set Unacknowledged message (linear-to-actual conversion is currently a TODO). */
 static void mmdl_light_lightness_linear_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_lightness_state_t  *p_light_lightness_state = (light_lightness_state_t *)p_model->p_state_var;
@@ -316,6 +324,7 @@ static void mmdl_light_lightness_linear_set(uint32_t ack_flag, mesh_app_mdl_evt_
     }
 }
 
+/** @brief Handle the Light Lightness Last Get message by replying with the last non-zero lightness status. */
 static void mmdl_light_lightness_last_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_lightness_send_status(MMDL_LIGHT_LIGHTNESS_LAST_STATUS_OPCODE,
@@ -324,6 +333,7 @@ static void mmdl_light_lightness_last_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg,
 
 }
 
+/** @brief Handle the Light Lightness Default Get message by replying with the default lightness status. */
 static void mmdl_light_lightness_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_lightness_send_status(MMDL_LIGHT_LIGHTNESS_DEFAULT_STATUS_OPCODE,
@@ -332,6 +342,7 @@ static void mmdl_light_lightness_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_m
 
 }
 
+/** @brief Handle the Light Lightness Default Set / Set Unacknowledged message, updating the default lightness. */
 static void mmdl_light_lightness_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_lightness_state_t               *p_light_lightness_state = (light_lightness_state_t *)p_model->p_state_var;
@@ -347,6 +358,7 @@ static void mmdl_light_lightness_default_set(uint32_t ack_flag, mesh_app_mdl_evt
     }
 }
 
+/** @brief Handle the Light Lightness Range Get message by replying with the current lightness range status. */
 static void mmdl_light_lightness_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_lightness_send_status(MMDL_LIGHT_LIGHTNESS_RANGE_STATUS_OPCODE,
@@ -355,6 +367,7 @@ static void mmdl_light_lightness_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg
 
 }
 
+/** @brief Handle the Light Lightness Range Set / Set Unacknowledged message, updating the min/max lightness range. */
 static void mmdl_light_lightness_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_lightness_state_t          *p_light_lightness_state = (light_lightness_state_t *)p_model->p_state_var;
@@ -371,6 +384,7 @@ static void mmdl_light_lightness_range_set(uint32_t ack_flag, mesh_app_mdl_evt_m
     }
 }
 
+/** @brief Build and send a Light Lightness status-family message (Status/Linear/Last/Default/Range Status) to the requester. */
 static void mmdl_light_lightness_send_status(uint16_t opcode, uint32_t paramter_size, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -465,6 +479,7 @@ static void mmdl_light_lightness_send_status(uint16_t opcode, uint32_t paramter_
 
 }
 
+/** @brief Push the current lightness state down to the extended Generic OnOff and Generic Level models. */
 static void mmdl_light_lightness_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     light_lightness_state_t  *p_light_lightness_state = (light_lightness_state_t *)p_parent_model->p_state_var;
@@ -490,6 +505,7 @@ static void mmdl_light_lightness_update_extend(ble_mesh_element_param_t *p_curre
 
 }
 
+/** @brief Apply a lightness level pushed down from a parent model that extends this Light Lightness model. */
 void mmdl_light_lightness_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint16_t lightness_level_state)
 {
     light_lightness_state_t      *p_light_lightness_state = (light_lightness_state_t *)p_model->p_state_var;
@@ -504,6 +520,7 @@ void mmdl_light_lightness_extend_set(ble_mesh_element_param_t *p_element, ble_me
     } while (0);
 }
 
+/** @brief Publish the current Light Lightness status to the model's configured publish address. */
 void mmdl_light_lightness_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

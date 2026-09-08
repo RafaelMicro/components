@@ -12,6 +12,7 @@
  * @ingroup hci_cmd
  * @brief Includes Vendor commands (OGF = 0x3F):
  *        - OCF = 0x0001 : Set Controller Information vendor command
+ *        - OCF = 0x0082 : Set Scan Request Report command
  * @}
  */
 

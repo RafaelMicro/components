@@ -364,7 +364,6 @@ static hosal_rf_status_t __rf_modem_set(hosal_rf_15p4_modem_cnf_t* modem_cnf) {
     if (rval == HOSAL_RF_STATUS_SUCCESS) {
         rval = __rf_sub_command_set(cmd_ptr, cmd_len, cfn_sub_hdr);
         if (cmd_ptr) {
-            // log_info("Free rf sub command: %u", xPortGetFreeHeapSize());
             vPortFree(cmd_ptr);
         }
     }
@@ -474,7 +473,6 @@ static hosal_rf_status_t __rf_tx_data_start_set(hosal_rf_tx_data_t* tx_data) {
     } while (rval != HOSAL_RF_STATUS_SUCCESS);
 
     if (cmd_ptr) {
-        // log_info("Free rf write tx: %u", xPortGetFreeHeapSize());
         vPortFree(cmd_ptr);
     }
 
@@ -930,6 +928,16 @@ __rf_15p4_csl_receiver_ctrl_set(hosal_rf_15p4_csl_receiver_ctrl_t* ctrl) {
 }
 
 static hosal_rf_status_t
+__rf_15p4_csl_receive_at_set(hosal_rf_15p4_csl_receive_at_t* ctrl) {
+    uint8_t cmd_ptr[RUCI_LEN_SET_RX_RESERVE_ENABLE];
+    SET_RUCI_PARA_SET_RX_RESERVE_ENABLE(cmd_ptr, ctrl->rx_start_time,
+                                        ctrl->rx_on_time);
+    RUCI_ENDIAN_CONVERT(cmd_ptr, RUCI_SET_RX_RESERVE_ENABLE);
+    return __rf_sub_command_set(cmd_ptr, RUCI_LEN_SET_RX_RESERVE_ENABLE,
+                                RUCI_CODE_SET_RX_RESERVE_ENABLE);
+}
+
+static hosal_rf_status_t
 __rf_sub_qpsk_data_rate_set(hosal_rf_phy_oqpsk_data_rate_t* data_rate) {
     uint8_t cmd_ptr[RUCI_LEN_SET_OQPSK_MODEM];
     SET_RUCI_PARA_SET_OQPSK_MODEM(cmd_ptr, *data_rate);
@@ -1007,6 +1015,20 @@ static hosal_rf_status_t __rf_15p4_op_pan_idx_set(uint32_t pan_idx) {
     page = (uint8_t)((temp_data >> 8) & 0xFF) + 1;
     q_addr = 0x4000 + (page * 64) + (7 * 4);
     RfMcu_MemorySet(q_addr, (uint8_t*)&pan_idx, 1);
+    return HOSAL_RF_STATUS_SUCCESS;
+}
+
+static hosal_rf_status_t __rf_15p4_cca_energy_read(uint8_t* cca_energy_q) {
+    uint32_t temp_data;
+    uint8_t page;
+    uint16_t temp_addr;
+    RfMcu_MemoryGet(0x04038, (uint8_t *)&temp_data, 4);
+    page = (uint8_t)((temp_data >> 8) & 0xFF) + 1;
+    temp_addr = 0x4000 + (page * 64) + (13 * 4);
+    RfMcu_MemoryGet(temp_addr, (uint8_t *)cca_energy_q, 4);
+    temp_addr = 0x4000 + (page * 64) + (14 * 4);
+    RfMcu_MemoryGet(temp_addr, (uint8_t *)(cca_energy_q + 4), 4);
+
     return HOSAL_RF_STATUS_SUCCESS;
 }
 
@@ -1228,6 +1250,10 @@ hosal_rf_status_t hosal_rf_ioctl(hosal_rf_ioctl_t ctl, void* p_arg) {
                 (hosal_rf_15p4_csl_receiver_ctrl_t*)p_arg);
             break;
 
+        case HOSAL_RF_IOCTL_15P4_CSL_RECEIVE_AT_SET:
+            rval = __rf_15p4_csl_receive_at_set((hosal_rf_15p4_csl_receive_at_t*)p_arg);
+            break;
+
         case HOSAL_RF_IOCTL_SUBG_OQPSK_DATA_RATE_SET:
             rval = __rf_sub_qpsk_data_rate_set(
                 (hosal_rf_phy_oqpsk_data_rate_t*)p_arg);
@@ -1264,6 +1290,10 @@ hosal_rf_status_t hosal_rf_ioctl(hosal_rf_ioctl_t ctl, void* p_arg) {
 
         case HOSAL_RF_IOCTL_15P4_OPERATION_PAN_IDX_SET:
             rval = __rf_15p4_op_pan_idx_set((uint32_t)p_arg);
+            break;
+
+        case HOSAL_RF_IOCTL_15P4_CCA_ENERGY_READ:
+            rval = __rf_15p4_cca_energy_read((uint8_t*)p_arg);
             break;
 
         default: rval = HOSAL_RF_STATUS_INVALID_PARAMETER; break;

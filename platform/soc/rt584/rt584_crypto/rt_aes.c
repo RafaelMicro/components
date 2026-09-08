@@ -63,7 +63,7 @@ extern void aes_encryption(uint8_t round, uint8_t *in_buf, uint8_t *out_buf);
 extern void aes_decryption(uint8_t round, uint8_t *in_buf, uint8_t *out_buf);
 
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
 extern void crypto_mutex_lock(void);
 extern void crypto_mutex_unlock(void);

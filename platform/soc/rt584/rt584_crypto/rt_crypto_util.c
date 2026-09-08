@@ -11,7 +11,7 @@
 #include "mcu.h"
 
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
 /*TODO: under construction.*/
 
@@ -95,7 +95,7 @@ void crypto_copy(uint32_t *p_dest_addr, uint32_t *p_src_addr, uint32_t size)
 
 void crypto_lib_init(void)
 {
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
     /*TODO: under construction for semaphore in secure mode*/
 

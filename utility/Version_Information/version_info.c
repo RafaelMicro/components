@@ -56,10 +56,13 @@ const build_info_t BUILD_INFO = {
     .ble_fw_ver = BUILD_BLE_FW_INFO,
     .multi_fw_ver = BUILD_MULTI_FW_INFO,
     .app_start_address = APP_START_ADDRESS,
+#if defined CONFIG_BOOTLOADER_APP
+    .reserved1[0] = CONFIG_BOOTLOADER_MINOR_VERSION,
+    .reserved1[1] = CONFIG_BOOTLOADER_MAIN_VERSION,
+#else
     .reserved1[0] = 0x00,
     .reserved1[1] = 0x00,
-    .reserved1[2] = 0x00,
-    .reserved1[3] = 0x00,
+#endif
     .sha256 = 0,
     .reserved2   = { [0 ... (sizeof(((build_info_t*)0)->reserved2) - 1)] = 0 }
 };

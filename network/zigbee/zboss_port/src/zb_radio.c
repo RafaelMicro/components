@@ -139,6 +139,8 @@ typedef struct _otRadio_t {
     uint32_t dbgFrameNum;
     uint32_t dbgMaxAckFrameLenth;
     uint32_t dbgMaxPendingFrameNum;
+    uint32_t dbgRxQueueFullNum;
+    uint32_t dbgRxPoolNoBuffNum;
 
     uint8_t buffPool[TOTAL_RX_FRAME_SIZE * (ZB_RADIO_RX_FRAME_BUFFER_NUM + 2)];
 } zbRadio_t;
@@ -269,7 +271,15 @@ void zb_radioTask(zb_system_event_t trxEvent) {
         b_p = ZB_RING_BUFFER_PUT_RESERVE(&MAC_CTX().mac_rx_queue);
 
         if (!b_p) {
+            zbRadio_var.dbgRxQueueFullNum++;
+            if ((zbRadio_var.dbgRxQueueFullNum & 0x3fU) == 1U) {
+                log_warn("mac_rx_queue full: rx_pending=%lu free_frames=%lu drops=%lu",
+                         (unsigned long)zbRadio_var.dbgRxFrameNum,
+                         (unsigned long)zbRadio_var.dbgFrameNum,
+                         (unsigned long)zbRadio_var.dbgRxQueueFullNum);
+            }
             ZB_NOTIFY(ZB_SYSTEM_EVENT_RADIO_RX_DONE);
+            return;
         }
 
         ZB_ENTER_CRITICAL();
@@ -320,6 +330,13 @@ void zb_radioTask(zb_system_event_t trxEvent) {
             log_warn("zbRadio_var.dbgRxFrameNum %d", zbRadio_var.dbgRxFrameNum);
         }
     } else if (trxEvent & ZB_SYSTEM_EVENT_RADIO_RX_NO_BUFF) {
+        zbRadio_var.dbgRxPoolNoBuffNum++;
+        if ((zbRadio_var.dbgRxPoolNoBuffNum & 0x3fU) == 1U) {
+            log_warn("rx frame pool exhausted: rx_pending=%lu free_frames=%lu drops=%lu",
+                     (unsigned long)zbRadio_var.dbgRxFrameNum,
+                     (unsigned long)zbRadio_var.dbgFrameNum,
+                     (unsigned long)zbRadio_var.dbgRxPoolNoBuffNum);
+        }
     }
 }
 

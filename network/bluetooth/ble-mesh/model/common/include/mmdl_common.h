@@ -24,14 +24,19 @@ extern "C" {
 #include "util.h"
 //#include "mmdl_publish.h"
 
+/** @brief Shared transaction identifier (TID) counter used when originating model set/move messages. */
 extern uint8_t tid;
 
+/** @brief Dispatch an incoming mesh model event message to the addressed element(s) (unicast or group/virtual). */
 void mmdl_evt_msg_cb(mesh_app_mdl_evt_msg_idc_t* pt_msg_idc);
+/** @brief Look up a model instance with the given model ID within an element; returns 1 and outputs it via p_model on success. */
 uint32_t search_model(ble_mesh_element_param_t* p_element, uint32_t model_id,
                       ble_mesh_model_param_t** p_model);
 
+/** @brief Check whether an AppKey index is present in a model's key-binding list. */
 uint32_t mmdl_model_binding_key_validate(uint16_t appkey_index,
                                          ble_mesh_model_param_t* p_model);
+/** @brief Check whether an address matches a model's subscription list or a supported fixed group address. */
 uint32_t mmdl_model_subscribe_address_validate(uint16_t subscribe_address,
                                                ble_mesh_model_param_t* p_model);
 

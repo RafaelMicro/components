@@ -52,41 +52,62 @@ MeshDiag::MeshDiag(Instance &aInstance)
     , mState(kStateIdle)
     , mExpectedQueryId(0)
     , mExpectedAnswerIndex(0)
+    , mResponseTimeout(kDefaultResponseTimeout)
     , mTimer(aInstance)
 {
 }
 
 Error MeshDiag::DiscoverTopology(const DiscoverConfig &aConfig, DiscoverCallback aCallback, void *aContext)
 {
-    static constexpr uint8_t kMaxTlvsToRequest = 6;
-
-    Error   error = kErrorNone;
-    uint8_t tlvs[kMaxTlvsToRequest];
+    Error   error      = kErrorNone;
     uint8_t tlvsLength = 0;
 
     VerifyOrExit(Get<Mle::Mle>().IsAttached(), error = kErrorInvalidState);
     VerifyOrExit(mState == kStateIdle, error = kErrorBusy);
 
-    tlvs[tlvsLength++] = Address16Tlv::kType;
-    tlvs[tlvsLength++] = ExtMacAddressTlv::kType;
-    tlvs[tlvsLength++] = RouteTlv::kType;
-    tlvs[tlvsLength++] = VersionTlv::kType;
+    mDiscover.mTlvs[tlvsLength++] = Address16Tlv::kType;
+    mDiscover.mTlvs[tlvsLength++] = ExtMacAddressTlv::kType;
+    mDiscover.mTlvs[tlvsLength++] = RouteTlv::kType;
+    mDiscover.mTlvs[tlvsLength++] = VersionTlv::kType;
 
     if (aConfig.mDiscoverIp6Addresses)
     {
-        tlvs[tlvsLength++] = Ip6AddressListTlv::kType;
+        mDiscover.mTlvs[tlvsLength++] = Ip6AddressListTlv::kType;
     }
 
     if (aConfig.mDiscoverChildTable)
     {
-        tlvs[tlvsLength++] = ChildTableTlv::kType;
+        mDiscover.mTlvs[tlvsLength++] = ChildTableTlv::kType;
     }
+
+    mDiscover.mTlvsLength = tlvsLength;
 
     Get<RouterTable>().GetRouterIdSet(mDiscover.mExpectedRouterIdSet);
 
-    for (uint8_t routerId = 0; routerId <= Mle::kMaxRouterId; routerId++)
+    mDiscover.mCallback.Set(aCallback, aContext);
+    mDiscover.mNextRouterId = 0;
+    mState                  = kStateDiscoverTopology;
+
+    SendNextTopologyQuery();
+
+exit:
+    return error;
+}
+
+void MeshDiag::SendNextTopologyQuery(void)
+{
+    // One router in flight at a time. Sending every request at once is quicker
+    // on a small mesh, but on a large or lossy one the burst collides with
+    // itself and the replies are what get dropped.
+    //
+    // A router is removed from `mExpectedRouterIdSet` only when it answers, so
+    // whatever is left when the sweep ends is the list of routers that did not.
+
+    Ip6::Address destination;
+
+    while (mDiscover.mNextRouterId <= Mle::kMaxRouterId)
     {
-        Ip6::Address destination;
+        uint8_t routerId = mDiscover.mNextRouterId++;
 
         if (!mDiscover.mExpectedRouterIdSet.Contains(routerId))
         {
@@ -95,16 +116,22 @@ Error MeshDiag::DiscoverTopology(const DiscoverConfig &aConfig, DiscoverCallback
 
         destination.SetToRoutingLocator(Get<Mle::Mle>().GetMeshLocalPrefix(), Mle::Rloc16FromRouterId(routerId));
 
-        SuccessOrExit(error = Get<Client>().SendCommand(kUriDiagnosticGetRequest, Message::kPriorityLow, destination,
-                                                        tlvs, tlvsLength, HandleDiagGetResponse, this));
+        if (Get<Client>().SendCommand(kUriDiagnosticGetRequest, Message::kPriorityLow, destination, mDiscover.mTlvs,
+                                      mDiscover.mTlvsLength, HandleDiagGetResponse, this) == kErrorNone)
+        {
+            mTimer.Start(mResponseTimeout);
+            ExitNow();
+        }
+
+        // Out of buffers for this one; leave it in the expected set so it is
+        // reported as missing, and carry on with the next router.
+        LogWarn("Failed to query router 0x%04x", Mle::Rloc16FromRouterId(routerId));
     }
 
-    mDiscover.mCallback.Set(aCallback, aContext);
-    mState = kStateDiscoverTopology;
-    mTimer.Start(kResponseTimeout);
+    Finalize(mDiscover.mExpectedRouterIdSet.GetNumberOfAllocatedIds() == 0 ? kErrorNone : kErrorResponseTimeout);
 
 exit:
-    return error;
+    return;
 }
 
 void MeshDiag::HandleDiagGetResponse(void                *aContext,
@@ -120,15 +147,16 @@ void MeshDiag::HandleDiagGetResponse(Coap::Message *aMessage, const Ip6::Message
 {
     OT_UNUSED_VARIABLE(aMessageInfo);
 
-    Error           error;
     RouterInfo      routerInfo;
     Ip6AddrIterator ip6AddrIterator;
     ChildIterator   childIterator;
 
-    SuccessOrExit(aResult);
-    VerifyOrExit(aMessage != nullptr);
     VerifyOrExit(mState == kStateDiscoverTopology);
 
+    // A timeout, an abort or a malformed answer is not fatal here: this router
+    // stays in the expected set and the sweep moves on to the next one.
+    SuccessOrExit(aResult);
+    VerifyOrExit(aMessage != nullptr);
     SuccessOrExit(routerInfo.ParseFrom(*aMessage));
 
     if (ip6AddrIterator.InitFrom(*aMessage) == kErrorNone)
@@ -142,21 +170,16 @@ void MeshDiag::HandleDiagGetResponse(Coap::Message *aMessage, const Ip6::Message
     }
 
     mDiscover.mExpectedRouterIdSet.Remove(routerInfo.mRouterId);
-
-    if (mDiscover.mExpectedRouterIdSet.GetNumberOfAllocatedIds() == 0)
-    {
-        error  = kErrorNone;
-        mState = kStateIdle;
-        mTimer.Stop();
-    }
-    else
-    {
-        error = kErrorPending;
-    }
-
-    mDiscover.mCallback.InvokeIfSet(error, &routerInfo);
+    mDiscover.mCallback.InvokeIfSet(kErrorPending, &routerInfo);
 
 exit:
+    // The callback above may have cancelled the discovery, so re-check.
+    if (mState == kStateDiscoverTopology)
+    {
+        mTimer.Stop();
+        SendNextTopologyQuery();
+    }
+
     return;
 }
 
@@ -178,7 +201,7 @@ Error MeshDiag::SendQuery(uint16_t aRloc16, const uint8_t *aTlvs, uint8_t aTlvsL
     mExpectedQueryId     = Get<Client>().GetLastQueryId();
     mExpectedAnswerIndex = 0;
 
-    mTimer.Start(kResponseTimeout);
+    mTimer.Start(mResponseTimeout);
 
 exit:
     return error;
@@ -419,21 +442,17 @@ exit:
 
 void MeshDiag::Cancel(void)
 {
-    switch (mState)
-    {
-    case kStateIdle:
-    case kStateQueryChildTable:
-    case kStateQueryChildrenIp6Addrs:
-    case kStateQueryRouterNeighborTable:
-        break;
+    State oldState = mState;
 
-    case kStateDiscoverTopology:
-        IgnoreError(Get<Tmf::Agent>().AbortTransaction(HandleDiagGetResponse, this));
-        break;
-    }
-
+    // Clear the state first: `AbortTransaction()` invokes `HandleDiagGetResponse()`
+    // synchronously, and that must not start querying the next router.
     mState = kStateIdle;
     mTimer.Stop();
+
+    if (oldState == kStateDiscoverTopology)
+    {
+        IgnoreError(Get<Tmf::Agent>().AbortTransaction(HandleDiagGetResponse, this));
+    }
 }
 
 void MeshDiag::Finalize(Error aError)
@@ -468,7 +487,26 @@ void MeshDiag::Finalize(Error aError)
     }
 }
 
-void MeshDiag::HandleTimer(void) { Finalize(kErrorResponseTimeout); }
+void MeshDiag::HandleTimer(void)
+{
+    if (mState == kStateDiscoverTopology)
+    {
+        // This router is out of time. Aborting re-enters `HandleDiagGetResponse()`
+        // with `kErrorAbort`, and that is what moves the sweep along; only drive
+        // it directly when there was no transaction left to abort.
+        if (Get<Tmf::Agent>().AbortTransaction(HandleDiagGetResponse, this) != kErrorNone)
+        {
+            SendNextTopologyQuery();
+        }
+
+        ExitNow();
+    }
+
+    Finalize(kErrorResponseTimeout);
+
+exit:
+    return;
+}
 
 //---------------------------------------------------------------------------------------------------------------------
 // MeshDiag::RouterInfo

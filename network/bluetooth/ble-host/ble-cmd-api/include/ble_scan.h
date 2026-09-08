@@ -107,12 +107,14 @@ typedef uint8_t ble_scan_filter_t;
 
 /** The Link Layer shall process all advertising and scan response PDUs (i.e., the Filter Accept List is not used),
     and the TargetA field is identical to the scanner's device address,
-    or the TargetA field is a resolvable private address, address resolution is enabled, and the address is resolved successfully. */
+    or the TargetA field is a resolvable private address, address resolution is enabled, and the address is resolved successfully.
+    @note Not currently supported by @ref ble_cmd_scan_param_set : passing this value returns @ref BLE_ERR_CMD_NOT_SUPPORTED. */
 #define SCAN_FILTER_POLICY_EXTENED_UNFILTERED       0x02
 
 /** The Link Layer shall process advertising and scan response PDUs only from devices in the Filter Accept List,
     and the TargetA field is identical to the scanner's device address,
-    or the TargetA field is a resolvable private address, address resolution is enabled, and the address is resolved successfully. */
+    or the TargetA field is a resolvable private address, address resolution is enabled, and the address is resolved successfully.
+    @note Not currently supported by @ref ble_cmd_scan_param_set : passing this value returns @ref BLE_ERR_CMD_NOT_SUPPORTED. */
 #define SCAN_FILTER_POLICY_EXTENED_FILTERED         0x03
 /** @} */
 
@@ -128,7 +130,10 @@ typedef struct ble_scan_param_s
     ble_scan_type_t       scan_type;
 
     /**
-     * @ref ble_addr_type_t "BLE Address Type"
+     * @ref ble_addr_type_t "BLE Address Type".
+     * @note When @ref ble_cmd_scan_enable is called, a value of @ref RANDOM_NON_RESOLVABLE_ADDR or
+     *       @ref RANDOM_RESOLVABLE_ADDR requires BLE privacy to be enabled, otherwise
+     *       @ref BLE_ERR_INVALID_STATE is returned.
      */
     ble_addr_type_t       own_addr_type;
 
@@ -220,6 +225,14 @@ bool ble_scan_idle_state_check(void);
  * @ingroup ble_scan
  *
  * @note Scan window can only be less than or equal to the scan interval.
+ * @note This API can only be used while scanning is disabled (see @ref ble_scan_idle_state_check),
+ *       otherwise @ref BLE_ERR_INVALID_STATE is returned.
+ * @note Only @ref SCAN_FILTER_POLICY_BASIC_UNFILTERED and @ref SCAN_FILTER_POLICY_BASIC_FILTERED are
+ *       currently supported for @c scan_filter_policy; the extended filter policy values return
+ *       @ref BLE_ERR_CMD_NOT_SUPPORTED.
+ *
+ * @par BLE Event
+ * Wait for @ref BLE_SCAN_EVT_SET_PARAM event which indicates the scan parameters have been set.
  *
  * @param[in] p_param : a pointer to scanning parameter.
  *
@@ -235,8 +248,8 @@ ble_err_t ble_cmd_scan_param_set(ble_scan_param_t *p_param);
  * @note    When using the SCAN function for multi-link, ensure that the current connection interval is greater than 10ms x number of links.
  *
  * @par BLE Event
- * Wait for @ref BLECMD_EVENT_SCAN_COMPLETE event which indicates the scan has been started. \n
- * Wait for @ref BLECMD_EVENT_SCAN_REPORT event to receive scanned devices information.
+ * Wait for @ref BLE_SCAN_EVT_SET_ENABLE event which indicates the scan has been started. \n
+ * Wait for @ref BLE_SCAN_EVT_ADV_REPORT event to receive scanned devices information.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -248,7 +261,7 @@ ble_err_t ble_cmd_scan_enable(void);
  * @ingroup ble_scan
  *
  * @par BLE Event
- * Wait for @ref BLECMD_EVENT_SCAN_COMPLETE event which indicates the scan has been stopped.
+ * Wait for @ref BLE_SCAN_EVT_SET_ENABLE event which indicates the scan has been stopped.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -269,11 +282,11 @@ ble_err_t ble_cmd_scan_disable(void);
 ble_err_t ble_cmd_scan_report_adv_data_parsing(ble_evt_scan_adv_report_t *p_rpt_data, ble_gap_ad_type_t ad_type, uint8_t *p_data, uint8_t *p_data_length);
 
 
-/** BLE scan events handler.
+/** @brief BLE scan events handler.
  *
  * @ingroup ble_scan
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the event parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

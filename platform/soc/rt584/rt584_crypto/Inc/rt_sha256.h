@@ -25,9 +25,9 @@ extern "C"
  * @{
  */
 
-#define  SHA256_DIGEST_SIZE                32
-#define  SHA256_BLOCK_SIZE                 64
-#define  SHA224_DIGEST_SIZE                28
+#define  SHA256_DIGEST_SIZE                (32)
+#define  SHA256_BLOCK_SIZE                 (64)
+#define  SHA224_DIGEST_SIZE                (28)
 
 typedef struct {
     uint32_t total[2];
@@ -37,6 +37,7 @@ typedef struct {
 
 typedef struct {
     uint32_t total[2];
+    uint32_t state[8];
     uint8_t  buffer[SHA256_BLOCK_SIZE];
     uint8_t  opad[SHA256_BLOCK_SIZE];
 } hmac_sha256_context;
@@ -47,7 +48,7 @@ typedef struct {
  * Here we limit the HKDF block to 32. Even this setting 32*32= 1024
  * It is enough most case.
  */
-#define HKDF_limit_block    32
+#define HKDF_limit_block    (32)
 
 typedef struct {
     uint8_t *out_key;

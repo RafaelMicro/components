@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_onoff_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Common helpers to build and send model client and configuration client access messages to the mesh stack.
  * @version 0.1
  * @date 2022-06-09
  *
@@ -36,6 +36,11 @@ static uint8_t                      ttl = 4;
 //=============================================================================
 
 
+/**
+ * @brief Allocate a mesh access-layer message request TLV for a model client message and forward it to the mesh stack.
+ * @param opcode Access opcode to send, or 0 to mark the opcode as invalid/omitted.
+ * @param p_param Raw parameter payload of length param_len to copy into the request.
+ */
 void mmdl_client_send(uint16_t dst_addr, uint16_t src_addr, uint32_t opcode, uint16_t key_index, uint16_t param_len, uint8_t *p_param)
 {
     mesh_app_mdl_evt_msg_req_t *pt_req;
@@ -87,6 +92,10 @@ void mmdl_client_send(uint16_t dst_addr, uint16_t src_addr, uint32_t opcode, uin
 }
 
 
+/**
+ * @brief Allocate a Configuration Client message request TLV (with device key and TTL filled in) and send it to the mesh stack.
+ * @param p_param Raw parameter payload of length pram_len to copy into the request; may be NULL if pram_len is 0.
+ */
 void cfgmdl_client_send(uint32_t opcode, uint16_t dst, uint8_t *p_param, uint16_t pram_len)
 {
     mesh_cfg_mdl_evt_msg_req_t  *p_cfg_msg_info;

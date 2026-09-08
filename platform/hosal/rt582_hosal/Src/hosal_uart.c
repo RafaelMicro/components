@@ -20,8 +20,8 @@
 #include "mcu.h"
 #include "stdio.h"
 
-#define MAX_NUMBER_OF_UART 3
-#define UART0_BASE_CLK     16
+#define MAX_NUMBER_OF_UART (3)
+#define UART0_BASE_CLK     (16)
 
 #define UART_ReadLineStatus(pReg) ((pReg)->LSR)
 

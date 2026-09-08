@@ -136,8 +136,9 @@ typedef uint8_t ble_adv_filter_t;
 */
 typedef struct
 {
-    /**
-     * @ref ble_adv_type "BLE advertising type"
+    /** @ref ble_adv_type "BLE advertising type" \n
+     * @note Valid range is @ref ADV_TYPE_ADV_IND ~ @ref ADV_TYPE_ADV_NONCONN_IND ; @ref ADV_TYPE_SCAN_RSP is not
+     *       a valid value for this parameter.
      */
     ble_adv_type_t      adv_type;
 
@@ -160,12 +161,12 @@ typedef struct
 
 
     /** The BLE address and BLE address type for directed advertising
-     * @note MUST set advDirectAddrParam if BLE advertising type is set to @ref ADV_TYPE_ADV_DIRECT_IND.
+     * @note MUST set adv_peer_addr_param if BLE advertising type is set to @ref ADV_TYPE_ADV_DIRECT_IND.
     */
     ble_gap_peer_addr_t adv_peer_addr_param;
 
-    /**
-     * @ref ble_adv_channel "Advertising channel map"
+    /** @ref ble_adv_channel "Advertising channel map" \n
+     * @note Shall not be 0.
      */
     ble_adv_channel_t   adv_channel_map;
 
@@ -274,7 +275,7 @@ typedef struct
 
         /** Set advertising enable event parameters. */
         ble_evt_adv_set_adv_enable_t  evt_set_adv_enable;
-    } param;/** Event parameters. */
+    } param; /**< Event parameters. */
 
 } ble_evt_adv_t;
 
@@ -303,6 +304,10 @@ bool ble_adv_idle_state_check(void);
  *
  * @note    Advertising interval Min. and Max. : @ref ADV_INTERVAL_MIN to @ref ADV_INTERVAL_MAX \n
  *          Advertising interval Min. shall be less than or equal to advertising interval Max.
+ * @note    This API can only be used while advertising is disabled (see @ref ble_adv_idle_state_check).
+ *
+ * @par BLE Event
+ * Wait for @ref BLE_ADV_EVT_SET_PARAM event which indicates the advertising parameters have been set.
  *
  * @param[in] p_param : a pointer to advertising parameter.
  *
@@ -331,6 +336,9 @@ ble_err_t ble_cmd_adv_param_set(ble_adv_param_t *p_param);
    ||         || AD Type  ||     AD Data          ||  ........ ||         || AD Type  ||     AD Data          ||
    ||---------------------------------------------------------------------------------------------------------||
    @endverbatim
+ *
+ * @par BLE Event
+ * Wait for @ref BLE_ADV_EVT_SET_DATA event which indicates the advertising data have been set.
  *
  * @param[in] p_param : a pointer to the advertising data parameter.
  *
@@ -361,6 +369,9 @@ ble_err_t ble_cmd_adv_data_set(ble_adv_data_param_t *p_param);
    ||---------------------------------------------------------------------------------------------------------||
    @endverbatim
  *
+ * @par BLE Event
+ * Wait for @ref BLE_ADV_EVT_SET_SCAN_RSP event which indicates the scan response data have been set.
+ *
  * @param[in] p_param : a pointer to the scan response data parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
@@ -375,7 +386,13 @@ ble_err_t ble_cmd_adv_scan_rsp_set(ble_adv_data_param_t *p_param);
  * @par BLE Event
  * Wait for @ref BLE_ADV_EVT_SET_ENABLE event which indicates the advertisement has been started.
  *
- * @param[in] host_id : he link's host ID
+ * @note    host_id shall not correspond to a link that is already connected or already active,
+ *          otherwise @ref BLE_ERR_INVALID_STATE is returned. \n
+ *          If host_id is set to @ref BLE_HOSTID_RESERVED, or the maximum number of connections has
+ *          been reached, the current advertising type must be @ref ADV_TYPE_ADV_NONCONN_IND or
+ *          @ref ADV_TYPE_SCAN_IND, otherwise @ref BLE_ERR_CMD_NOT_SUPPORTED is returned.
+ *
+ * @param[in] host_id : the link's host ID.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -398,7 +415,7 @@ ble_err_t ble_cmd_adv_disable(void);
  *
  * @ingroup ble_advertising
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the event parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

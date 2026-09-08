@@ -40,11 +40,14 @@ extern "C" {
  * @defgroup ble_sec_key_gen_method BLE Security key generation method Definition
  * @{
  * @ingroup ble_sec
- * @brief  Define BLE security key generation method.
+ * @details Define the legacy pairing STK (Short Term Key) generation method reported by
+ *          @ref ble_evt_sm_stk_gen_method_t "the STK generation method event". It tells the
+ *          local device whether it must ask the user to enter a passkey or generate and
+ *          display one, based on the negotiated IO capabilities of both devices.
  */
 typedef uint8_t ble_sm_key_gen_method_t;
-#define PASSKEY_ENTRY                               0x01    /**< Entry only.   */
-#define PASSKEY_DISPLAY                             0x02    /**< Display only. */
+#define PASSKEY_ENTRY                               0x01    /**< The local device must prompt the user to enter the passkey displayed on the peer device. */
+#define PASSKEY_DISPLAY                             0x02    /**< The local device must generate and display a passkey for the user to enter on the peer device. */
 /** @} */
 
 
@@ -52,14 +55,17 @@ typedef uint8_t ble_sm_key_gen_method_t;
  * @defgroup ble_sec_io_caps BLE Security IO Capabilities Definition
  * @{
  * @ingroup ble_sec
- * @brief  Define BLE IO capabilities.
+ * @details Define the local device's SMP IO capability, as set by @ref ble_cmd_io_capability_set.
+ *          Together with the peer's IO capability, this determines the pairing association
+ *          model used (Just Works, Passkey Entry, or Numeric Comparison) and whether the
+ *          resulting pairing is MITM-protected.
  */
 typedef uint8_t io_caps_t;
-#define DISPLAY_ONLY                                 0x00  /**< Display only.              */
-#define DISPLAY_YESNO                                0x01  /**< Display and Yes/No entry.  */
-#define KEYBOARD_ONLY                                0x02  /**< Keyboard only.             */
-#define NOINPUT_NOOUTPUT                             0x03  /**< No IO capabilities.        */
-#define KEYBOARD_DISPLAY                             0x04  /**< Keyboard and display.      */
+#define DISPLAY_ONLY                                 0x00  /**< Device has a display but no input capability (e.g. no buttons/keyboard). */
+#define DISPLAY_YESNO                                0x01  /**< Device has a display and can accept a Yes/No user confirmation input.    */
+#define KEYBOARD_ONLY                                0x02  /**< Device has a keyboard (or numeric input) but no display.                 */
+#define NOINPUT_NOOUTPUT                             0x03  /**< Device has neither a display nor any input capability.                   */
+#define KEYBOARD_DISPLAY                             0x04  /**< Device has both a keyboard (or numeric input) and a display.             */
 /** @} */
 
 
@@ -67,21 +73,22 @@ typedef uint8_t io_caps_t;
  * @defgroup ble_sec_flag BLE Bonding Flag Definition
  * @{
  * @ingroup ble_sec
- * @brief  Define BLE bonding flags.
+ * @details Define the bonding flag used by @ref ble_cmd_bonding_flag_set to control whether
+ *          the security keys generated during pairing are stored for future reconnection.
  */
 typedef uint8_t bonding_flag_t;
-#define NO_BONDING                                   0x00  /**< NO Bonding.  */
-#define BONDING                                      0x01  /**< Bonding.     */
+#define NO_BONDING                                   0x00  /**< Do not bond; pairing keys are not stored after the link is disconnected. */
+#define BONDING                                      0x01  /**< Bond; pairing keys are stored so the peer can reconnect without re-pairing. */
 /** @} */
 
 
 /**
- * @brief BLE bonding flags parameter.
+ * @brief BLE security request parameter.
  * @ingroup ble_sec
  */
 typedef struct
 {
-    uint8_t   host_id;
+    uint8_t   host_id;                          /**< The link's host ID. */
 } ble_sm_security_request_param_t;
 
 
@@ -91,7 +98,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t   host_id;
+    uint8_t   host_id;                          /**< The link's host ID. */
 } ble_sm_restore_cccd_param_t;
 
 
@@ -101,8 +108,8 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t   host_id;
-    uint32_t  passkey;
+    uint8_t   host_id;                          /**< The link's host ID. */
+    uint32_t  passkey;                          /**< The 6-digit passkey value (000000-999999) entered by the user, in response to a @ref BLE_SM_EVT_STK_GENERATION_METHOD event with @ref PASSKEY_ENTRY method. */
 } ble_sm_passkey_param_t;
 
 /**
@@ -111,8 +118,8 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t   host_id;
-    uint8_t   same_numeric;
+    uint8_t   host_id;                          /**< The link's host ID. */
+    uint8_t   same_numeric;                     /**< User confirmation result for LESC numeric comparison: non-zero (TRUE) if the value shown on both devices matched (accept pairing), 0 (FALSE) if they did not match (reject pairing). */
 } ble_sm_numeric_comp_result_param_t;
 
 /**
@@ -143,7 +150,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t   irk[16];
+    uint8_t   irk[16];                          /**< 128-bit Identity Resolving Key (IRK), used to generate and resolve Resolvable Private Addresses (RPA). */
 } ble_sm_irk_param_t;
 
 
@@ -153,8 +160,8 @@ typedef struct
 */
 typedef struct __attribute__((packed)) ble_evt_sm_stk_gen_method_s
 {
-    uint8_t                   host_id;          /**< Host id. */
-    ble_sm_key_gen_method_t   key_gen_method;   /**< @ref PASSKEY_ENTRY or @ref PASSKEY_DISPLAY . */
+    uint8_t                   host_id;          /**< The link's host ID. */
+    ble_sm_key_gen_method_t   key_gen_method;   /**< STK generation method the local device must perform: @ref PASSKEY_ENTRY or @ref PASSKEY_DISPLAY. */
 } ble_evt_sm_stk_gen_method_t;
 
 
@@ -164,7 +171,7 @@ typedef struct __attribute__((packed)) ble_evt_sm_stk_gen_method_s
 */
 typedef struct __attribute__((packed)) ble_evt_sm_passkey_confirm_param_s
 {
-    uint8_t      host_id;               /**< Host id. */
+    uint8_t      host_id;               /**< The link's host ID; the application should obtain a passkey from the user and submit it via @ref ble_cmd_passkey_set. */
 } ble_evt_sm_passkey_confirm_param_t;
 
 /**
@@ -173,8 +180,8 @@ typedef struct __attribute__((packed)) ble_evt_sm_passkey_confirm_param_s
 */
 typedef struct __attribute__((packed)) ble_evt_sm_numeric_comparison_param_t
 {
-    uint8_t      host_id;               /**< Host id. */
-    uint32_t     comparison_value;      /**< Comparison Value. */
+    uint8_t      host_id;               /**< The link's host ID. */
+    uint32_t     comparison_value;      /**< 6-digit LESC numeric comparison value to display to the user; the application must confirm whether it matches the value displayed on the peer via @ref ble_cmd_numeric_comp_result_set. */
 } ble_evt_sm_numeric_comparison_param_t;
 
 
@@ -184,10 +191,10 @@ typedef struct __attribute__((packed)) ble_evt_sm_numeric_comparison_param_t
 */
 typedef struct __attribute__((packed)) ble_evt_sm_auth_status_s
 {
-    uint8_t      host_id;               /**< Host id. */
-    uint8_t      status;                /**< Status. */
-    uint8_t      lesc: 1;               /**< LESC or legacy pairing. */
-    uint8_t      reserved: 7;           /**< Status. */
+    uint8_t      host_id;               /**< The link's host ID. */
+    uint8_t      status;                /**< Pairing/authentication result: BLE_HCI_ERR_CODE_SUCCESS (0x00) if pairing completed successfully, otherwise an HCI/SMP error code indicating the failure reason. */
+    uint8_t      lesc: 1;               /**< Set to 1 if the pairing used LE Secure Connections (LESC); 0 if legacy pairing was used. */
+    uint8_t      reserved: 7;           /**< Reserved for future use. */
 } ble_evt_sm_auth_status_t;
 
 
@@ -197,12 +204,16 @@ typedef struct __attribute__((packed)) ble_evt_sm_auth_status_s
 */
 typedef struct __attribute__((packed)) ble_evt_sm_irk_resolving_fail_s
 {
-    uint8_t      host_id;               /**< Host id. */
+    uint8_t      host_id;               /**< The link's host ID for which resolving the peer's Resolvable Private Address (RPA) using the stored IRK failed. */
 } ble_evt_sm_irk_resolving_fail_t;
 
 /**
  * @brief BLE IO Capabilities event parameter.
  * @ingroup ble_sec
+ *
+ * @note Reserved for future use: no event code currently reports this member through
+ *       @ref ble_evt_sm_handler; the local IO capability is instead configured via
+ *       @ref ble_cmd_io_capability_set.
 */
 typedef struct __attribute__((packed)) ble_evt_sm_io_cap_s
 {
@@ -213,6 +224,10 @@ typedef struct __attribute__((packed)) ble_evt_sm_io_cap_s
 
 /** @brief BLE Bonding Flags event parameter.
  * @ingroup ble_sec
+ *
+ * @note Reserved for future use: no event code currently reports this member through
+ *       @ref ble_evt_sm_handler; the bonding flag is instead set via
+ *       @ref ble_cmd_bonding_flag_set.
 */
 typedef struct __attribute__((packed)) ble_evt_sm_bonding_flag_s
 {
@@ -249,73 +264,121 @@ typedef struct ble_evt_sm_s
  *    GLOBAL PROTOTYPES
  *************************************************************************************************/
 
-/** BLE send security request.
+/** @brief Send an SMP security request.
+ *
+ *  Sends a Security Request PDU to the peer of the specified link, asking it to initiate
+ *  pairing or re-establish encryption. Typically used by a peripheral that cannot itself
+ *  initiate pairing.
  *
  * @ingroup ble_sec
  *
- * @param host_id : The link's host ID.
+ * @note Returns @ref BLE_ERR_INVALID_HOST_ID if host_id is not a valid host ID, or
+ *       @ref BLE_ERR_INVALID_STATE if the link is not currently connected.
+ *
+ * @param[in] host_id : The link's host ID.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_security_request_set(uint8_t host_id);
 
 
-/** Set BLE pairing passkey value.
+/** @brief Set the BLE pairing passkey value.
+ *
+ *  Submits the passkey (entered by the user) to the stack to continue legacy or LESC
+ *  passkey-entry pairing, in response to a @ref BLE_SM_EVT_STK_GENERATION_METHOD event
+ *  reporting @ref PASSKEY_ENTRY.
  *
  * @ingroup ble_sec
  *
- * @param p_param : a pointer to the passkey parameter.
+ * @note Returns @ref BLE_ERR_INVALID_PARAMETER if p_param is NULL, @ref BLE_ERR_INVALID_HOST_ID
+ *       if the host ID is invalid, @ref BLE_ERR_INVALID_STATE if the link is not connected, or
+ *       @ref BLE_BUSY if the passkey could not be forwarded to the stack.
+ *
+ * @param[in] p_param : a pointer to the passkey parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_passkey_set(ble_sm_passkey_param_t *p_param);
 
 
-/** Set BLE numeric comparison result value.
+/** @brief Set the BLE numeric comparison result value.
+ *
+ *  Submits the user's confirmation of whether the numeric comparison value matched the
+ *  peer's, in response to a @ref BLE_SM_EVT_NUMERIC_COMPARISON event during LESC pairing.
  *
  * @ingroup ble_sec
  *
- * @param p_param : a pointer to the numeric comparison result parameter.
+ * @note Returns @ref BLE_ERR_INVALID_PARAMETER if p_param is NULL, @ref BLE_ERR_INVALID_HOST_ID
+ *       if the host ID is invalid, @ref BLE_ERR_INVALID_STATE if the link is not connected, or
+ *       @ref BLE_BUSY if the result could not be forwarded to the stack.
+ *
+ * @param[in] p_param : a pointer to the numeric comparison result parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_numeric_comp_result_set(ble_sm_numeric_comp_result_param_t *p_param);
 
 
-/** Set BLE IO capabilities.
+/** @brief Set the local BLE IO capabilities.
+ *
+ *  Configures the IO capability used for future pairing procedures, determining the
+ *  association model (Just Works, Passkey Entry, or Numeric Comparison) negotiated with peers.
  *
  * @ingroup ble_sec
  *
- * @param p_param : a pointer to the IO capability parameter.
+ * @note Must be called while advertising, scanning, and initiating are all idle and there are
+ *       no active connections (e.g. during initialization), otherwise @ref BLE_ERR_INVALID_STATE
+ *       is returned. Returns @ref BLE_ERR_INVALID_PARAMETER if io_caps_param is not one of the
+ *       @ref ble_sec_io_caps "defined IO capability values".
+ *
+ * @param[in] p_param : a pointer to the IO capability parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_io_capability_set(ble_sm_io_cap_param_t *p_param);
 
 
-/** Set BLE bonding flags.
+/** @brief Set the BLE bonding flag.
+ *
+ *  Configures whether keys generated by future pairing procedures are bonded (stored for
+ *  reconnection) or not.
  *
  * @ingroup ble_sec
  *
- * @param p_param : a pointer to the bonding parameter.
+ * @note Must be called while advertising, scanning, and initiating are all idle and there are
+ *       no active connections (e.g. during initialization), otherwise @ref BLE_ERR_INVALID_STATE
+ *       is returned. Returns @ref BLE_ERR_INVALID_PARAMETER if bonding_flag is neither
+ *       @ref NO_BONDING nor @ref BONDING.
+ *
+ * @param[in] p_param : a pointer to the bonding parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_bonding_flag_set(ble_sm_bonding_flag_param_t *p_param);
 
 
-/** Restore BLE bonding CCCD.
+/** @brief Restore the BLE bonding CCCD.
+ *
+ *  Restores the Client Characteristic Configuration Descriptor (CCCD/notification and
+ *  indication subscription) state saved from a previous bond for a reconnected, previously
+ *  bonded peer. Typically called after a successful @ref BLE_SM_EVT_AUTH_STATUS event.
  *
  * @ingroup ble_sec
  *
- * @param host_id : The link's host ID.
+ * @note Returns @ref BLE_ERR_INVALID_HOST_ID if host_id is not a valid host ID, or
+ *       @ref BLE_ERR_INVALID_STATE if the link is not currently connected.
+ *
+ * @param[in] host_id : The link's host ID.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_cccd_restore(uint8_t host_id);
 
 
-/** Initialization Bonding Space command.
+/** @brief Initialize the bonding information storage space.
+ *
+ *  Initializes the storage space used to hold bonded peers' security keys (e.g. LTK, IRK) and
+ *  CCCD state.
  *
  * @ingroup ble_sec
  *
@@ -324,9 +387,18 @@ ble_err_t ble_cmd_cccd_restore(uint8_t host_id);
 ble_err_t ble_cmd_bonding_space_init(void);
 
 
-/** Set BLE Identity Resolving Key command.
+/** @brief Write the BLE Identity Resolving Key.
+ *
+ *  Writes the Identity Resolving Key (IRK) used by the BLE security module to generate and
+ *  resolve Resolvable Private Addresses (RPA).
  *
  * @ingroup ble_sec
+ *
+ * @note Must be called while advertising, scanning, and initiating are all idle and there are
+ *       no active connections (e.g. during initialization), otherwise @ref BLE_ERR_INVALID_STATE
+ *       is returned.
+ *
+ * @param[in] p_param : a pointer to the identity resolving key parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -334,7 +406,10 @@ ble_err_t ble_cmd_write_identity_resolving_key(ble_sm_irk_param_t *p_param);
 
 
 
-/** Initialization LE secure connections command.
+/** @brief Initialize LE Secure Connections.
+ *
+ *  Initializes LE Secure Connections (LESC) pairing support. Typically called once during
+ *  BLE stack initialization, before any pairing procedure takes place.
  *
  * @ingroup ble_sec
  *
@@ -343,11 +418,15 @@ ble_err_t ble_cmd_write_identity_resolving_key(ble_sm_irk_param_t *p_param);
 ble_err_t ble_cmd_lesc_init(void);
 
 
-/** BLE security related events handler.
+/** @brief BLE security manager event handler.
+ *
+ *  Dispatches security manager (SM) events - STK generation method, passkey confirmation,
+ *  numeric comparison, authentication status, and IRK resolving failure - to the
+ *  application's registered event callback.
  *
  * @ingroup ble_sec
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the @ref ble_evt_param_t event parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

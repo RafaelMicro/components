@@ -30,17 +30,17 @@ extern "C"
 /** 
  * \brief           secp192r1 curve is 192 bytes, 6*uint32_t = 192 
  */
-#define secp192r1_op_num      6             /*!< SECP192R1 key size is 6*sizeof(uint32_t)  \hideinitializer */
+#define secp192r1_op_num      (6)             /*!< SECP192R1 key size is 6*sizeof(uint32_t)  \hideinitializer */
 
 /** 
  * \brief           secp256r1 curve is 256 bytes, 8*uint32_t = 256 
  */
-#define secp256r1_op_num      8             /*!< SECP256R1 key size is 8*sizeof(uint32_t)  \hideinitializer */
+#define secp256r1_op_num      (8)             /*!< SECP256R1 key size is 8*sizeof(uint32_t)  \hideinitializer */
 
 /** 
  * \brief           curve X25519/C25519 is 256 bytes data. 8*uint32_t = 256
  */
-#define C25519_Length         8             /*!< X25519/C25519 key size is 8*sizeof(uint32_t)  \hideinitializer */
+#define C25519_Length         (8)             /*!< X25519/C25519 key size is 8*sizeof(uint32_t)  \hideinitializer */
 
 
 
@@ -89,7 +89,7 @@ uint32_t gfp_ecc_curve_sm2p192_init(void);
 
 #if defined(CONFIG_CRYPTO_SECP256R1_ENABLE)
 
-#define secp256r1_op_num_in_byte        32
+#define secp256r1_op_num_in_byte        (32)
 
 typedef struct {
     uint8_t        x[secp256r1_op_num_in_byte];        /*EC point, x coordinate*/

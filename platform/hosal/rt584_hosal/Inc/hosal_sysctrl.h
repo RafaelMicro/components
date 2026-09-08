@@ -150,9 +150,9 @@ extern "C"
 /**
  * \brief           system control const define
  */
-#define HOSAL_SET_TX_POWER_LEVEL         1
-#define HOSAL_GET_TX_POWER_LEVEL         2
-#define HOSAL_SLOW_CLOCK_CALIBRATION     3
+#define HOSAL_SET_TX_POWER_LEVEL         (1)
+#define HOSAL_GET_TX_POWER_LEVEL         (2)
+#define HOSAL_SLOW_CLOCK_CALIBRATION     (3)
 
 /**
  * \brief           system control const define

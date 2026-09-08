@@ -14,6 +14,8 @@
  * @brief Includes LE Controller commands (OGF = 0x08):
  *        - OCF = 0x000B : LE Set Scan Parameters command
  *        - OCF = 0x000C : LE Set Scan Enable command
+ *        - OCF = 0x0041 : LE Set Extended Scan Parameters command
+ *        - OCF = 0x0042 : LE Set Extended Scan Enable command
  * @}
  */
 

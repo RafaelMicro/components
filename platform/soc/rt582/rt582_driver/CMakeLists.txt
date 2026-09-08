@@ -1,6 +1,5 @@
 sdk_generate_library(rt582_driver)
 sdk_add_include_directories(
-    CMSIS/Core/Include
     Inc
 )
 if(CONFIG_BOOTLOADER)

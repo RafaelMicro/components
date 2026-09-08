@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_control_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Light xyL server and setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -49,11 +49,13 @@ static void mmdl_light_xyl_send_status(uint16_t opcode, uint32_t paramter_size, 
 static void mmdl_light_xyl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model);
 
 
+/** @brief Initialize the Light xyL server model instance on an element. */
 void mmdl_light_xyl_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Light xyL message to the handler matching its opcode. */
 void mmdl_light_xyl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -105,6 +107,7 @@ void mmdl_light_xyl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
     }
 }
 
+/** @brief Handle a state update from an extended child model and propagate/publish the change. */
 void mmdl_light_xyl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t  *p_parent_model;
@@ -154,6 +157,7 @@ void mmdl_light_xyl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_
     } while (0);
 }
 
+/** @brief Apply the Light xyL state recalled from a scene and propagate it to the extended Lightness model. */
 void mmdl_light_xyl_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     light_xyl_state_t       *p_light_xyl_state;
@@ -175,6 +179,7 @@ void mmdl_light_xyl_scene_set(ble_mesh_element_param_t *p_current_element)
 }
 
 
+/** @brief Handle the Light xyL Get message by replying with the current xyL status. */
 static void mmdl_light_xyl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_xyl_send_status(MMDL_LIGHT_XYL_STATUS_OPCODE,
@@ -182,6 +187,7 @@ static void mmdl_light_xyl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
                                p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light xyL Set / Set Unacknowledged message, updating lightness/x/y and optionally replying with status. */
 static void mmdl_light_xyl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_xyl_state_t    *p_light_xyl_state = (light_xyl_state_t *)p_model->p_state_var;
@@ -201,6 +207,7 @@ static void mmdl_light_xyl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_
     }
 }
 
+/** @brief Handle the Light xyL Target Get message by replying with the current target xyL status. */
 static void mmdl_light_xyl_target_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_xyl_send_status(MMDL_LIGHT_XYL_TARGET_GET_OPCODE,
@@ -208,6 +215,7 @@ static void mmdl_light_xyl_target_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
                                p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light xyL Default Get message by replying with the default xyL status. */
 static void mmdl_light_xyl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_ctl_send_status(MMDL_LIGHT_XYL_DEFAULT_GET_OPCODE,
@@ -216,6 +224,7 @@ static void mmdl_light_xyl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
 
 }
 
+/** @brief Handle the Light xyL Default Set / Set Unacknowledged message, updating the default lightness/x/y. */
 static void mmdl_light_xyl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_xyl_state_t               *p_light_xyl_state = (light_xyl_state_t *)p_model->p_state_var;
@@ -233,6 +242,7 @@ static void mmdl_light_xyl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_i
     }
 }
 
+/** @brief Handle the Light xyL Range Get message by replying with the current x/y range status. */
 static void mmdl_light_xyl_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_xyl_send_status(MMDL_LIGHT_XYL_RANGE_STATUS_OPCODE,
@@ -241,6 +251,7 @@ static void mmdl_light_xyl_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
 
 }
 
+/** @brief Handle the Light xyL Range Set / Set Unacknowledged message, updating the x/y range. */
 static void mmdl_light_xyl_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_xyl_state_t          *p_light_xyl_state = (light_xyl_state_t *)p_model->p_state_var;
@@ -259,6 +270,7 @@ static void mmdl_light_xyl_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc
     }
 }
 
+/** @brief Build and send a Light xyL status-family message (Status/Target/Default/Range Status) to the requester. */
 static void mmdl_light_xyl_send_status(uint16_t opcode, uint32_t paramter_size, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_xyl_state_t           *p_light_xyl_state = (light_xyl_state_t *)p_model->p_state_var;
@@ -350,6 +362,7 @@ static void mmdl_light_xyl_send_status(uint16_t opcode, uint32_t paramter_size, 
 
 }
 
+/** @brief Push the current xyL lightness state down to the extended Light Lightness model. */
 static void mmdl_light_xyl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     light_xyl_state_t       *p_light_xyl_state = (light_xyl_state_t *)p_parent_model->p_state_var;
@@ -366,6 +379,7 @@ static void mmdl_light_xyl_update_extend(ble_mesh_element_param_t *p_current_ele
     }
 }
 
+/** @brief Publish the current Light xyL status to the model's configured publish address. */
 void mmdl_light_xyl_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

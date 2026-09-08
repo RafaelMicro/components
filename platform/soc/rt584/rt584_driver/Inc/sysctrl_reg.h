@@ -370,25 +370,25 @@ typedef struct {
 } sysctrl_t;
 
 
-#define MCU_HCLK_SEL_SHFT                   0
+#define MCU_HCLK_SEL_SHFT                   (0)
 #define MCU_HCLK_SEL_MASK                   (3<<MCU_HCLK_SEL_SHFT)
 #define MCU_HCLK_SEL_32M                    (0<<MCU_HCLK_SEL_SHFT)
 #define MCU_HCLK_SEL_PLL                    (1<<MCU_HCLK_SEL_SHFT)
 #define MCU_HCLK_SEL_16M                    (2<<MCU_HCLK_SEL_SHFT)
 #define MCU_HCLK_SEL_RCO1M                  (3<<MCU_HCLK_SEL_SHFT)
 
-#define MCU_PERCLK_SEL_SHFT                 2
+#define MCU_PERCLK_SEL_SHFT                 (2)
 #define MCU_PERCLK_SEL_MASK                 (3<<MCU_PERCLK_SEL_SHFT)
 #define MCU_PERCLK_SEL_32M                  (0<<MCU_PERCLK_SEL_SHFT)
 #define MCU_PERCLK_SEL_16M                  (2<<MCU_PERCLK_SEL_SHFT)
 #define MCU_PERCLK_SEL_RCO1M                (3<<MCU_PERCLK_SEL_SHFT)
 
-#define MCU_BBPLL_ENABLE_SHIFT              15
+#define MCU_BBPLL_ENABLE_SHIFT              (15)
 #define MCU_BBPLL_MASK                      (1<<MCU_BBPLL_ENABLE_SHIFT)
 #define MCU_BBPLL_ENABLE                    (1<<MCU_BBPLL_ENABLE_SHIFT)
 #define MCU_BBPLL_DISABLE                   (0<<MCU_BBPLL_ENABLE_SHIFT)
 
-#define MCU_BBPLL_CLK_SHIFT                 8
+#define MCU_BBPLL_CLK_SHIFT                 (8)
 #define MCU_BBPLL_CLK_MASK                  (7<<MCU_BBPLL_CLK_SHIFT)
 #define MCU_BBPLL_48M                       (0<<MCU_BBPLL_CLK_SHIFT)
 #define MCU_BBPLL_64M                       (1<<MCU_BBPLL_CLK_SHIFT)

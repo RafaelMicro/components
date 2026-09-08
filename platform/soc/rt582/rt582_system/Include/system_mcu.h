@@ -32,8 +32,8 @@ extern "C" {
 /**
  * \brief           PMU mode type definitions.
  */
-#define PMU_LDO_MODE  0
-#define PMU_DCDC_MODE 1
+#define PMU_LDO_MODE  (0)
+#define PMU_DCDC_MODE (1)
 
 #ifndef SET_PMU_MODE
 #define SET_PMU_MODE PMU_DCDC_MODE

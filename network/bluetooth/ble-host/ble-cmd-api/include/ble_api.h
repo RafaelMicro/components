@@ -37,50 +37,53 @@ extern "C" {
 
 
 
-/** @brief BLE api return parameter definition.
+/** @brief BLE API return/error code definitions.
  * @ingroup ble_api
 */
 typedef enum
 {
-    BLE_ERR_L2CAP_DATA_DEST_ID_UNMATCH    = -29,  /** @brief BLE l2cap data destination id is not match. */
-    BLE_ERR_L2CAP_DATA_CHANNEL_NOT_EXIST  = -28,  /** @brief BLE l2cap data channel is not exist. */
-    BLE_ERR_RESOURCE_NOT_ENOUGH           = -27,  /** @brief BLE resource is not enough. */
-    BLE_ERR_HCI_TX_DATA_QUEUE_FULL        = -26,  /** @brief BLE tx data queue full. */
-    BLE_ERR_HCI_TX_CMD_QUEUE_FULL         = -25,  /** @brief BLE tx command queue full. */
-    BLE_ERR_SEQUENTIAL_PROTOCOL_VIOLATION = -24,  /** @brief Detecting a sequential protocol violation. Usually happens in there is an another GATT request already in progress please wait and retry.*/
-    BLE_ERR_DB_PARSING_IN_PROGRESS        = -23,  /** @brief Host peripheral database parsing is still in progress. */
-    BLE_ERR_INVALID_HANDLE                = -22,  /** @brief Invalid BLE handle. */
-    BLE_ERR_INVALID_HOST_ID               = -21,  /** @brief Invalid Host ID */
-    BLE_ERR_CMD_NOT_SUPPORTED             = -20,  /** @brief Command not supported */
-    BLE_ERR_INVALID_PARAMETER             = -19,  /** @brief Invalid parameter. */
-    BLE_ERR_INVALID_STATE                 = -18,  /** @brief Invalid state. */
-    BLE_ERR_TIMER_OP                      = -17,  /** @brief TIMER OP. */
-    BLE_ERR_ALLOC_MEMORY_FAIL             = -16,  /** @brief RECVFROM memory fail. */
-    BLE_ERR_RECVFROM_LEN_NOT_ENOUGH       = -15,  /** @brief RECVFROM length error. */
-    BLE_ERR_RECVFROM_FAIL                 = -14,  /** @brief RECVFROM fail. */
-    BLE_ERR_RECVFROM_NO_DATA              = -13,  /** @brief RECVFROM no data. */
-    BLE_ERR_RECVFROM_POINTER_NULL         = -12,  /** @brief RECVFROM Pointer NULL. */
-    BLE_ERR_SENDTO_FAIL                   = -11,  /** @brief SENDTO fail. */
-    BLE_ERR_SENDTO_POINTER_NULL           = -10,  /** @brief SENDTO Pointer NULL. */
-    BLE_BUSY                              = -9,   /** @brief Busy. */
-    BLE_ERR_WRONG_CONFIG                  = -8,   /** @brief Wrong configuration. */
-    BLE_ERR_SEMAPHORE_MALLOC_FAIL         = -7,   /** @brief Semaphore malloc fail. */
-    BLE_ERR_THREAD_MALLOC_FAIL            = -6,   /** @brief Thread malloc fail. */
-    BLE_ERR_QUEUE_MALLOC_FAIL             = -5,   /** @brief Queue malloc fail. */
-    BLE_ERR_DATA_MALLOC_FAIL              = -4,   /** @brief Data malloc fail. */
-    BLE_ERR_DUPLICATE_INIT                = -3,   /** @brief Duplicate init. */
-    BLE_ERR_NOT_INIT                      = -2,   /** @brief Not initial. */
-    BLE_ERR_UNKNOW_TYPE                   = -1,   /** @brief Unknown type. */
-    BLE_ERR_OK                            = 0,    /** @brief Success. */
+    BLE_ERR_L2CAP_DATA_DEST_ID_UNMATCH    = -29,  /**< BLE L2CAP data destination id does not match. */
+    BLE_ERR_L2CAP_DATA_CHANNEL_NOT_EXIST  = -28,  /**< BLE L2CAP data channel does not exist. */
+    BLE_ERR_RESOURCE_NOT_ENOUGH           = -27,  /**< BLE resource is not enough. */
+    BLE_ERR_HCI_TX_DATA_QUEUE_FULL        = -26,  /**< BLE HCI TX data queue full. */
+    BLE_ERR_HCI_TX_CMD_QUEUE_FULL         = -25,  /**< BLE HCI TX command queue full. */
+    BLE_ERR_SEQUENTIAL_PROTOCOL_VIOLATION = -24,  /**< Detected a sequential protocol violation. Usually happens when another GATT request is already in progress; please wait and retry. */
+    BLE_ERR_DB_PARSING_IN_PROGRESS        = -23,  /**< Host peripheral database parsing is still in progress. */
+    BLE_ERR_INVALID_HANDLE                = -22,  /**< Invalid BLE handle. */
+    BLE_ERR_INVALID_HOST_ID               = -21,  /**< Invalid Host ID. */
+    BLE_ERR_CMD_NOT_SUPPORTED             = -20,  /**< Command not supported. */
+    BLE_ERR_INVALID_PARAMETER             = -19,  /**< Invalid parameter. */
+    BLE_ERR_INVALID_STATE                 = -18,  /**< Invalid state. */
+    BLE_ERR_TIMER_OP                      = -17,  /**< BLE software timer operation (e.g. start/stop) failed. */
+    BLE_ERR_ALLOC_MEMORY_FAIL             = -16,  /**< Memory allocation fail. */
+    BLE_ERR_RECVFROM_LEN_NOT_ENOUGH       = -15,  /**< RECVFROM length error. */
+    BLE_ERR_RECVFROM_FAIL                 = -14,  /**< RECVFROM fail. */
+    BLE_ERR_RECVFROM_NO_DATA              = -13,  /**< RECVFROM no data. */
+    BLE_ERR_RECVFROM_POINTER_NULL         = -12,  /**< RECVFROM Pointer NULL. */
+    BLE_ERR_SENDTO_FAIL                   = -11,  /**< SENDTO fail. */
+    BLE_ERR_SENDTO_POINTER_NULL           = -10,  /**< SENDTO Pointer NULL. */
+    BLE_BUSY                              = -9,   /**< Busy. */
+    BLE_ERR_WRONG_CONFIG                  = -8,   /**< Wrong configuration. */
+    BLE_ERR_SEMAPHORE_MALLOC_FAIL         = -7,   /**< Semaphore malloc fail. */
+    BLE_ERR_THREAD_MALLOC_FAIL            = -6,   /**< Thread malloc fail. */
+    BLE_ERR_QUEUE_MALLOC_FAIL             = -5,   /**< Queue malloc fail. */
+    BLE_ERR_DATA_MALLOC_FAIL              = -4,   /**< Data malloc fail. */
+    BLE_ERR_DUPLICATE_INIT                = -3,   /**< Duplicate init. */
+    BLE_ERR_NOT_INIT                      = -2,   /**< Not initial. */
+    BLE_ERR_UNKNOW_TYPE                   = -1,   /**< Unknown type. */
+    BLE_ERR_OK                            = 0,    /**< Success. */
 } ble_err_t;
 
 
+/** @brief BLE GATT data-send type, used to select the GATT operation performed by @ref ble_svcs_data_send.
+ * @ingroup ble_api
+ */
 typedef enum
 {
     //====================================================================
     //     BLE GATT MAPPING
     //====================================================================
-    TYPE_BLE_GATT_START,  //0
+    TYPE_BLE_GATT_START,  /**< Start marker of the BLE GATT data-send type range (alias of @ref TYPE_BLE_GATT_READ_RSP, value 0). Not a valid data-send type by itself. */
 
     /** @brief BLE GATT Read Response.
      *  @par   none
@@ -150,32 +153,51 @@ typedef enum
     //====================================================================
     //     END
     //====================================================================
-    TYPE_BLE_API_MAX,
+    TYPE_BLE_API_MAX,     /**< End marker / number of valid @ref ble_api_type_t values. Not a valid data-send type. */
 
 } ble_api_type_t;
 
 
+/** @brief BLE host-to-application queue event type.
+ * @details Internal tag used by the BLE host task to classify each message it posts to the
+ *          host-to-application event queue, so it knows which application callback registered
+ *          via @c ble_host_callback_set() (declared in ble_host_cmd.h) the message's parameter
+ *          should be dispatched to.
+ * @note This is a different type from @c ble_app_event_t (also declared in ble_host_cmd.h), which
+ *       is the value passed as the argument of @c ble_host_callback_set() to select which
+ *       callback (general event, service event, or L2CAP data) is being registered. Both
+ *       @ref BLE_APP_RETURN_PARAMETER_EVENT and @ref BLE_APP_GENERAL_EVENT are delivered to the
+ *       callback registered for the general-event category.
+ * @ingroup ble_api
+ */
 typedef enum
 {
-    BLE_APP_RETURN_PARAMETER_EVENT,   /**< Queue type: BLE command request. */
-    BLE_APP_GENERAL_EVENT,            /**< Queue type: BLE event. */
-    BLE_APP_SERVICE_EVENT,            /**< Queue type: BLE service data. */
-    BLE_APP_L2CAP_EVENT,              /**< Queue type: BLE L2CAP data. */
+    BLE_APP_RETURN_PARAMETER_EVENT,   /**< Return (completion) parameter of a previously issued BLE command; delivered to the general-event callback. */
+    BLE_APP_GENERAL_EVENT,            /**< General BLE event (e.g. GAP/HCI asynchronous event); delivered to the general-event callback. */
+    BLE_APP_SERVICE_EVENT,            /**< GATT service (attribute) event/data; delivered to the service-event callback. */
+    BLE_APP_L2CAP_EVENT,              /**< L2CAP connection-oriented channel data; delivered to the L2CAP-event callback. */
 } ble_event_t;
 
 
+/** @brief Generic type-length-value (TLV) container used to carry an event's or request's parameter data
+ *         (for example, through an application message queue).
+ * @ingroup ble_api
+ */
 typedef struct
 {
-    uint16_t    type;       /**< Payload Identifier : defined by each module */
-    uint16_t    length;     /**< Payload Length : the length of the payload data */
-    uint8_t     value[];    /**< Payload Data */
+    uint16_t    type;       /**< Payload identifier: defined by each module. */
+    uint16_t    length;     /**< Payload length: the length of the payload data, in bytes. */
+    uint8_t     value[];    /**< Payload data. */
 } ble_tlv_t;
 
 
+/** @brief BLE host FreeRTOS task priority configuration, passed to @ref ble_host_stack_init.
+ * @ingroup ble_api
+ */
 typedef struct
 {
-    uint8_t     hci_tx_level;       /* Bluetooth LE task PRIORITY : HCI TX level */
-    uint8_t     ble_host_level;     /* Bluetooth LE task PRIORITY : host level */
+    uint8_t     hci_tx_level;       /**< Bluetooth LE task priority: HCI TX task level. */
+    uint8_t     ble_host_level;     /**< Bluetooth LE task priority: host task level. */
 } ble_task_priority_t;
 
 
@@ -190,7 +212,7 @@ typedef struct
  *
  * @ingroup ble_api
  *
- * @param[in] pt_cfg : a pointer to the event indication callback function.
+ * @param[in] p_priority : a pointer to the task priority configuration.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

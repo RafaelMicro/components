@@ -841,6 +841,7 @@ enum mmdlSchedulerRegisterActionValues
     MMDL_SCHEDULER_ACTION_NONE         = 0x0F, /*!< No action */
 };
 
+/*! \brief Address type classification used to distinguish unicast/virtual/group destination addresses */
 enum mmdlAddressTypeValues
 {
     /** Invalid address. */
@@ -854,6 +855,7 @@ enum mmdlAddressTypeValues
 } ;
 
 
+/*! \brief Generic width-agnostic scalar value passed to model event/callback handlers */
 typedef union
 {
     uint32_t    u32;
@@ -864,6 +866,7 @@ typedef union
 
 
 
+/*! \brief Generic Default Transition Time state/status payload */
 typedef struct gen_default_trans_time_status_s
 {
     uint8_t        transition_time;
@@ -885,6 +888,7 @@ typedef union model_status_s
 } model_status_t;
 #endif
 
+/*! \brief Per-model publication state: destination/key, publish period and retransmit config, plus internal timer bookkeeping */
 typedef struct PUBLICATION_INFO
 {
     uint16_t address;
@@ -929,6 +933,7 @@ typedef struct PUBLICATION_INFO
 } publication_info_t;
 
 
+/*! \brief Runtime instance data for a single model within an element (state, publish/subscribe/bind config, callbacks) */
 typedef struct ble_mesh_model_param_s
 {
     uint32_t                model_id;
@@ -948,6 +953,7 @@ typedef struct ble_mesh_model_param_s
 
 } ble_mesh_model_param_t;
 
+/*! \brief Runtime instance data for a mesh element: its list of models, element address and TX transaction ID */
 typedef struct ble_element_param_s
 {
     ble_mesh_model_param_t **p_model;
@@ -957,6 +963,7 @@ typedef struct ble_element_param_s
 } ble_mesh_element_param_t;
 
 
+/*! \brief Callback signature used to notify upper layers/applications of a model event on a given element/model */
 typedef void (*ex_call_back)(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, general_parameter_t p);
 
 

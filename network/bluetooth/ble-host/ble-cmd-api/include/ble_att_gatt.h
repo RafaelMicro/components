@@ -65,7 +65,7 @@ extern "C" {
  * @ingroup ble_att_gatt
  * @details  BLE attribute data bond option definition for "db_permission_format" in @ref ble_att_param_t.
  */
-#define ATT_VALUE_BOND_DISABLE                                          0x00  /**< The attribute value will be bond when writing. */
+#define ATT_VALUE_BOND_DISABLE                                          0x00  /**< The attribute value will not be bonded when writing. */
 #define ATT_VALUE_BOND_ENABLE                                           0x02  /**< The attribute value will be bond when writing. */
 /** @} */
 
@@ -74,7 +74,7 @@ extern "C" {
  * @defgroup ble_att_permission BLE Attribute Permission Definition
  * @{
  * @ingroup ble_att_gatt
- * @details  BLE attribute permission definition for "property_value" in @ref ble_att_param_t.
+ * @details  BLE attribute permission definition for "db_permission_format" in @ref ble_att_param_t.
  */
 #define ATT_PERMISSION_ENC_READ                                         0x04  /**< The attribute is encryption required for the remote read access. */
 #define ATT_PERMISSION_ENC_WRITE                                        0x08  /**< The attribute is encryption required for the remote write access. */
@@ -122,7 +122,7 @@ extern "C" {
 #define GATT_CHARACTERISTIC_FORMAT_UINT48                               0x09  /**< Unsigned 48-bit integer. */
 #define GATT_CHARACTERISTIC_FORMAT_UINT64                               0x0A  /**< Unsigned 64-bit integer. */
 #define GATT_CHARACTERISTIC_FORMAT_UINT128                              0x0B  /**< Unsigned 128-bit integer. */
-#define GATT_CHARACTERISTIC_FORMAT_SINT8                                0x0C  /**< Signed 2-bit integer. */
+#define GATT_CHARACTERISTIC_FORMAT_SINT8                                0x0C  /**< Signed 8-bit integer. */
 #define GATT_CHARACTERISTIC_FORMAT_SINT12                               0x0D  /**< Signed 12-bit integer. */
 #define GATT_CHARACTERISTIC_FORMAT_SINT16                               0x0E  /**< Signed 16-bit integer. */
 #define GATT_CHARACTERISTIC_FORMAT_SINT24                               0x0F  /**< Signed 24-bit integer. */
@@ -220,7 +220,7 @@ typedef uint8_t ble_att_error_code_t;
 #define ERR_CODE_ATT_UNLIKELY_ERROR                                     0x0E  /**< Unlikely error. */
 #define ERR_CODE_ATT_INSUFFICIENT_ENCRYPTION                            0x0F  /**< Encrypted link required. */
 #define ERR_CODE_ATT_UNSUPPORTED_GROUP_TYPE                             0x10  /**< Attribute type is not a supported grouping attribute. */
-#define ERR_CODE_ATT_INSUFFICIENT_RESOURCES                             0x11  /**< Encrypted link required. */
+#define ERR_CODE_ATT_INSUFFICIENT_RESOURCES                             0x11  /**< Insufficient resources. */
 #define ERR_CODE_ATT_DATABASE_OUT_OF_SYNC                               0x12  /**< The server requests the client to rediscover the database. */
 #define ERR_CODE_ATT_VALUE_NOT_ALLOWED                                  0x13  /**< The attribute parameter value was not allowed. */
 #define ERR_CODE_ATT_RESERVED                                           0x14  /**< Reserved for future use. */
@@ -247,9 +247,8 @@ typedef uint8_t ble_gatt_role_t;
 /**
  * @defgroup ble_att_cccd BLE GATT Client Characteristic Configuration Value Definition
  * @{
- * @details BLE GATT client characteristic configuration value definition.
  * @ingroup ble_att_gatt
- * @{
+ * @details BLE GATT client characteristic configuration value definition.
  */
 typedef uint16_t ble_gatt_cccd_val_t;
 #define BLEGATT_CCCD_NONE                                               0x0000  /**< Disabled notification/ indication.  */
@@ -257,20 +256,17 @@ typedef uint16_t ble_gatt_cccd_val_t;
 #define BLEGATT_CCCD_INDICATION                                         0x0002  /**< The Characteristic shall be indicated.  */
 #define BLEGATT_CCCD_NOTIFY_INDICATE                                    0x0003  /**< The Characteristic shall be both notified and indicated. */
 /** @} */
-/** @} */
 
 
 /**
  * @defgroup ble_att_write_type BLE GATT Characteristic Value Write Definition
  * @{
- * @details There are five sub-procedures that can be used to write a Characteristic Value.
  * @ingroup ble_att_gatt
- * @{
+ * @details There are five sub-procedures that can be used to write a Characteristic Value.
  */
 typedef uint8_t ble_gatt_write_t;
 #define BLEGATT_WRITE                                                   0x00  /**< GATT write (Write request).  */
 #define BLEGATT_WRITE_WITHOUT_RSP                                       0x01  /**< GATT write without response (Write command). */
-/** @} */
 /** @} */
 
 
@@ -283,8 +279,8 @@ typedef struct ble_evt_att_param_s
     uint8_t         gatt_role;                    /**< @ref ble_att_gatt_role "ble_gatt_role_t".*/
     uint16_t        cb_index;                     /**< Callback index.*/
     uint16_t        handle_num;                   /**< Characteristic value handle.*/
-    uint8_t         opcode;                       /**< Event opcode @ref ble_att_opcode .*/
-    uint8_t         event;                        /**< User defined event identification .*/
+    uint8_t         opcode;                       /**< The ATT opcode of the request/response/command that generated this event. @ref ble_att_opcode "ble_att_opcode_t". */
+    uint8_t         event;                        /**< Reserved for future use (currently always set to 0). */
     uint16_t        length;                       /**< The length of BLE attribute event data.*/
     uint8_t         data[];                       /**< BLE attribute event data.*/
 } ble_evt_att_param_t;
@@ -296,7 +292,7 @@ typedef struct ble_evt_att_param_s
 typedef struct ble_att_handle_param_s
 {
     uint16_t        handle_num;                     /**< Attribute handle number.*/
-    uint8_t         property_value;                 /**< characteristic property value.*/
+    uint8_t         property_value;                 /**< Characteristic property value.*/
     union
     {
         uint8_t     cfg_client_charc;               /**< Client characteristic configuration descriptor value.*/
@@ -334,8 +330,8 @@ typedef struct ble_att_param_s
     void            *p_uuid_value;                                /**< Attribute Value shall be the 16-bit Bluetooth UUID or 128-bit UUID for the service/ characteristic, known as the service/ characteristic UUID.*/
     uint16_t        att_len;                                      /**< The length of attribute value.*/
     uint8_t         property_value;                               /**< Characteristic properties.*/
-    uint8_t         db_permission_format;                         /**< UUID format and characteristic permission.*/
-    void            (*att_handler)(ble_evt_att_param_t *p_param); /**< Register callback function. */
+    uint8_t         db_permission_format;                         /**< UUID format, value bonding option, and remote access permission bits.*/
+    void            (*att_handler)(ble_evt_att_param_t *p_param); /**< Callback function invoked with the ATT/GATT event parameters whenever an event targets this attribute. */
 } ble_att_param_t;
 
 
@@ -374,7 +370,7 @@ typedef struct
 typedef struct
 {
     uint8_t         host_id;                                /**< Host id.*/
-    uint16_t        mtu;                                    /**< The maximum size of any packet sent between a client and a server.. @ref BLE_GATT_ATT_MTU_MIN to @ref BLE_GATT_ATT_MTU_MAX */
+    uint16_t        mtu;                                    /**< The maximum size of any packet sent between a client and a server. @ref BLE_GATT_ATT_MTU_MIN to @ref BLE_GATT_ATT_MTU_MAX */
 } ble_gatt_mtu_param_t;
 
 
@@ -419,8 +415,8 @@ typedef struct
 {
     uint8_t                 host_id;                        /**< Host id.*/
     ble_gatt_role_t         gatt_role;                      /**< @ref ble_att_gatt_role "ble_gatt_role_t". */
-    ble_att_param_t         *p_element;                     /**< A pinter to the service declaration element. */
-    void                    *p_handle_num_addr;             /**< A pinter to the service handle value. */
+    ble_att_param_t         *p_element;                     /**< A pointer to the service declaration element whose attribute handle(s) are being queried. */
+    void                    *p_handle_num_addr;             /**< A pointer to the buffer that receives the resolved attribute handle value(s). */
 } ble_gatt_handle_table_param_t;
 
 
@@ -474,7 +470,7 @@ typedef struct __attribute__((packed)) ble_evt_att_db_parse_complete_s
 typedef struct __attribute__((packed)) ble_evt_att_handle_table_complete_s
 {
     uint8_t                 host_id;                        /**< Host id. */
-    ble_att_param_t         *p_element;                     /**< A pinter to the service declaration element. */
+    ble_att_param_t         *p_element;                     /**< A pointer to the service declaration element that was passed to @ref ble_cmd_gatt_att_handle_mapping_get. */
 } ble_evt_att_handle_table_complete_t;
 
 
@@ -484,21 +480,11 @@ typedef struct __attribute__((packed)) ble_evt_att_handle_table_complete_s
 */
 typedef struct __attribute__((packed)) ble_evt_data_length_change_s
 {
-    /**< Host id. */
-    uint8_t                 host_id;
-
-    /** Preferred maximum number of payload octets that the Controller for reception in a single Link Layer packet on this connection.*/
-    uint16_t                max_tx_octets;
-
-    /** The maximum time that the local Controller will take to send a Link Layer packet on this connection. */
-    uint16_t                max_tx_time;
-
-    /** Preferred maximum number of payload octets that the Controller for transmission in a single Link Layer packet on this connection.*/
-    uint16_t                max_rx_octets;
-
-    /** The maximum time that the local Controller expects to take to receive a Link Layer packet on this connection. */
-    uint16_t                max_rx_time;
-
+    uint8_t                 host_id;                        /**< Host id. */
+    uint16_t                max_tx_octets;                  /**< The maximum number of payload octets that the local Controller will send in a single Link Layer packet on this connection. */
+    uint16_t                max_tx_time;                    /**< The maximum time that the local Controller will take to send a Link Layer packet on this connection. */
+    uint16_t                max_rx_octets;                  /**< The maximum number of payload octets that the local Controller expects to receive in a single Link Layer packet on this connection. */
+    uint16_t                max_rx_time;                    /**< The maximum time that the local Controller expects to take to receive a Link Layer packet on this connection. */
 } ble_evt_data_length_change_t;
 
 
@@ -610,8 +596,8 @@ ble_err_t ble_cmd_data_len_update(uint8_t host_id, uint16_t tx_octets);
  *
  * @ingroup ble_att_gatt
  *
- * @param[in] host_id : the link's host id.
- * @param[in] p_param : the pointer to p_param.
+ * @param[in]  host_id : the link's host id.
+ * @param[out] mtu     : a pointer to the retrieved MTU size.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -774,7 +760,10 @@ ble_err_t ble_cmd_gatt_read_blob_req(ble_gatt_read_blob_req_param_t *p_param);
  *
  * @ingroup ble_att_gatt
  *
- * @param[out] p_param : a point to handle mapping parameter.
+ * @par BLE Event
+ * Wait for @ref BLE_ATT_GATT_EVT_GET_ATT_HANDLES_TABLE_COMPLETE event for the completion notification. \n
+ *
+ * @param[in,out] p_param : a pointer to the handle mapping parameter. host_id, gatt_role, and p_element are inputs identifying the service to query; p_handle_num_addr is the output buffer that receives the resolved attribute handle value(s).
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

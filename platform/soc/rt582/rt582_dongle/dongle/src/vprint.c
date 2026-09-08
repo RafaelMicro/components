@@ -185,7 +185,7 @@ format_int(char *q, size_t n, uintmax_t val, unsigned int flags,
 #define UPPERCASE   (1<<6)	/* 'ABCDEF' */
 
 #include <math.h>
-#define CVTBUFSIZE 80
+#define CVTBUFSIZE (80)
 
 extern char *cvt(double arg, int ndigits, int *decpt, int *sign, char *buf, int eflag);
 extern char *ecvtbuf(double arg, int ndigits, int *decpt, int *sign, char *buf);

@@ -209,16 +209,16 @@ extern "C" {
 #define MP_CNT_TX_POWER_TRIM_3_RSSI_TRIM_2                                     \
     (sizeof(mp_tx_power_trim_3_rssi_trim_2_t))
 
-#define OTP_DCDC_OFFSET      0x08
-#define OTP_LLDO_OFFSET      0x0C
-#define OTP_IOLDO_OFFSET     0x10
-#define OTP_SLDO_OFFSET      0x14
-#define OTP_SIOLDO_OFFSET    0x18
-#define OTP_VBATADC_OFFSET   0x1C
-#define OTP_AIOADC_OFFSET    0x20
-#define OTP_VCMADC_OFFSET    0x24
-#define OTP_TEMPADC_OFFSET   0x28
-#define OTP_POWERFAIL_OFFSET 0x2C
+#define OTP_DCDC_OFFSET      (0x08)
+#define OTP_LLDO_OFFSET      (0x0C)
+#define OTP_IOLDO_OFFSET     (0x10)
+#define OTP_SLDO_OFFSET      (0x14)
+#define OTP_SIOLDO_OFFSET    (0x18)
+#define OTP_VBATADC_OFFSET   (0x1C)
+#define OTP_AIOADC_OFFSET    (0x20)
+#define OTP_VCMADC_OFFSET    (0x24)
+#define OTP_TEMPADC_OFFSET   (0x28)
+#define OTP_POWERFAIL_OFFSET (0x2C)
 
 /**
  * \brief           Mp sector valid check value

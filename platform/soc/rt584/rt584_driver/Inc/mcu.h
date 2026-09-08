@@ -131,14 +131,14 @@ typedef enum IRQn_Type
 #endif
 
 
-#define __CM33_REV                0x0001U       /*!< Core revision r0p1 */
-#define __MPU_PRESENT                  1U       /*!< Defines if an MPU is present or not */
-#define __NVIC_PRIO_BITS               3U       /*!< Number of priority bits implemented in the NVIC */
-#define __Vendor_SysTickConfig         0U       /*!< Vendor specific implementation of SysTickConfig is defined */
-#define __FPU_PRESENT                  1U       /*!< Defines if an FPU is present or not */
-#define __DSP_PRESENT                  1U       /*!< Defines if Armv8-M Mainline core supports DSP instructions */
-#define __SAUREGION_PRESENT            1U       /*!< Defines if an SAU is present or not */
-#define __VTOR_PRESENT                 1U       /*!< VTOR present */
+#define __CM33_REV                (0x0001U)       /*!< Core revision r0p1 */
+#define __MPU_PRESENT                  (1U)       /*!< Defines if an MPU is present or not */
+#define __NVIC_PRIO_BITS               (3U)       /*!< Number of priority bits implemented in the NVIC */
+#define __Vendor_SysTickConfig         (0U)       /*!< Vendor specific implementation of SysTickConfig is defined */
+#define __FPU_PRESENT                  (1U)       /*!< Defines if an FPU is present or not */
+#define __DSP_PRESENT                  (1U)       /*!< Defines if Armv8-M Mainline core supports DSP instructions */
+#define __SAUREGION_PRESENT            (1U)       /*!< Defines if an SAU is present or not */
+#define __VTOR_PRESENT                 (1U)       /*!< VTOR present */
 
 #include "core_cm33.h"                          /*!< Core Peripheral Access Layer */
 #include "system_mcu.h"

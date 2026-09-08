@@ -32,20 +32,20 @@ extern "C" {
 /**
  * \brief           Timer mode definitions.
  */
-#define TIMER_FREERUN_MODE  0
-#define TIMER_PERIODIC_MODE 1
+#define TIMER_FREERUN_MODE  (0)
+#define TIMER_PERIODIC_MODE (1)
 
 /**
  * \brief           Timer prescale definitions.
  */
-#define TIMER_PRESCALE_1    0
-#define TIMER_PRESCALE_2    3
-#define TIMER_PRESCALE_8    4
-#define TIMER_PRESCALE_16   1
-#define TIMER_PRESCALE_32   5
-#define TIMER_PRESCALE_128  6
-#define TIMER_PRESCALE_256  2
-#define TIMER_PRESCALE_1024 7
+#define TIMER_PRESCALE_1    (0)
+#define TIMER_PRESCALE_2    (3)
+#define TIMER_PRESCALE_8    (4)
+#define TIMER_PRESCALE_16   (1)
+#define TIMER_PRESCALE_32   (5)
+#define TIMER_PRESCALE_128  (6)
+#define TIMER_PRESCALE_256  (2)
+#define TIMER_PRESCALE_1024 (7)
 
 /**
  * \brief           TIMER interrupt service routine callback for user application.

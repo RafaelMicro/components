@@ -34,19 +34,19 @@ extern "C"
  * @{
  */
 
-#define CTR_DRBG_BLOCKSIZE          16      /*!< Block size used by the cipher */
+#define CTR_DRBG_BLOCKSIZE          (16)      /*!< Block size used by the cipher */
 
 #ifndef  CTR_DRBG_USE_256_BIT_KEY
 
-#define CTR_DRBG_KEYSIZE            16      /*!< Key size used by the cipher  */
-#define CTR_DRBG_ENTROPY_LEN        32      /*!< Amount of entropy used per seed by default */
-#define CTR_DRBG_KEYSIZE_BIT        128
+#define CTR_DRBG_KEYSIZE            (16)      /*!< Key size used by the cipher  */
+#define CTR_DRBG_ENTROPY_LEN        (32)      /*!< Amount of entropy used per seed by default */
+#define CTR_DRBG_KEYSIZE_BIT        (128)
 
 #else
 
-#define CTR_DRBG_KEYSIZE            32      /*!< Key size used by the cipher  */
-#define CTR_DRBG_ENTROPY_LEN        48      /*!< Amount of entropy used per seed by default */
-#define CTR_DRBG_KEYSIZE_BIT        256
+#define CTR_DRBG_KEYSIZE            (32)      /*!< Key size used by the cipher  */
+#define CTR_DRBG_ENTROPY_LEN        (48)      /*!< Amount of entropy used per seed by default */
+#define CTR_DRBG_KEYSIZE_BIT        (256)
 
 #endif
 
@@ -54,7 +54,7 @@ extern "C"
 #define CTR_DRBG_SEEDLEN            ( CTR_DRBG_KEYSIZE + CTR_DRBG_BLOCKSIZE )     /*!< The seed length (counter + AES key)   */
 
 
-#define CTR_DRBG_RESEED_INTERVAL    10000   /*!< Interval before reseed is performed by default */
+#define CTR_DRBG_RESEED_INTERVAL    (10000)   /*!< Interval before reseed is performed by default */
 
 
 /**
@@ -63,12 +63,12 @@ extern "C"
  *                  In mcu, it can NOT use a "large" number setting like PC-based system.
  *                  In fact, in real usage, the following setting is small number, too.
  */
-#define CTR_DRBG_MAX_INPUT          64      /*!< Maximum number of additional input bytes */
-#define CTR_DRBG_MAX_REQUEST        64      /*!< Maximum number of requested bytes per call */
-#define CTR_DRBG_MAX_SEED_INPUT     128     /*!< Maximum size of (re)seed buffer */
+#define CTR_DRBG_MAX_INPUT          (64)      /*!< Maximum number of additional input bytes */
+#define CTR_DRBG_MAX_REQUEST        (64)      /*!< Maximum number of requested bytes per call */
+#define CTR_DRBG_MAX_SEED_INPUT     (128)     /*!< Maximum size of (re)seed buffer */
 
-#define CTR_DRBG_PR_OFF             0       /*!< No prediction resistance       */
-#define CTR_DRBG_PR_ON              1       /*!< Prediction resistance enabled  */
+#define CTR_DRBG_PR_OFF             (0)       /*!< No prediction resistance       */
+#define CTR_DRBG_PR_ON              (1)       /*!< Prediction resistance enabled  */
 
 
 /**

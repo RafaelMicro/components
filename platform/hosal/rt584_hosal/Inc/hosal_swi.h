@@ -36,9 +36,9 @@ extern "C" {
 /**
  * \brief           software iocontrol command const define
  */
-#define  HOSAL_CONFIG_SWI_ID        1
-#define  HOSAL_SET_SWI_DATA         2
-#define  HOSAL_GET_SWI_DATA         3
+#define  HOSAL_CONFIG_SWI_ID        (1)
+#define  HOSAL_SET_SWI_DATA         (2)
+#define  HOSAL_GET_SWI_DATA         (3)
 
 /**
  * \brief           software interrupt typedef callback function

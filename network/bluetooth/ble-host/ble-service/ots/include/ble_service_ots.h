@@ -193,49 +193,65 @@ extern const ble_att_param_t att_ots_object_changed_client_charc_configuration; 
 #define BLESERVICE_OTS_OBJECT_CHANGED_CCCD_WRITE_RSP_EVENT                    0x32     /**< OTS characteristic OBJECT_CHANGED cccd write response event.*/
 /** @} */
 
+/** OACP Opcode Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef uint8_t oacp_opcode_t;
-#define OACP_OPCODE_CREATE             0x01
-#define OACP_OPCODE_DELETE             0x02
-#define OACP_OPCODE_CALCULATE_CHECKSUM 0x03
-#define OACP_OPCODE_EXECUTE            0x04
-#define OACP_OPCODE_READ               0x05
-#define OACP_OPCODE_WRITE              0x06
-#define OACP_OPCODE_ABORT              0x07
-#define OACP_OPCODE_RESPONSE           0x60
+#define OACP_OPCODE_CREATE             0x01     /**< OACP opcode: Create. */
+#define OACP_OPCODE_DELETE             0x02     /**< OACP opcode: Delete. */
+#define OACP_OPCODE_CALCULATE_CHECKSUM 0x03     /**< OACP opcode: Calculate Checksum. */
+#define OACP_OPCODE_EXECUTE            0x04     /**< OACP opcode: Execute. */
+#define OACP_OPCODE_READ               0x05     /**< OACP opcode: Read. */
+#define OACP_OPCODE_WRITE              0x06     /**< OACP opcode: Write. */
+#define OACP_OPCODE_ABORT              0x07     /**< OACP opcode: Abort. */
+#define OACP_OPCODE_RESPONSE           0x60     /**< OACP opcode: Response. */
 
+/** OACP Result Code Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef uint8_t oacp_result_code_t;
-#define OACP_RESULT_CODE_SUCCESS                  0x01
-#define OACP_RESULT_CODE_OPCODE_NOT_SUPPORT       0x02
-#define OACP_RESULT_CODE_INVALID_PARAMETER        0x03
-#define OACP_RESULT_CODE_INSUFFICIENT_RESOURCES   0x04
-#define OACP_RESULT_CODE_INVALID_OBJECT           0x05
-#define OACP_RESULT_CODE_CHANNEL_UNAVAILABLE      0x06
-#define OACP_RESULT_CODE_UNSUPPORTED_TYPE         0x07
-#define OACP_RESULT_CODE_PROCEDURE_NOT_PERMITTED  0x08
-#define OACP_RESULT_CODE_OBJECT_LOCKED            0x09
-#define OACP_RESULT_CODE_OPERATION_FAILED         0x0A
+#define OACP_RESULT_CODE_SUCCESS                  0x01     /**< OACP result code: Success. */
+#define OACP_RESULT_CODE_OPCODE_NOT_SUPPORT       0x02     /**< OACP result code: Op Code Not Supported. */
+#define OACP_RESULT_CODE_INVALID_PARAMETER        0x03     /**< OACP result code: Invalid Parameter. */
+#define OACP_RESULT_CODE_INSUFFICIENT_RESOURCES   0x04     /**< OACP result code: Insufficient Resources. */
+#define OACP_RESULT_CODE_INVALID_OBJECT           0x05     /**< OACP result code: Invalid Object. */
+#define OACP_RESULT_CODE_CHANNEL_UNAVAILABLE      0x06     /**< OACP result code: Channel Unavailable. */
+#define OACP_RESULT_CODE_UNSUPPORTED_TYPE         0x07     /**< OACP result code: Unsupported Type. */
+#define OACP_RESULT_CODE_PROCEDURE_NOT_PERMITTED  0x08     /**< OACP result code: Procedure Not Permitted. */
+#define OACP_RESULT_CODE_OBJECT_LOCKED            0x09     /**< OACP result code: Object Locked. */
+#define OACP_RESULT_CODE_OPERATION_FAILED         0x0A     /**< OACP result code: Operation Failed. */
 
+/** OLCP Opcode Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef uint8_t olcp_opcode_t;
-#define OLCP_OPCODE_FIRST              0x01
-#define OLCP_OPCODE_LAST               0x02
-#define OLCP_OPCODE_PREVIOUS           0x03
-#define OLCP_OPCODE_NEXT               0x04
-#define OLCP_OPCODE_GO_TO              0x05
-#define OLCP_OPCODE_ORDER              0x06
-#define OLCP_OPCODE_REQ_NUM_OF_OBJECTS 0x07
-#define OLCP_OPCODE_CLEAR_MARKING      0x08
-#define OLCP_OPCODE_RESPONSE           0x70
+#define OLCP_OPCODE_FIRST              0x01     /**< OLCP opcode: First. */
+#define OLCP_OPCODE_LAST               0x02     /**< OLCP opcode: Last. */
+#define OLCP_OPCODE_PREVIOUS           0x03     /**< OLCP opcode: Previous. */
+#define OLCP_OPCODE_NEXT               0x04     /**< OLCP opcode: Next. */
+#define OLCP_OPCODE_GO_TO              0x05     /**< OLCP opcode: Go To. */
+#define OLCP_OPCODE_ORDER              0x06     /**< OLCP opcode: Order. */
+#define OLCP_OPCODE_REQ_NUM_OF_OBJECTS 0x07     /**< OLCP opcode: Request Number of Objects. */
+#define OLCP_OPCODE_CLEAR_MARKING      0x08     /**< OLCP opcode: Clear Marking. */
+#define OLCP_OPCODE_RESPONSE           0x70     /**< OLCP opcode: Response. */
 
+/** OLCP Result Code Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef uint8_t olcp_result_code_t;
-#define OLCP_RESULT_CODE_SUCCESS              0x01
-#define OLCP_RESULT_CODE_OPCODE_NOT_SUPPORT   0x02
-#define OLCP_RESULT_CODE_INVALID_PARAMETER    0x03
-#define OLCP_RESULT_CODE_OPERATION_FAILED     0x04
-#define OLCP_RESULT_CODE_OUT_OF_BOUNDS        0x05
-#define OLCP_RESULT_CODE_TOO_MANY_OBJECTS     0x06
-#define OLCP_RESULT_CODE_NO_OBJECT            0x07
-#define OLCP_RESULT_CODE_OBJECT_ID_NOT_FOUND  0x08
+#define OLCP_RESULT_CODE_SUCCESS              0x01     /**< OLCP result code: Success. */
+#define OLCP_RESULT_CODE_OPCODE_NOT_SUPPORT   0x02     /**< OLCP result code: Op Code Not Supported. */
+#define OLCP_RESULT_CODE_INVALID_PARAMETER    0x03     /**< OLCP result code: Invalid Parameter. */
+#define OLCP_RESULT_CODE_OPERATION_FAILED     0x04     /**< OLCP result code: Operation Failed. */
+#define OLCP_RESULT_CODE_OUT_OF_BOUNDS        0x05     /**< OLCP result code: Out of Bounds. */
+#define OLCP_RESULT_CODE_TOO_MANY_OBJECTS     0x06     /**< OLCP result code: Too Many Objects. */
+#define OLCP_RESULT_CODE_NO_OBJECT            0x07     /**< OLCP result code: No Object. */
+#define OLCP_RESULT_CODE_OBJECT_ID_NOT_FOUND  0x08     /**< OLCP result code: Object ID Not Found. */
 
+/** OTS L2CAP PSM Definition
+ * @ingroup app_ots_structureDef
+ * @note PSM value used to open the Object Transfer Channel (OTC) for object data transfer.
+*/
 #define BLESERVICE_OTS_PSM                    0x0025
 /**
  * @ingroup app_ots_def
@@ -296,81 +312,111 @@ typedef struct ble_svcs_ots_info_s
     ble_svcs_ots_subinfo_t server_info;    /**< Server Information */
 } ble_svcs_ots_info_t;
 
+/** OACP Create Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_create_s
 {
-    uint32_t size;
-    uint8_t gatt_uuid[16];
+    uint32_t size;             /**< Size of the object to be created, in octets. */
+    uint8_t gatt_uuid[16];     /**< Type (UUID) of the object to be created. */
 }ots_oacp_create_t;
 
+/** OACP Calculate Checksum Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_calculate_checksum_s
 {
-    uint32_t offset;
-    uint32_t length;
+    uint32_t offset;    /**< Offset of the first octet of the range to be checksummed. */
+    uint32_t length;    /**< Length, in octets, of the range to be checksummed. */
 }ots_oacp_calculate_checksum_t;
 
+/** OACP Read Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_calculate_read_s
 {
-    uint32_t offset;
-    uint32_t length;
+    uint32_t offset;    /**< Offset of the first octet to be read. */
+    uint32_t length;    /**< Length, in octets, of the data to be read. */
 }ots_oacp_calculate_read_t;
 
+/** OACP Write Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_calculate_write_s
 {
-    uint32_t offset;
-    uint32_t length;
-    uint8_t  rfu:1,
-             mode:1,
-             rfu_1:6;
+    uint32_t offset;         /**< Offset of the first octet to be written. */
+    uint32_t length;         /**< Length, in octets, of the data to be written. */
+    uint8_t  rfu:1,          /**< Reserved for future use. */
+             mode:1,         /**< Write mode bit: 1 = truncate the object to the written length, 0 = otherwise. */
+             rfu_1:6;        /**< Reserved for future use. */
 }ots_oacp_calculate_write_t;
 
 
+/** OACP Request Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_s
 {
-    uint8_t opcode;
+    uint8_t opcode;    /**< OACP request opcode. @ref oacp_opcode_t */
     union
     {
-        ots_oacp_create_t create;
-        ots_oacp_calculate_checksum_t calculate_checksum;
-        ots_oacp_calculate_read_t read;
-        ots_oacp_calculate_write_t write;
-    }param;
+        ots_oacp_create_t create;                            /**< Parameter for opcode @ref OACP_OPCODE_CREATE. */
+        ots_oacp_calculate_checksum_t calculate_checksum;     /**< Parameter for opcode @ref OACP_OPCODE_CALCULATE_CHECKSUM. */
+        ots_oacp_calculate_read_t read;                       /**< Parameter for opcode @ref OACP_OPCODE_READ. */
+        ots_oacp_calculate_write_t write;                     /**< Parameter for opcode @ref OACP_OPCODE_WRITE. */
+    }param;    /**< OACP request parameter, its content depends on opcode. */
 
 }ots_oacp_t;
 
+/** OACP Response Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_oacp_response_s
 {
-    oacp_opcode_t       op_code;
-    oacp_opcode_t       req_op_code;
-    oacp_result_code_t  result_code;
-    uint8_t             rsp_param[];
+    oacp_opcode_t       op_code;         /**< Fixed to @ref OACP_OPCODE_RESPONSE. */
+    oacp_opcode_t       req_op_code;     /**< Opcode of the request that this response corresponds to. */
+    oacp_result_code_t  result_code;     /**< Result of the requested operation. @ref oacp_result_code_t */
+    uint8_t             rsp_param[];     /**< Response parameter, present only when responding to a successful Calculate Checksum request. */
 }ots_oacp_response_t;
 
+/** OLCP Go To Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_olcp_go_to_s
 {
-    uint8_t  object_id[6];
+    uint8_t  object_id[6];    /**< Object ID to move the Current Object to. */
 }ots_olcp_go_to_t;
 
+/** OLCP Order Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_olcp_order_s
 {
-    uint8_t  list_short_order;
+    uint8_t  list_short_order;    /**< Sort order to be applied to the object list. */
 }ots_olcp_order_t;
 
+/** OLCP Request Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_olcp_s
 {
-    uint8_t opcode;
+    uint8_t opcode;    /**< OLCP request opcode. @ref olcp_opcode_t */
     union
     {
-        ots_olcp_go_to_t go_to;
-        ots_olcp_order_t list_sort_order;
-    }param;
+        ots_olcp_go_to_t go_to;              /**< Parameter for opcode @ref OLCP_OPCODE_GO_TO. */
+        ots_olcp_order_t list_sort_order;     /**< Parameter for opcode @ref OLCP_OPCODE_ORDER. */
+    }param;    /**< OLCP request parameter, its content depends on opcode. */
 }ots_olcp_t;
 
+/** OLCP Response Parameter Definition
+ * @ingroup app_ots_structureDef
+*/
 typedef struct __attribute__((packed)) ots_olcp_response_s
 {
-    olcp_opcode_t       op_code;
-    olcp_opcode_t       req_op_code;
-    olcp_result_code_t  result_code;
-    uint8_t             rsp_param[];
+    olcp_opcode_t       op_code;         /**< Fixed to @ref OLCP_OPCODE_RESPONSE. */
+    olcp_opcode_t       req_op_code;     /**< Opcode of the request that this response corresponds to. */
+    olcp_result_code_t  result_code;     /**< Result of the requested operation. @ref olcp_result_code_t */
+    uint8_t             rsp_param[];     /**< Response parameter, present only when responding to a successful Request Number of Objects request. */
 }ots_olcp_response_t;
 
 /**

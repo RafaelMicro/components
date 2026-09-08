@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+/** @brief Runtime state of the Generic Power Level Server model (actual/last/default power and allowed range). */
 typedef struct gen_power_level_state_s
 {
     /* public variables */
@@ -23,6 +24,7 @@ typedef struct gen_power_level_state_s
     /* private variables for internal access */
 } gen_power_level_state_t;
 
+/** @brief Payload layout of the Generic Power Level Set message. */
 typedef struct __attribute__((packed)) gen_power_level_set_msg_s
 {
     uint16_t     power;
@@ -31,17 +33,20 @@ typedef struct __attribute__((packed)) gen_power_level_set_msg_s
     uint8_t      delay;
 } gen_power_level_set_msg_t;
 
+/** @brief Payload layout of the Generic Power Default Set message. */
 typedef struct __attribute__((packed)) gen_power_default_set_msg_s
 {
     uint16_t     power;
 } gen_power_default_set_msg_t;
 
+/** @brief Payload layout of the Generic Power Range Set message. */
 typedef struct __attribute__((packed)) gen_power_range_set_msg_s
 {
     uint16_t     range_min;
     uint16_t     range_max;
 } gen_power_range_set_msg_t;
 
+/** @brief Payload layout of the Generic Power Level Status message. */
 typedef struct __attribute__((packed)) gen_power_level_status_msg_s
 {
     uint16_t     present_power;
@@ -49,16 +54,19 @@ typedef struct __attribute__((packed)) gen_power_level_status_msg_s
     uint8_t      remaining_time;
 } gen_power_level_status_msg_t;
 
+/** @brief Payload layout of the Generic Power Last Status message. */
 typedef struct __attribute__((packed)) gen_power_last_status_msg_s
 {
     uint16_t     present_power;
 } gen_power_last_status_msg_t;
 
+/** @brief Payload layout of the Generic Power Default Status message. */
 typedef struct __attribute__((packed)) gen_power_default_status_msg_s
 {
     uint16_t     present_power;
 } gen_power_default_status_msg_t;
 
+/** @brief Payload layout of the Generic Power Range Status message, including the acceptance status code. */
 typedef struct __attribute__((packed)) gen_power_range_status_msg_s
 {
     uint8_t      status_code;

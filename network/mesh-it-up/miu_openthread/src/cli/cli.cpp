@@ -5029,6 +5029,27 @@ template <> otError Interpreter::Process<Cmd("meshdiag")>(Arg aArgs[])
     otError error = OT_ERROR_NONE;
 
     /**
+     * @cli meshdiag timeout (get,set)
+     * @code
+     * meshdiag timeout
+     * 10000
+     * Done
+     * @endcode
+     * @code
+     * meshdiag timeout 4000
+     * Done
+     * @endcode
+     * @cparam meshdiag timeout [@ca{msec}]
+     * Gets or sets how long a single router is given to answer, in milliseconds. The value applies per router, so
+     * `meshdiag topology` can take up to (router count x timeout) to finish. Raise it on a large or lossy mesh where
+     * routers are several hops away.
+     * @sa otMeshDiagSetResponseTimeout
+     */
+    if (aArgs[0] == "timeout")
+    {
+        error = ProcessGetSet(aArgs + 1, otMeshDiagGetResponseTimeout, otMeshDiagSetResponseTimeout);
+    }
+    /**
      * @cli meshdiag topology
      * @code
      * meshdiag topology
@@ -5076,7 +5097,7 @@ template <> otError Interpreter::Process<Cmd("meshdiag")>(Arg aArgs[])
      * @cparam meshdiag topology [@ca{ip6-addrs}] [@ca{children}]
      * @sa otMeshDiagDiscoverTopology
      */
-    if (aArgs[0] == "topology")
+    else if (aArgs[0] == "topology")
     {
         otMeshDiagDiscoverConfig config;
 
@@ -8067,6 +8088,14 @@ void Interpreter::HandleDiagnosticGetResponse(otError                 aError,
         default:
             break;
         }
+    }
+
+    // Answers can span several messages, so shorten the wait instead of always
+    // sitting out the full timeout. A late response arrives with the command
+    // already done, and `SetCommandTimeout()` asserts on `mCommandIsPending`.
+    if (mCommandIsPending)
+    {
+        SetCommandTimeout(kNetworkDiagnosticFollowUpTimeoutMsecs);
     }
 
 exit:

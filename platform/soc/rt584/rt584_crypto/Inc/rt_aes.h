@@ -33,17 +33,17 @@ extern "C"
 /**
  * \brief           AES BLOCK LENGTH Constant Definitions
  */
-#define AES_BLOCKLEN              16     /*!< Block length in bytes, AES is 128bytes per block  \hideinitializer */
+#define AES_BLOCKLEN              (16)     /*!< Block length in bytes, AES is 128bytes per block  \hideinitializer */
 
 /**
  * \brief           AES_KEY SIZE Constant Definitions
  */
-#define  AES_KEY128               128    /*!< AES key size is 128bits  \hideinitializer */
-#define  AES_KEY192               192    /*!< AES key size is 192bits  \hideinitializer */
-#define  AES_KEY256               256    /*!< AES key size is 256bits  \hideinitializer */
+#define  AES_KEY128               (128)    /*!< AES key size is 128bits  \hideinitializer */
+#define  AES_KEY192               (192)    /*!< AES key size is 192bits  \hideinitializer */
+#define  AES_KEY256               (256)    /*!< AES key size is 256bits  \hideinitializer */
 
 
-#define  NONCE_LEN                13
+#define  NONCE_LEN                (13)
 
 
 #define AES_Enc_inst_index        (16)
@@ -52,7 +52,7 @@ extern "C"
 #define AES_CTR_inst_index        (160)
 
 
-#define AES_Round_Key_Size        240    /*!< for AES256, the maximum round key size is 240. \hideinitializer */
+#define AES_Round_Key_Size        (240)    /*!< for AES256, the maximum round key size is 240. \hideinitializer */
 
 #define AES_keyExpSize            AES_Round_Key_Size
 

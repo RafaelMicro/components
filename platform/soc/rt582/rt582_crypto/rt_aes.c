@@ -224,7 +224,7 @@ static void keyexpansion(uint8_t *round_key, const uint8_t *key, uint8_t round)
 void aes_fw_init(void)
 {
     /*TODO: required mutex prtoect here for load new AES firmware*/
-    //crypto_mutex_lock();
+    crypto_mutex_lock();
 
     /*
      * 2021/03/04 changed:

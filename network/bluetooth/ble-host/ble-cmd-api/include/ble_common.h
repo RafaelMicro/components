@@ -42,7 +42,7 @@ extern "C" {
 #define BLE_STACK_VERSION                 0x0C      /**< Bluetooth Core Specification 5.3, see Assigned Numbers (https://www.bluetooth.com/specifications/assigned-numbers). */
 #define BLE_COMPANY_ID                    0x0864    /**< Rafael Micro. company Id is 0x0864, see Assigned Numbers (https://www.bluetooth.com/specifications/assigned-numbers). */
 
-#define BLE_EVENT_MASK_LENGTH             8
+#define BLE_EVENT_MASK_LENGTH             8         /**< Length in bytes of the LE Event Mask (@ref g_le_event_mask) sent to the Controller via the HCI LE Set Event Mask command. */
 
 #define BLE_HOSTID_RESERVED               0xFF      /**< Reserved BLE host id.*/
 
@@ -54,55 +54,79 @@ extern "C" {
 #define REF_SIZE_LE_HOST_PARA             272
 /** @} */
 
-#define LE_CONNECTION_COMPLETE_EVENT                                0x01
-#define LE_ADVERTISING_REPORT_EVENT                                 0x02
-#define LE_CONNECTION_UPDATE_COMPLETE_EVENT                         0x04
-#define LE_READ_REMOTE_FEATURES_COMPLETE_EVENT                      0x08
-#define LE_LONG_TERM_KEY_REQUEST_EVENT                              0x10
-#define LE_REMOTE_CONNECTION_PARAMETER_REQUEST_EVENT                0x20
-#define LE_DATA_LENGTH_CHANGE_EVENT                                 0x40
-#define LE_READ_LOCAL_P256_PUBLIC_KEY_COMPLETE_EVENT                0x80
+/** @defgroup ble_common_le_event_mask BLE LE Event Mask Bit Definitions
+ * @{
+ * @ingroup ble_common
+ * @details Bit definitions for the 8-byte LE Event Mask (@ref g_le_event_mask) sent to the
+ *          Controller by @ref ble_cmd_phy_controller_init via the HCI LE Set Event Mask
+ *          command. Each group of 8 bit values below corresponds to one byte, in array
+ *          order, of the LE Event Mask.
+ */
+#define LE_CONNECTION_COMPLETE_EVENT                                0x01  /**< Mask byte 0, bit 0 : LE Connection Complete event. */
+#define LE_ADVERTISING_REPORT_EVENT                                 0x02  /**< Mask byte 0, bit 1 : LE Advertising Report event. */
+#define LE_CONNECTION_UPDATE_COMPLETE_EVENT                         0x04  /**< Mask byte 0, bit 2 : LE Connection Update Complete event. */
+#define LE_READ_REMOTE_FEATURES_COMPLETE_EVENT                      0x08  /**< Mask byte 0, bit 3 : LE Read Remote Features Complete event. */
+#define LE_LONG_TERM_KEY_REQUEST_EVENT                              0x10  /**< Mask byte 0, bit 4 : LE Long Term Key Request event. */
+#define LE_REMOTE_CONNECTION_PARAMETER_REQUEST_EVENT                0x20  /**< Mask byte 0, bit 5 : LE Remote Connection Parameter Request event. */
+#define LE_DATA_LENGTH_CHANGE_EVENT                                 0x40  /**< Mask byte 0, bit 6 : LE Data Length Change event. */
+#define LE_READ_LOCAL_P256_PUBLIC_KEY_COMPLETE_EVENT                0x80  /**< Mask byte 0, bit 7 : LE Read Local P-256 Public Key Complete event. */
 
-#define LE_GENERATE_DHKEY_COMPLETE_EVENT                            0x01
-#define LE_ENHANCED_CONNECTION_COMPLETE_V1_EVENT                    0x02
-#define LE_DIRECTED_ADVERTISING_REPORT_EVENT                        0x04
-#define LE_PHY_UPDATE_COMPLETE_EVENT                                0x08
-#define LE_EXTENDED_ADVERTISING_REPORT_EVENT                        0x10
-#define LE_PERIODIC_ADVERTISING_SYNC_ESTABLISHED_V1_EVENT           0x20
-#define LE_PERIODIC_ADVERTISING_REPORT_V1_EVENT                     0x40
-#define LE_PERIODIC_ADVERTISING_SYNC_LOST_EVENT                     0x80
+#define LE_GENERATE_DHKEY_COMPLETE_EVENT                            0x01  /**< Mask byte 1, bit 0 : LE Generate DHKey Complete event. */
+#define LE_ENHANCED_CONNECTION_COMPLETE_V1_EVENT                    0x02  /**< Mask byte 1, bit 1 : LE Enhanced Connection Complete [v1] event. */
+#define LE_DIRECTED_ADVERTISING_REPORT_EVENT                        0x04  /**< Mask byte 1, bit 2 : LE Directed Advertising Report event. */
+#define LE_PHY_UPDATE_COMPLETE_EVENT                                0x08  /**< Mask byte 1, bit 3 : LE PHY Update Complete event. */
+#define LE_EXTENDED_ADVERTISING_REPORT_EVENT                        0x10  /**< Mask byte 1, bit 4 : LE Extended Advertising Report event. */
+#define LE_PERIODIC_ADVERTISING_SYNC_ESTABLISHED_V1_EVENT           0x20  /**< Mask byte 1, bit 5 : LE Periodic Advertising Sync Established [v1] event. */
+#define LE_PERIODIC_ADVERTISING_REPORT_V1_EVENT                     0x40  /**< Mask byte 1, bit 6 : LE Periodic Advertising Report [v1] event. */
+#define LE_PERIODIC_ADVERTISING_SYNC_LOST_EVENT                     0x80  /**< Mask byte 1, bit 7 : LE Periodic Advertising Sync Lost event. */
 
-#define LE_SCAN_TIMEOUT_EVENT                                       0x01
-#define LE_ADVERTISING_SET_TERMINATED_EVENT                         0x02
-#define LE_SCAN_REQUEST_RECEIVED_EVENT                              0x04
-#define LE_CHANNEL_SELECTION_ALGORITHM_EVENT                        0x08
-#define LE_CONNECTIONLESS_IQ_REPORT_EVENT                           0x10
-#define LE_CONNECTION_IQ_REPORT_EVENT                               0x20
-#define LE_CTE_REQUEST_FAILED_EVENT                                 0x40
-#define LE_PERIODIC_ADVERTISING_SYNC_TRANSFER_RECEIVED_V1_EVENT     0x80
+#define LE_SCAN_TIMEOUT_EVENT                                       0x01  /**< Mask byte 2, bit 0 : LE Scan Timeout event. */
+#define LE_ADVERTISING_SET_TERMINATED_EVENT                         0x02  /**< Mask byte 2, bit 1 : LE Advertising Set Terminated event. */
+#define LE_SCAN_REQUEST_RECEIVED_EVENT                              0x04  /**< Mask byte 2, bit 2 : LE Scan Request Received event. */
+#define LE_CHANNEL_SELECTION_ALGORITHM_EVENT                        0x08  /**< Mask byte 2, bit 3 : LE Channel Selection Algorithm event. */
+#define LE_CONNECTIONLESS_IQ_REPORT_EVENT                           0x10  /**< Mask byte 2, bit 4 : LE Connectionless IQ Report event. */
+#define LE_CONNECTION_IQ_REPORT_EVENT                               0x20  /**< Mask byte 2, bit 5 : LE Connection IQ Report event. */
+#define LE_CTE_REQUEST_FAILED_EVENT                                 0x40  /**< Mask byte 2, bit 6 : LE CTE Request Failed event. */
+#define LE_PERIODIC_ADVERTISING_SYNC_TRANSFER_RECEIVED_V1_EVENT     0x80  /**< Mask byte 2, bit 7 : LE Periodic Advertising Sync Transfer Received [v1] event. */
 
-#define LE_CIS_ESTABLISHED_EVENT                                    0x01
-#define LE_CIS_REQUEST_EVENT                                        0x02
-#define LE_CREATE_BIG_COMPLETE_EVENT                                0x04
-#define LE_TERMINATE_BIG_COMPLETE_EVENT                             0x08
-#define LE_BIG_SYNC_ESTABLISHED_EVENT                               0x10
-#define LE_BIG_SYNC_LOST_EVENT                                      0x20
-#define LE_REQUEST_PEER_SCA_COMPLETE_EVENT                          0x40
-#define LE_PATH_LOSS_THRESHOLD_EVENT                                0x80
+#define LE_CIS_ESTABLISHED_EVENT                                    0x01  /**< Mask byte 3, bit 0 : LE CIS Established event. */
+#define LE_CIS_REQUEST_EVENT                                        0x02  /**< Mask byte 3, bit 1 : LE CIS Request event. */
+#define LE_CREATE_BIG_COMPLETE_EVENT                                0x04  /**< Mask byte 3, bit 2 : LE Create BIG Complete event. */
+#define LE_TERMINATE_BIG_COMPLETE_EVENT                             0x08  /**< Mask byte 3, bit 3 : LE Terminate BIG Complete event. */
+#define LE_BIG_SYNC_ESTABLISHED_EVENT                               0x10  /**< Mask byte 3, bit 4 : LE BIG Sync Established event. */
+#define LE_BIG_SYNC_LOST_EVENT                                      0x20  /**< Mask byte 3, bit 5 : LE BIG Sync Lost event. */
+#define LE_REQUEST_PEER_SCA_COMPLETE_EVENT                          0x40  /**< Mask byte 3, bit 6 : LE Request Peer SCA Complete event. */
+#define LE_PATH_LOSS_THRESHOLD_EVENT                                0x80  /**< Mask byte 3, bit 7 : LE Path Loss Threshold event. */
 
-#define LE_TRANSMIT_POWER_REPORTING_EVENT                           0x01
-#define LE_BIGINFO_ADVERTISING_REPORT_EVENT                         0x02
-#define LE_SUBRATE_CHANGE_EVENT                                     0x04
-#define LE_PERIODIC_ADVERTISING_SYNC_ESTABLISHED_V2_EVENT           0x08
-#define LE_PERIODIC_ADVERTISING_REPORT_V2_EVENT                     0x10
-#define LE_PERIODIC_ADVERTISING_SYNC_TRANSFER_RECEIVED_V2_EVENT     0x20
-#define LE_PERIODIC_ADVERTISING_SUBEVENT_DATA_REQUEST_EVENT         0x40
-#define LE_PERIODIC_ADVERTISING_RESPONSE_REPORT_EVENT               0x80
+#define LE_TRANSMIT_POWER_REPORTING_EVENT                           0x01  /**< Mask byte 4, bit 0 : LE Transmit Power Reporting event. */
+#define LE_BIGINFO_ADVERTISING_REPORT_EVENT                         0x02  /**< Mask byte 4, bit 1 : LE BIGInfo Advertising Report event. */
+#define LE_SUBRATE_CHANGE_EVENT                                     0x04  /**< Mask byte 4, bit 2 : LE Subrate Change event. */
+#define LE_PERIODIC_ADVERTISING_SYNC_ESTABLISHED_V2_EVENT           0x08  /**< Mask byte 4, bit 3 : LE Periodic Advertising Sync Established [v2] event. */
+#define LE_PERIODIC_ADVERTISING_REPORT_V2_EVENT                     0x10  /**< Mask byte 4, bit 4 : LE Periodic Advertising Report [v2] event. */
+#define LE_PERIODIC_ADVERTISING_SYNC_TRANSFER_RECEIVED_V2_EVENT     0x20  /**< Mask byte 4, bit 5 : LE Periodic Advertising Sync Transfer Received [v2] event. */
+#define LE_PERIODIC_ADVERTISING_SUBEVENT_DATA_REQUEST_EVENT         0x40  /**< Mask byte 4, bit 6 : LE Periodic Advertising Subevent Data Request event. */
+#define LE_PERIODIC_ADVERTISING_RESPONSE_REPORT_EVENT               0x80  /**< Mask byte 4, bit 7 : LE Periodic Advertising Response Report event. */
 
-#define LE_ENHANCED_CONNECTION_COMPLETE_V2_EVENT                    0x01
+#define LE_ENHANCED_CONNECTION_COMPLETE_V2_EVENT                    0x01  /**< Mask byte 5, bit 0 : LE Enhanced Connection Complete [v2] event. */
+/** @} */
 
+/** @brief Selects which of the two @ref g_le_event_mask tables is used.
+ *
+ *  When defined as 0x01, the mask table enables the extended/periodic advertising [v1] and
+ *  BIG/CIS related event bits; otherwise the alternate mask table enables the IQ report / CTE
+ *  request failed event bits instead.
+ *
+ * @ingroup ble_common
+ */
 #define PAWR_SELECT_EVENT_MASK                                      BLE_PAWR_SELECT
 
+/** @brief LE Event Mask table, indexed by byte, sent to the Controller by
+ *         @ref ble_cmd_phy_controller_init via the HCI LE Set Event Mask command.
+ *
+ *  @ingroup ble_common
+ *
+ *  @note The enabled bits depend on @ref PAWR_SELECT_EVENT_MASK.
+ */
 #if (PAWR_SELECT_EVENT_MASK == 0x01)
 static const uint8_t g_le_event_mask[] =
 {
@@ -235,7 +259,10 @@ static const uint8_t g_le_event_mask[] =
 };
 #endif
 
-static const uint8_t g_ble_default_public_addr[BLE_ADDR_LEN] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};    /**< Default BLE public address..*/
+/** @brief Default BLE public address used by @ref ble_cmd_phy_controller_init when setting the controller information.
+ *  @ingroup ble_common
+ */
+static const uint8_t g_ble_default_public_addr[BLE_ADDR_LEN] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
 
 /**************************************************************************************************
  *    TYPEDEFS
@@ -437,6 +464,10 @@ typedef struct ble_evt_common_s
 
 /** @brief BLE common controller setting initial function (BLE stack initialization included).
  *
+ *  Issues the HCI commands to set the vendor controller information (@ref g_ble_default_public_addr,
+ *  @ref BLE_STACK_VERSION, and @ref BLE_COMPANY_ID), set the LE event mask (@ref g_le_event_mask),
+ *  read the local version, and read the buffer size.
+ *
  * @ingroup ble_common
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
@@ -446,7 +477,15 @@ ble_err_t ble_cmd_phy_controller_init(void);
 
 /** @brief Read unique code from Flash.
  *
+ *  Reads the BLE/ZigBee unique address codes and IRK from the flash security register
+ *  (@ref SEC_BLE_MAC_REG) into *p_param.
+ *
  * @ingroup ble_common
+ *
+ * @note Returns @ref BLE_ERR_INVALID_PARAMETER if the stored data is all-zero or all-0xFF
+ *       (i.e. not provisioned).
+ *
+ * @param[out] p_param : a pointer to the retrieved unique code.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -475,6 +514,11 @@ ble_err_t ble_cmd_clear_filter_accept_list(void);
  *
  * @ingroup ble_common
  *
+ * @note Returns @ref BLE_ERR_INVALID_STATE if the BLE stack is not idle, or if advertising or
+ *       scanning is currently in progress. Returns @ref BLE_ERR_INVALID_PARAMETER if p_accept_list is NULL.
+ *
+ * @param[in] p_accept_list : a pointer to the accept list device to add.
+ *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_add_device_to_accept_list(ble_filter_accept_list_t *p_accept_list);
@@ -483,6 +527,11 @@ ble_err_t ble_cmd_add_device_to_accept_list(ble_filter_accept_list_t *p_accept_l
 /** @brief Remove device from filter accept list.
  *
  * @ingroup ble_common
+ *
+ * @note Returns @ref BLE_ERR_INVALID_STATE if the BLE stack is not idle, or if advertising or
+ *       scanning is currently in progress. Returns @ref BLE_ERR_INVALID_PARAMETER if p_accept_list is NULL.
+ *
+ * @param[in] p_accept_list : a pointer to the accept list device to remove.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -502,29 +551,29 @@ ble_err_t ble_cmd_antenna_info_read(void);
  *
  * @ingroup ble_common
  *
- * @param p_param :  a pointer to the scan request report parameter @ref ble_hci_vcmd_scan_req_rpt_param_t.
+ * @param[in] p_param : a pointer to the scan request report parameter, @ref ble_vendor_scan_req_rpt_t.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_vendor_scan_req_report_set(ble_vendor_scan_req_rpt_t *p_param);
 
 
-/** @brief BLE common events handler
+/** @brief BLE common module event handler, dispatched by the BLE host stack for @ref ble_evt_common_t events.
  *
  * @ingroup ble_common
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the event parameter, actually of type @ref ble_evt_param_t.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_evt_common_handler(void *p_param);
 
 
-/** @brief BLE common events handler
+/** @brief BLE vendor module event handler, dispatched by the BLE host stack for vendor events (e.g. scan request report).
  *
  * @ingroup ble_common
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the event parameter, actually of type @ref ble_evt_param_t.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

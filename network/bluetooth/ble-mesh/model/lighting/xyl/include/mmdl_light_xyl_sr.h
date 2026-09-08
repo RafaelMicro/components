@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_xyl_sr.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Public API of the BLE Mesh Light xyL server model.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -24,10 +24,15 @@ extern "C"
 {
 #endif
 
+/** @brief Initialize the Light xyL server model instance on an element. */
 extern void mmdl_light_xyl_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+/** @brief Dispatch an incoming Light xyL model message to the proper opcode handler. */
 extern void mmdl_light_xyl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
+/** @brief Callback invoked by an extended child model to propagate its state into the Light xyL state. */
 extern void mmdl_light_xyl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_model, general_parameter_t p);
+/** @brief Apply a lightness level pushed down from the extending Light Lightness model. */
 extern void mmdl_light_xyl_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint16_t lightness_level_state);
+/** @brief Publish the current Light xyL status to the model's configured publish address. */
 extern void mmdl_light_xyl_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 

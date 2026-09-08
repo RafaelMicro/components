@@ -17,11 +17,11 @@
 //
 //
 */
-#define   FLASH_SIZE_INFO 0x50009038
+#define   FLASH_SIZE_INFO (0x50009038)
 ///*
 //// <e>Setup behaviour of Sleep and Exception Handling
 //*/
-#define SCB_CSR_AIRCR_INIT          1
+#define SCB_CSR_AIRCR_INIT          (1)
 
 /*
 //   <o> Deep Sleep can be enabled by
@@ -29,7 +29,7 @@
 //     <1=>Secure state only
 //   <i> Value for SCB->CSR register bit DEEPSLEEPS
 */
-#define SCB_CSR_DEEPSLEEPS_VAL      0
+#define SCB_CSR_DEEPSLEEPS_VAL      (0)
 
 /*
 //   <o>System reset request accessible from
@@ -37,7 +37,7 @@
 //     <1=> Secure state only
 //   <i> Value for SCB->AIRCR register bit SYSRESETREQS
 */
-#define SCB_AIRCR_SYSRESETREQS_VAL  0
+#define SCB_AIRCR_SYSRESETREQS_VAL  (0)
 
 /*
 //   <o>Priority of Non-Secure exceptions is
@@ -45,7 +45,7 @@
 //     <1=> Lowered to 0x80-0xFF
 //   <i> Value for SCB->AIRCR register bit PRIS
 */
-#define SCB_AIRCR_PRIS_VAL          1
+#define SCB_AIRCR_PRIS_VAL          (1)
 
 /*
 //   <o>BusFault, HardFault, and NMI target
@@ -53,7 +53,7 @@
 //     <1=> Non-Secure state
 //   <i> Value for SCB->AIRCR register bit BFHFNMINS
 */
-#define SCB_AIRCR_BFHFNMINS_VAL     0
+#define SCB_AIRCR_BFHFNMINS_VAL     (0)
 
 ///*
 //// </e>
@@ -62,7 +62,7 @@
 /*
 // <e>Setup behaviour of Floating Point Unit
 */
-#define TZ_FPU_NS_USAGE             1
+#define TZ_FPU_NS_USAGE             (1)
 
 /*
 // <o>Floating Point Unit usage
@@ -70,7 +70,7 @@
 //     <3=> Secure and Non-Secure state
 //   <i> Value for SCB->NSACR register bits CP10, CP11
 */
-#define SCB_NSACR_CP10_11_VAL       3
+#define SCB_NSACR_CP10_11_VAL       (3)
 
 /*
 // <o>Treat floating-point registers as Secure
@@ -78,7 +78,7 @@
 //     <1=> Enabled
 //   <i> Value for FPU->FPCCR register bit TS
 */
-#define FPU_FPCCR_TS_VAL            0
+#define FPU_FPCCR_TS_VAL            (0)
 
 /*
 // <o>Clear on return (CLRONRET) accessibility
@@ -86,7 +86,7 @@
 //     <1=> Secure state only
 //   <i> Value for FPU->FPCCR register bit CLRONRETS
 */
-#define FPU_FPCCR_CLRONRETS_VAL     0
+#define FPU_FPCCR_CLRONRETS_VAL     (0)
 
 /*
 // <o>Clear floating-point caller saved registers on exception return
@@ -94,7 +94,7 @@
 //     <1=> Enabled
 //   <i> Value for FPU->FPCCR register bit CLRONRET
 */
-#define FPU_FPCCR_CLRONRET_VAL      1
+#define FPU_FPCCR_CLRONRET_VAL      (1)
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /**
@@ -245,9 +245,19 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
      *  For bootrom we set all SRAM (192KB as secure).
      * NO NSC in SRAM.  so SEC_RAM_NSC_START = SEC_RAM_NSC_STOP
      */
-    SEC_CTRL->sec_ram_sec_size = 0x1800;
-    SEC_CTRL->sec_ram_nsc_start = 0x1800;
-    SEC_CTRL->sec_ram_nsc_stop = 0x1800;
+    extern unsigned int _comm_subsys_reserved_ram;
+    if ((unsigned int)&_comm_subsys_reserved_ram != 0) /* size is larger than zero */
+    {
+        SEC_CTRL->sec_ram_sec_size = 0x2C00;    /* COMM subsys release some RAM for heap2 use */
+        SEC_CTRL->sec_ram_nsc_start = 0x2C00;
+        SEC_CTRL->sec_ram_nsc_stop = 0x2C00;
+    }
+    else
+    {
+        SEC_CTRL->sec_ram_sec_size = 0x1800;
+        SEC_CTRL->sec_ram_nsc_start = 0x1800;
+        SEC_CTRL->sec_ram_nsc_stop = 0x1800; 
+    }
 
     /******  rt584_CM33 Specific Sec attribuite Numbers *************************************************/
     //SEC_ClearIADUState(SEC_IADU_Type);    secure

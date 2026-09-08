@@ -441,6 +441,15 @@ void RfMcu_HostWakeUpMcuAhb (void)
     }
 }
 
+void RfMcu_SetRtcSlowAonAhb(bool status)
+{
+    RF_MCU_AHB_INTR_EN_PTR->COMM_RTC_SLOW_AON = (status) ? 1 : 0;
+}
+
+uint32_t RfMcu_GetRtcFromHostAhb(void)
+{
+    return RF_MCU_RTC_SLOW_REG;
+}
 
 void RfMcu_DmaIsrCbRegistration(RF_MCU_DMA_ISR_CB cb)
 {

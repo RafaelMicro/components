@@ -34,27 +34,27 @@ extern "C" {
 /**
  * \brief          hosal low power mode const defineds
  */
-#define HOSAL_LPM_PARAM_NONE             0
-#define HOSAL_LPM_MASK                   1
-#define HOSAL_LPM_GET_MASK               2
-#define HOSAL_LPM_SUBSYSTEM_MASK         3
-#define HOSAL_LPM_UNMASK                 4
-#define HOSAL_LPM_SUBSYSTEM_UNMASK       5
-#define HOSAL_LPM_SRAM0_RETAIN           6
-#define HOSAL_LPM_SET_POWER_LEVEL        7
-#define HOSAL_LPM_GET_POWER_LEVEL        8
-#define HOSAL_LPM_ENABLE_WAKE_UP_SOURCE  9
-#define HOSAL_LPM_DISABLE_WAKE_UP_SOURCE 10
-#define HOSAL_LPM_PLATFORM_WAKE_UP       11
-#define HOSAL_LPM_ENTER_LOW_POWER        12
-#define HOSAL_LPM_SUBSYSTEM_SRAM_DEEP_SLEEP_INIT 13
-#define HOSAL_LPM_SUBSYSTEM_ENTER_LOW_POWER        14
-#define HOSAL_LPM_SUBSYSTEM_DISABLE_LDO_MODE       15
-#define HOSAL_LPM_PERIGRP1_PWR_OFF_DEEP_SLEEP       16
-#define HOSAL_LPM_PERIGRP2_PWR_OFF_SLEEP            17
-#define HOSAL_LPM_PERIGRP2_PWR_OFF_DEEP_SLEEP       18
-#define HOSAL_LPM_PERIGRP3_PWR_OFF_SLEEP            19
-#define HOSAL_LPM_PERIGRP3_PWR_OFF_DEEP_SLEEP       20
+#define HOSAL_LPM_PARAM_NONE             (0)
+#define HOSAL_LPM_MASK                   (1)
+#define HOSAL_LPM_GET_MASK               (2)
+#define HOSAL_LPM_SUBSYSTEM_MASK         (3)
+#define HOSAL_LPM_UNMASK                 (4)
+#define HOSAL_LPM_SUBSYSTEM_UNMASK       (5)
+#define HOSAL_LPM_SRAM0_RETAIN           (6)
+#define HOSAL_LPM_SET_POWER_LEVEL        (7)
+#define HOSAL_LPM_GET_POWER_LEVEL        (8)
+#define HOSAL_LPM_ENABLE_WAKE_UP_SOURCE  (9)
+#define HOSAL_LPM_DISABLE_WAKE_UP_SOURCE (10)
+#define HOSAL_LPM_PLATFORM_WAKE_UP       (11)
+#define HOSAL_LPM_ENTER_LOW_POWER        (12)
+#define HOSAL_LPM_SUBSYSTEM_SRAM_DEEP_SLEEP_INIT (13)
+#define HOSAL_LPM_SUBSYSTEM_ENTER_LOW_POWER        (14)
+#define HOSAL_LPM_SUBSYSTEM_DISABLE_LDO_MODE       (15)
+#define HOSAL_LPM_PERIGRP1_PWR_OFF_DEEP_SLEEP       (16)
+#define HOSAL_LPM_PERIGRP2_PWR_OFF_SLEEP            (17)
+#define HOSAL_LPM_PERIGRP2_PWR_OFF_DEEP_SLEEP       (18)
+#define HOSAL_LPM_PERIGRP3_PWR_OFF_SLEEP            (19)
+#define HOSAL_LPM_PERIGRP3_PWR_OFF_DEEP_SLEEP       (20)
 /**
  * \brief          hosal low power mask defined 
  */

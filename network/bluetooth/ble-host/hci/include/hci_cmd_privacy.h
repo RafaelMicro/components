@@ -8,11 +8,15 @@
 /** @file hci_cmd_privacy.h
  *
  * @brief Includes LE Controller commands (OGF = 0x08):
- *        - OCF = 0x0017 : LE Encrypt command
- *        - OCF = 0x0018 : LE Rand command
- *        - OCF = 0x0019 : LE Enable Encryption command
- *        - OCF = 0x001A : LE Long Term Key Request Reply command
- *        - OCF = 0x001B : LE Long Term Key Request Negative Reply command
+ *        - OCF = 0x0027 : LE Add Device To Resolving List command
+ *        - OCF = 0x0028 : LE Remove Device From Resolving List command
+ *        - OCF = 0x0029 : LE Clear Resolving List command
+ *        - OCF = 0x002A : LE Read Resolving List Size command
+ *        - OCF = 0x002B : LE Read Peer Resolvable Address command
+ *        - OCF = 0x002C : LE Read Local Resolvable Address command
+ *        - OCF = 0x002D : LE Set Address Resolution Enable command
+ *        - OCF = 0x002E : LE Set Resolvable Private Address Timeout command
+ *        - OCF = 0x004E : LE Set Privacy Mode command
  */
 
 #ifndef __HCI_CMD_PRIVACY_H__

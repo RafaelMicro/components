@@ -67,6 +67,7 @@
 #endif
 
 #define TX_PWR_COMP_DEBUG                 1
+#define TX_PWR_PLL_DEBUG                  (1)
 #else
 #define TX_PWR_COMP_TEMPERATURE_ELEMENT   3
 #define TX_PWR_COMP_VBAT_ELEMENT          3
@@ -74,6 +75,7 @@
 #define TX_PWR_COMP_VBAT_BOUNDARY         (TX_PWR_COMP_VBAT_ELEMENT - 1)
 
 #define TX_PWR_COMP_DEBUG                 0
+#define TX_PWR_PLL_DEBUG                  (0)
 #endif
 
 /**************************************************************************************************
@@ -214,43 +216,42 @@ void rf_pll_and_bbpll_check (void)
     reg_val2 = RfMcu_RegGet(reg_addr2);
     bbpll_vt_bit = PLL_VIBIT_STATUS();
 
-    if( DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE 
-     || bbpll_vt_bit != 1
-     || ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag == 1){
+    if ((TX_PWR_PLL_DEBUG == 1) || (DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE)) {
         printf("\r\n");
         printf("Addr: 0x%04"PRIx16", Val: 0x%.8x\r\n", reg_addr, reg_val);
         printf("rf_vt_bit: %d, rf_vco_bank:%d\r\n", 
             ((rf_pll_reads_ptr_t)&reg_val)->rf_pll_vtbit, 
             ((rf_pll_reads_ptr_t)&reg_val)->rf_vco_bank);
-        
         printf("Addr: 0x%04"PRIx16", Val: 0x%.8x\r\n", reg_addr2, reg_val2);
         printf("RF vcob_fast_sel_vco: %d, vcob_fast_error_flag:%d\r\n", 
             ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_sel_vco, 
             ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
-
         printf("PMU_CTRL->soc_bbpll0: 0x%.8x\r\n", PMU_CTRL->soc_bbpll0.reg);
         printf("PMU_CTRL->soc_bbpll1: 0x%.8x\r\n", PMU_CTRL->soc_bbpll1.reg);
         printf("PMU_CTRL->soc_bbpll_read: 0x%.8x\r\n", PMU_CTRL->soc_bbpll_read.reg);
         printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
-    
-        if( bbpll_vt_bit != 1) {
-            uint32_t tar_sys_clk;
-            printf("!!!!!!!!!!!!!!!!\r\n");
+    }
+    if( bbpll_vt_bit != 1 ) {
+        uint32_t tar_sys_clk;
+        if ((TX_PWR_PLL_DEBUG == 1) || (DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE) ) {
             printf("bbpll_vtbit = %d\r\n", bbpll_vt_bit);
-            printf("!!!!!!!!!!!!!!!!\r\n");
-            get_set_sys_clk_value(&tar_sys_clk);
-            change_ahb_system_clk(tar_sys_clk);
+        }
+        get_set_sys_clk_value(&tar_sys_clk);
+        change_ahb_system_clk(tar_sys_clk);
+        if( (TX_PWR_PLL_DEBUG == 1) || (DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE) ) {
             printf("bbpll_vt_bit: %d, bbpll_vco_bank:%d\r\n", PMU_CTRL->soc_bbpll_read.bit.bbpll_vtbit, PMU_CTRL->soc_bbpll_read.bit.bbpll_bank_vco);
         }
+    }
 
-        if( ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag == 1 ) {
-            printf("!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
+    
+    if( ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag == 1 ) {
+        if ((TX_PWR_PLL_DEBUG == 1) || (DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE)) {
             printf("vcob_fast_error_flag = 1\r\n", ((pll_auto_reads_ptr_t)&reg_val2)->vcob_fast_error_flag);
-            printf("!!!!!!!!!!!!!!!!!!!!!!!!\r\n");
-            #if (defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584HA4))
-            rf_common_restart_vco_bank_search();
-            #endif
         }
+        rf_common_restart_vco_bank_search();
+    }
+
+    if( (TX_PWR_PLL_DEBUG == 1) || (DPD_CTRL->dpd_ret3_reg & PLL_DEBUG_MESSAGE) ) {
         printf("\r\n");
     }
 }
@@ -261,9 +262,9 @@ void Tx_Power_Compensation_Update(sadc_value_t temperature, sadc_value_t vbat)
     uint32_t tx_pwr_comp_temperature_index = 0;
     uint32_t tx_pwr_comp_vbat_index = 0;
     tx_pwr_comp_element_t tx_pwr_comp;
-    
+    #if (defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584HA4) || defined(CONFIG_RF1301))
     rf_pll_and_bbpll_check();
-
+    #endif
 
 #if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
 
@@ -553,6 +554,8 @@ void Tx_Power_Compensation_Init(uint32_t xPeriodicTimeInSec)
                     /* The timer could not be set into the Active state. */
                 }
             }
+
+            portENABLE_INTERRUPTS(); //workaround for FreeRTOS timer task not running after vTaskStartScheduler() in RT584
         }
     }
 #else

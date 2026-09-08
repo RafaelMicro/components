@@ -16,9 +16,13 @@ extern "C" {
 
 
 
+/** @brief Initialize the Generic OnOff Server model instance for an element. */
 extern void mmdl_generic_onoff_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+/** @brief Dispatch an incoming Generic OnOff model message to the matching opcode handler. */
 extern void mmdl_generic_onoff_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
+/** @brief Update the on-off state from an extended (parent) model without going through message processing. */
 extern void mmdl_generic_onoff_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t onoff_state);
+/** @brief Publish the current Generic OnOff state to the model's configured publish address. */
 extern void mmdl_generic_onoff_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 

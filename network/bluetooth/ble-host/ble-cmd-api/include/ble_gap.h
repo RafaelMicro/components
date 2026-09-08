@@ -7,7 +7,7 @@
 
 /** @file ble_gap.h
  *
- *  * @brief BLE GAP header file.
+ * @brief BLE GAP header file.
  *
  */
 
@@ -63,8 +63,8 @@ typedef uint8_t ble_gap_role_t;
 typedef uint8_t ble_addr_type_t;
 #define PUBLIC_ADDR                   0x00  /**< Public device address.  */
 #define RANDOM_STATIC_ADDR            0x01  /**< Random static device address.  */
-#define RANDOM_NON_RESOLVABLE_ADDR    0x02  /**< Random private non-resolvable address). */
-#define RANDOM_RESOLVABLE_ADDR        0x03  /**< Random private resolvable address). */
+#define RANDOM_NON_RESOLVABLE_ADDR    0x02  /**< Random private non-resolvable address. */
+#define RANDOM_RESOLVABLE_ADDR        0x03  /**< Random private resolvable address. */
 /** @} */
 
 
@@ -106,7 +106,7 @@ typedef uint8_t ble_gap_ad_type_t;
 #define GAP_AD_TYPE_SLAVE_CONNECTION_INTERVAL_RANGE                             0x12  /**< Slave connection interval range. */
 #define GAP_AD_TYPE_SERVICE_SOLICITATION_16B_UUID                               0x14  /**< List of 16-bit service solicitation UUIDs. */
 #define GAP_AD_TYPE_SERVICE_SOLICITATION_128B_UUID                              0x15  /**< List of 128-bit service solicitation UUIDs. */
-#define GAP_AD_TYPE_SERVICE_DATA                                                0x16  /**< Service sata - 16-bit UUID. */
+#define GAP_AD_TYPE_SERVICE_DATA                                                0x16  /**< Service data - 16-bit UUID. */
 #define GAP_AD_TYPE_PUBLIC_TARGET_ADDRESS                                       0x17  /**< Public target address. */
 #define GAP_AD_TYPE_RANDOM_TARGET_ADDRESS                                       0x18  /**< Random target address. */
 #define GAP_AD_TYPE_APPEARANCE                                                  0x19  /**< Appearance. */
@@ -242,9 +242,9 @@ typedef uint8_t ble_phy_t;
  * @details BLE PHY definition.
  */
 typedef uint16_t ble_coded_phy_option_t;
-#define BLE_CODED_PHY_NO_PREFERRED    0x00  /**< The transmitter PHY is LE 1M transmitter PHY.*/
-#define BLE_CODED_PHY_S2              0x01  /**< The transmitter PHY is LE 2M transmitter PHY.*/
-#define BLE_CODED_PHY_S8              0x02  /**< The transmitter PHY is LE Coded transmitter PHY.*/
+#define BLE_CODED_PHY_NO_PREFERRED    0x00  /**< Host has no preferred coding when transmitting on the LE Coded PHY.*/
+#define BLE_CODED_PHY_S2              0x01  /**< Host prefers S=2 coding when transmitting on the LE Coded PHY.*/
+#define BLE_CODED_PHY_S8              0x02  /**< Host prefers S=8 coding when transmitting on the LE Coded PHY.*/
 /** @} */
 
 
@@ -328,8 +328,7 @@ typedef struct ble_gap_conn_param_s
 */
 typedef struct ble_gap_create_conn_param_s
 {
-    /**< Host id. */
-    uint8_t   host_id;
+    uint8_t   host_id;                        /**< Host id. */
 
     /**
      * @ref ble_addr_type_t "BLE Address Type"
@@ -359,11 +358,12 @@ typedef struct ble_gap_create_conn_param_s
 
 } ble_gap_create_conn_param_t;
 
+/** @brief BLE extended (PAwR subevent based) create connection v2 parameter.
+ * @ingroup ble_gap
+*/
 typedef struct ble_gap_extend_create_conn_v2_param_s
 {
-    /**< Host id. */
-
-    uint8_t   host_id;
+    uint8_t   host_id;                          /**< Host id. */
 
     uint8_t   adv_handle;                       /**< advertising handle. */
 
@@ -501,7 +501,7 @@ typedef struct __attribute__((packed)) ble_evt_gap_set_addr_s
 typedef struct __attribute__((packed)) ble_evt_gap_get_addr_s
 {
     uint8_t                 status;          /**< @ref hci_cmd_param_error_code "ble_hci_error_code_t". */
-    ble_gap_addr_t          device_info;     /**< Device address type and address". */
+    ble_gap_addr_t          device_info;     /**< Device address type and address. */
 } ble_evt_gap_get_addr_t;
 
 
@@ -522,7 +522,7 @@ typedef struct __attribute__((packed)) ble_evt_gap_conn_complete_s
 
 
 /**
- * @brief Set BLE Device Address Event Parameters.
+ * @brief BLE create connection event parameters.
  * @ingroup ble_gap
 */
 typedef struct __attribute__((packed)) ble_evt_gap_create_conn_s
@@ -566,8 +566,8 @@ typedef struct __attribute__((packed)) ble_evt_gap_phy_s
 {
     uint8_t                 host_id;         /**< Host id. */
     uint8_t                 status;          /**< @ref hci_cmd_param_error_code "ble_hci_error_code_t". */
-    ble_evt_phy_t           tx_phy;          /**< @ref ble_cmd_phy "TX PHY". */
-    ble_evt_phy_t           rx_phy;          /**< @ref ble_cmd_phy "RX PHY". */
+    ble_evt_phy_t           tx_phy;          /**< @ref ble_evt_phy "TX PHY". */
+    ble_evt_phy_t           rx_phy;          /**< @ref ble_evt_phy "RX PHY". */
 } ble_evt_gap_phy_t;
 
 /**
@@ -580,7 +580,7 @@ typedef struct __attribute__((packed)) ble_evt_gap_default_phy_s
 } ble_evt_gap_default_phy_t;
 
 /**
- * @brief Set BLE Device Address Event Parameters.
+ * @brief BLE read RSSI event parameters.
  * @ingroup ble_gap
 */
 typedef struct __attribute__((packed)) ble_evt_gap_rssi_read_s
@@ -632,12 +632,12 @@ typedef struct ble_evt_gap_s
 /**************************************************************************************************
  *    GLOBAL PROTOTYPES
  *************************************************************************************************/
-/** @brief Check the init state is in idle mode (create connection disabled).
+/** @brief Check the init state is in idle mode (create connection allowed).
  *
  * @ingroup ble_gap
  *
- * @return true : create connection disabled.
- * @return false :  create connection enabled.
+ * @return true : idle mode, create connection is allowed.
+ * @return false : processing, create connection is disabled.
  */
 bool ble_init_idle_state_check(void);
 
@@ -694,6 +694,12 @@ ble_err_t ble_gap_device_address_compare(void);
  *
  * @note      BLE Address : Little Endian and the length is @ref BLE_ADDR_LEN \n
  *            If Device BLE Address is set to "01:02:03:04:05:06", addrParam->addr[0] = 0x06
+ * @note      This function only succeeds when no connection is established on any host id,
+ *            and advertising, scanning, and connection creation are all idle; otherwise
+ *            @ref BLE_ERR_INVALID_STATE is returned. For a random address, the two most
+ *            significant bits of the address MSB must match the given
+ *            @ref ble_gap_addr_type "address type", otherwise @ref BLE_ERR_INVALID_PARAMETER
+ *            is returned.
  *
  * @param[in] p_addr : a pointer to the device BLE address and BLE address type.
  *
@@ -711,7 +717,8 @@ ble_err_t ble_gap_device_address_set(ble_gap_addr_t *p_addr);
  * @note       BLE Address : Little Endian and the length is @ref BLE_ADDR_LEN \n
  *             If Device BLE Address is set to "01:02:03:04:05:06", addrParam->addr[0] = 0x06
  *
- * @par         BLE_GAP_EVT_GET_DEVICE_ADDR
+ * @param[out] p_addr : a pointer to the device address.
+ *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_device_addr_get(ble_gap_addr_t *p_addr);
@@ -726,6 +733,12 @@ ble_err_t ble_cmd_device_addr_get(ble_gap_addr_t *p_addr);
  *
  * @note      BLE Address : Little Endian and the length is @ref BLE_ADDR_LEN \n
  *            If Device BLE Address is set to "01:02:03:04:05:06", addrParam->addr[0] = 0x06
+ * @note      This function only succeeds when no connection is established on any host id,
+ *            and advertising, scanning, and connection creation are all idle; otherwise
+ *            @ref BLE_ERR_INVALID_STATE is returned. For a random address, the two most
+ *            significant bits of the address MSB must match the given
+ *            @ref ble_gap_addr_type "address type", otherwise @ref BLE_ERR_INVALID_PARAMETER
+ *            is returned.
  *
  * @param[in] p_addr : a pointer to the device BLE address and BLE address type.
  *
@@ -738,6 +751,10 @@ ble_err_t ble_cmd_device_addr_set(ble_gap_addr_t *p_addr);
  *
  * @ingroup ble_gap
  *
+ * @note      This command requires the central role to be enabled in the build (returns
+ *            @ref BLE_ERR_CMD_NOT_SUPPORTED otherwise). The given host id must not already
+ *            be active or connected, and connection creation and scanning must both be idle.
+ *
  * @param[in] p_param : a pointer to the create connection parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
@@ -745,6 +762,22 @@ ble_err_t ble_cmd_device_addr_set(ble_gap_addr_t *p_addr);
 ble_err_t ble_cmd_conn_create(ble_gap_create_conn_param_t *p_param);
 
 
+/** @brief BLE extended create connection v2 command (PAwR subevent based connection).
+ *
+ * This function is used to create a connection with a peer device that responds on a
+ * Periodic Advertising with Responses (PAwR) subevent, identified by the advertising
+ * handle and subevent index.
+ *
+ * @ingroup ble_gap
+ *
+ * @note      This command requires the central role to be enabled in the build (returns
+ *            @ref BLE_ERR_CMD_NOT_SUPPORTED otherwise). The given host id must not already
+ *            be active or connected, and connection creation and scanning must both be idle.
+ *
+ * @param[in] p_param : a pointer to the extended create connection v2 parameter.
+ *
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
+ */
 ble_err_t ble_cmd_extend_conn_create_v2(ble_gap_extend_create_conn_v2_param_t *p_param);
 
 /** @brief BLE cancel create connection process command.
@@ -761,6 +794,8 @@ ble_err_t ble_cmd_conn_create_cancel(void);
  * @ingroup ble_gap
  *
  * @note    When using the SCAN function for multi-link, ensure that the current connection interval is greater than 10ms x number of links.
+ * @note    On the peripheral role, this function returns @ref BLE_BUSY if a previous
+ *          connection parameter update on the same link has not yet completed.
  * @param[in] p_param : a pointer to the connection parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
@@ -770,7 +805,7 @@ ble_err_t ble_cmd_conn_param_update(ble_gap_conn_param_update_param_t *p_param);
 
 /** @brief Terminate the BLE connection link.
  *
- * @ingroup ble_gap_func
+ * @ingroup ble_gap
  *
  * @param[in] host_id : the link's host id.
  *
@@ -782,6 +817,10 @@ ble_err_t ble_cmd_conn_terminate(uint8_t host_id);
 /** @brief BLE PHY update.
  *
  * @ingroup ble_gap
+ *
+ * @note      tx_phy and rx_phy must each be set to exactly one of @ref BLE_PHY_1M,
+ *            @ref BLE_PHY_2M, or @ref BLE_PHY_CODED; combining bits is not supported and
+ *            results in @ref BLE_ERR_INVALID_PARAMETER.
  *
  * @param[in] p_param : a pointer to the PHY parameter.
  *
@@ -804,6 +843,10 @@ ble_err_t ble_cmd_phy_read(uint8_t host_id);
 /** @brief BLE set default PHY.
  *
  * @ingroup ble_gap
+ *
+ * @note      tx_phy and rx_phy must each be set to exactly one of @ref BLE_PHY_1M,
+ *            @ref BLE_PHY_2M, or @ref BLE_PHY_CODED; combining bits is not supported and
+ *            results in @ref BLE_ERR_INVALID_PARAMETER.
  *
  * @param[in] p_param : a pointer to the set default PHY parameter.
  *
@@ -858,6 +901,9 @@ ble_err_t ble_cmd_resolvable_address_init(void);
  *
  * @ingroup ble_gap
  *
+ * @note      This function returns @ref BLE_ERR_INVALID_STATE if advertising, scanning, or
+ *            connection creation is currently in progress.
+ *
  * @param[in] host_id : the link's host id.
  * @param[in] en_new_irk :  whether to generate a new IRK.
  *
@@ -868,9 +914,9 @@ ble_err_t ble_cmd_regenerate_resolvable_address(uint8_t host_id, uint8_t en_new_
 
 /** @brief BLE GAP events handler.
  *
- * @ingroup ble_gap_func
+ * @ingroup ble_gap
  *
- * @param p_param :  a pointer to the event parameter.
+ * @param[in] p_param : a pointer to the event parameter.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */

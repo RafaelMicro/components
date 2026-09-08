@@ -29,6 +29,7 @@
 #include "fota_define.h"
 #include "flashctl.h"
 #include "hosal_flash.h"
+#include "hosal_wdt.h"
 
 //=============================================================================
 //                Private Definitions of const value
@@ -169,6 +170,9 @@ void raf_device_cb(zb_uint8_t param)
 
                 for (i = 0; i < SIZE_OF_FOTA_BANK_UNCOMPRESS / 0x1000; i++)
                 {
+#ifdef CONFIG_APP_WDT_ENABLE
+                    hosal_wdt_kick();
+#endif
                     // Page erase (4096 bytes)
                     while (flash_check_busy());
                     taskENTER_CRITICAL();

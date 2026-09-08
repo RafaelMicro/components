@@ -16,10 +16,10 @@
 #include "mcu.h"
 
 /* timer0/1/2, slow timer0/1, total 5 timer */
-#define MAX_NUMBER_OF_TIMER 5
+#define MAX_NUMBER_OF_TIMER (5)
 
-#define TIMER_STATE_OPEN   1
-#define TIMER_STATE_CLOSED 0
+#define TIMER_STATE_OPEN   (1)
+#define TIMER_STATE_CLOSED (0)
 
 /**
  * \brief           The structure save timer info
@@ -209,7 +209,8 @@ void timer2_handler(void) {
     return;
 }
 
-#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB))
+#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB) || \
+     (CHIP_VERSION == RT58X_MPC) || (CHIP_VERSION == RT58X_MPD))
 
 /**
  * \brief           Slow Timer0 Interrupt Handler

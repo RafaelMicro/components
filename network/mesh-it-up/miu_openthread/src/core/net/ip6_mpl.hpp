@@ -200,11 +200,7 @@ private:
     static constexpr uint16_t kNumSeedEntries      = OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRIES;
     static constexpr uint32_t kSeedEntryLifetime   = OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRY_LIFETIME;
     static constexpr uint32_t kSeedEntryLifetimeDt = 1000;
-#if OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT || OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT
-    static constexpr uint16_t  kDataMessageInterval = 1000;
-#else
-    static constexpr uint16_t  kDataMessageInterval = 500;
-#endif
+    static constexpr uint16_t kDataMessageInterval = 1024;
 
     struct SeedEntry
     {
@@ -223,6 +219,12 @@ private:
     static constexpr uint8_t kChildRetransmissions  = 0; // MPL retransmissions for Children.
     static constexpr uint8_t kRouterRetransmissions = 1; // MPL retransmissions for Routers.
 
+    // [Rafael] Trickle suppression: suppress forwarding after hearing K strong-signal copies.
+    // Only copies with RSS >= kSuppressionRssThreshold count toward K.
+    static constexpr uint8_t kSuppressionK            = 2;   // suppress after K strong duplicates heard
+    static constexpr int8_t  kSuppressionRssThreshold = -60; // dBm, minimum RSS to count as strong
+    static constexpr uint8_t kMaxHeardEntries         = 16;  // max concurrent suppression slots
+
     struct Metadata : public Message::FooterData<Metadata>
     {
         void GenerateNextTransmissionTime(TimeMilli aCurrentTime, uint16_t aInterval);
@@ -231,17 +233,29 @@ private:
         uint16_t  mSeedId;
         uint8_t   mSequence;
         uint8_t   mTransmissionCount;
-        uint16_t   mIntervalOffset;
+        uint16_t  mIntervalOffset;
+        // mHeardCount moved out of Metadata to avoid growing FooterData size
+    };
+
+    // [Rafael] parallel table for Trickle suppress heard counts — avoids touching Metadata size
+    struct HeardEntry {
+        uint16_t mSeedId;
+        uint8_t  mSequence;
+        uint8_t  mCount;
+        bool     mActive;
     };
 
     uint8_t DetermineMaxRetransmissions(void) const;
     void    HandleRetransmissionTimer(void);
     void    AddBufferedMessage(Message &aMessage, uint16_t aSeedId, uint8_t aSequence);
+    void    IncrementHeardCount(uint16_t aSeedId, uint8_t aSequence); // [Rafael] Trickle suppress helper
+    void    ClearHeardEntry(uint16_t aSeedId, uint8_t aSequence);     // [Rafael] clean up on message free
 
     using RetxTimer = TimerMilliIn<Mpl, &Mpl::HandleRetransmissionTimer>;
 
     MessageQueue mBufferedMessageSet;
     RetxTimer    mRetransmissionTimer;
+    HeardEntry   mHeardTable[kMaxHeardEntries]; // [Rafael] Trickle suppress table
 #endif // OPENTHREAD_FTD
 };
 

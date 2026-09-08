@@ -147,41 +147,50 @@ extern const ble_att_param_t att_esls_esl_control_point_client_charc_configurati
 #define BLESERVICE_ESLS_ESL_CONTROL_POINT_CCCD_WRITE_RSP_EVENT        0x17     /**< ESLS characteristic ESL_CONTROL_POINT cccd write response event.*/
 /** @} */
 
+/** ESL Control Point Command Opcode Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef uint8_t esl_cmd_opcode_t;
-#define ESL_CMD_PING                    0x00
-#define ESL_CMD_UNASSOCIATE_FROM_AP     0x01
-#define ESL_CMD_SERVICE_RESET           0x02
-#define ESL_CMD_FACTORY_RESET           0x03
-#define ESL_CMD_UPDATE_COMPLETE         0x04
-#define ESL_CMD_READ_SENSOR_DATA        0x10
-#define ESL_CMD_REFRESH_DISPLAY         0x11
-#define ESL_CMD_DISPLAY_IMAGE           0x20
-#define ESL_CMD_DISPLAY_TIMED_IMAGE     0x60
-#define ESL_CMD_LED_CONTROL             0xB0
-#define ESL_CMD_LED_TIMED_CONTROL       0xF0
+#define ESL_CMD_PING                    0x00     /**< ESL command: Ping. */
+#define ESL_CMD_UNASSOCIATE_FROM_AP     0x01     /**< ESL command: Unassociate from AP. */
+#define ESL_CMD_SERVICE_RESET           0x02     /**< ESL command: Service Reset. */
+#define ESL_CMD_FACTORY_RESET           0x03     /**< ESL command: Factory Reset. */
+#define ESL_CMD_UPDATE_COMPLETE         0x04     /**< ESL command: Update Complete. */
+#define ESL_CMD_READ_SENSOR_DATA        0x10     /**< ESL command: Read Sensor Data. */
+#define ESL_CMD_REFRESH_DISPLAY         0x11     /**< ESL command: Refresh Display. */
+#define ESL_CMD_DISPLAY_IMAGE           0x20     /**< ESL command: Display Image. */
+#define ESL_CMD_DISPLAY_TIMED_IMAGE     0x60     /**< ESL command: Display Timed Image. */
+#define ESL_CMD_LED_CONTROL             0xB0     /**< ESL command: LED Control. */
+#define ESL_CMD_LED_TIMED_CONTROL       0xF0     /**< ESL command: LED Timed Control. */
 
+/** ESL Control Point Response Error Code Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef uint8_t esl_rsp_err_t;
-#define ESL_RSP_ERROR_CODE_RFU                        0x00
-#define ESL_RSP_ERROR_CODE_UNSPECIFIED_ERROR          0x01
-#define ESL_RSP_ERROR_CODE_INVALID_OPCODE             0x02
-#define ESL_RSP_ERROR_CODE_INVALID_STATE              0x03
-#define ESL_RSP_ERROR_CODE_INVALID_IMAGE_INDEX        0x04
-#define ESL_RSP_ERROR_CODE_IMAGE_NOT_AVAILABLE        0x05
-#define ESL_RSP_ERROR_CODE_INVALID_PARAMETERS         0x06
-#define ESL_RSP_ERROR_CODE_CAPACITY_LIMIT             0x07
-#define ESL_RSP_ERROR_CODE_INSUFFICIENT_BATTERY       0x08
-#define ESL_RSP_ERROR_CODE_INSUFFICIENT_RESOURCES     0x09
-#define ESL_RSP_ERROR_CODE_RERTY                      0x0A
-#define ESL_RSP_ERROR_CODE_QUEUE_FULL                 0x0B
-#define ESL_RSP_ERROR_CODE_IMPLAUSIBLE_ABSOLUTE_TIME  0x0C
+#define ESL_RSP_ERROR_CODE_RFU                        0x00     /**< ESL response error code: Reserved for future use. */
+#define ESL_RSP_ERROR_CODE_UNSPECIFIED_ERROR          0x01     /**< ESL response error code: Unspecified Error. */
+#define ESL_RSP_ERROR_CODE_INVALID_OPCODE             0x02     /**< ESL response error code: Invalid Opcode. */
+#define ESL_RSP_ERROR_CODE_INVALID_STATE              0x03     /**< ESL response error code: Invalid State. */
+#define ESL_RSP_ERROR_CODE_INVALID_IMAGE_INDEX        0x04     /**< ESL response error code: Invalid Image Index. */
+#define ESL_RSP_ERROR_CODE_IMAGE_NOT_AVAILABLE        0x05     /**< ESL response error code: Image Not Available. */
+#define ESL_RSP_ERROR_CODE_INVALID_PARAMETERS         0x06     /**< ESL response error code: Invalid Parameters. */
+#define ESL_RSP_ERROR_CODE_CAPACITY_LIMIT             0x07     /**< ESL response error code: Capacity Limit. */
+#define ESL_RSP_ERROR_CODE_INSUFFICIENT_BATTERY       0x08     /**< ESL response error code: Insufficient Battery. */
+#define ESL_RSP_ERROR_CODE_INSUFFICIENT_RESOURCES     0x09     /**< ESL response error code: Insufficient Resources. */
+#define ESL_RSP_ERROR_CODE_RERTY                      0x0A     /**< ESL response error code: Retry. */
+#define ESL_RSP_ERROR_CODE_QUEUE_FULL                 0x0B     /**< ESL response error code: Queue Full. */
+#define ESL_RSP_ERROR_CODE_IMPLAUSIBLE_ABSOLUTE_TIME  0x0C     /**< ESL response error code: Implausible Absolute Time. */
 
+/** ESL Control Point Response Opcode Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef uint8_t esl_rsp_opcode_t;
-#define ESL_RSP_ERROR                0x00
-#define ESL_RSP_LED_STATE            0x01
-#define ESL_RSP_BASIC_STATE          0x10
-#define ESL_RSP_DISPLAY_STATE        0x11
-#define ESL_RSP_SENSOR_VALUE         0x0E
-#define ESL_RSP_VENDOR_SPECIFIC_RSP  0x0F
+#define ESL_RSP_ERROR                0x00     /**< ESL response opcode: Error. */
+#define ESL_RSP_LED_STATE            0x01     /**< ESL response opcode: LED State. */
+#define ESL_RSP_BASIC_STATE          0x10     /**< ESL response opcode: Basic State. */
+#define ESL_RSP_DISPLAY_STATE        0x11     /**< ESL response opcode: Display State. */
+#define ESL_RSP_SENSOR_VALUE         0x0E     /**< ESL response opcode: Sensor Value. */
+#define ESL_RSP_VENDOR_SPECIFIC_RSP  0x0F     /**< ESL response opcode: Vendor Specific Response. */
 
 
 /**
@@ -237,221 +246,304 @@ typedef struct ble_svcs_esls_info_s
 } ble_svcs_esls_info_t;
 
 
+/** ESL Address Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct ble_svcs_esls_esl_address_s
 {
-    uint16_t  esl_id:8,
-              group_id:7,
-              rfu:1;
+    uint16_t  esl_id:8,      /**< ESL ID assigned by the AP. */
+              group_id:7,    /**< Group ID that the ESL belongs to. */
+              rfu:1;         /**< Reserved for future use. */
 } ble_svcs_esls_esl_address_t;
 
+/** AP_SYNC_KEY_MATERIAL Characteristic Value Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct esls_charc_ap_sync_key_material_s
 {
-    uint8_t   ap_sync_key[24];
+    uint8_t   ap_sync_key[24];    /**< AP Sync value (16 octets) followed by the AP session key material Randomizer (8 octets). */
 } esls_charc_ap_sync_key_material_t;
 
+/** ESL_RSP_KEY_MATERIAL Characteristic Value Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct esls_charc_esl_rsp_key_material_s
 {
-    uint8_t   esl_rsp_key[24];
+    uint8_t   esl_rsp_key[24];    /**< ESL response key (16 octets) followed by the ESL response key material Randomizer (8 octets). */
 } esls_charc_esl_rsp_key_material_t;
 
+/** ESL_CURRENT_ABSOLUTE_TIME Characteristic Value Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct esls_charc_current_absolute_time_s
 {
-    uint32_t   time;
+    uint32_t   time;    /**< Current absolute time, in units of 1/256 second, maintained by the AP. */
 } esls_charc_current_absolute_time_t;
 
+/** ESL Control Point Response - Error Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_err_param_s
 {
-    esl_rsp_opcode_t opcode;
-    esl_rsp_err_t    error_code;
-} esls_ctrl_point_rsp_err_param_t; 
+    esl_rsp_opcode_t opcode;         /**< Fixed to @ref ESL_RSP_ERROR. */
+    esl_rsp_err_t    error_code;     /**< Error code of the failed command. @ref esl_rsp_err_t */
+} esls_ctrl_point_rsp_err_param_t;
 
 
+/** ESL Control Point Response - LED State Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_led_state_param_s
 {
-    esl_rsp_opcode_t opcode;
-    uint8_t          led_index;
-} esls_ctrl_point_rsp_led_state_param_t; 
+    esl_rsp_opcode_t opcode;        /**< Fixed to @ref ESL_RSP_LED_STATE. */
+    uint8_t          led_index;     /**< Index of the LED that changed state. */
+} esls_ctrl_point_rsp_led_state_param_t;
 
+/** ESL Control Point Response - Basic State Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_basic_state_param_s
 {
-    esl_rsp_opcode_t opcode;
-    uint16_t         service_need:1,
-                     synchronized:1,
-                     active_led:1,
-                     pending_led_update:1,
-                     pending_display_update:1,
-                     rfu:11;
-} esls_ctrl_point_rsp_basic_state_param_t; 
+    esl_rsp_opcode_t opcode;                    /**< Fixed to @ref ESL_RSP_BASIC_STATE. */
+    uint16_t         service_need:1,            /**< 1 if the ESL requires servicing, 0 otherwise. */
+                     synchronized:1,            /**< 1 if the ESL is synchronized to the AP, 0 otherwise. */
+                     active_led:1,              /**< 1 if any LED is currently active, 0 otherwise. */
+                     pending_led_update:1,      /**< 1 if an LED update is pending, 0 otherwise. */
+                     pending_display_update:1,  /**< 1 if a display update is pending, 0 otherwise. */
+                     rfu:11;                    /**< Reserved for future use. */
+} esls_ctrl_point_rsp_basic_state_param_t;
 
+/** ESL Control Point Response - Display State Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_display_state_param_s
 {
-    esl_rsp_opcode_t opcode;
-    uint8_t          display_index;
-    uint8_t          image_index;
-} esls_ctrl_point_rsp_display_state_param_t; 
+    esl_rsp_opcode_t opcode;             /**< Fixed to @ref ESL_RSP_DISPLAY_STATE. */
+    uint8_t          display_index;      /**< Index of the display that changed state. */
+    uint8_t          image_index;        /**< Index of the image currently shown on the display. */
+} esls_ctrl_point_rsp_display_state_param_t;
 
+/** ESL Control Point Response - Sensor Value Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_sensor_state_param_s
 {
-    esl_rsp_opcode_t opcode;
-    uint8_t          sensor_index;
-    uint8_t          sensor_data[];
-} esls_ctrl_point_rsp_sensor_state_param_t; 
+    esl_rsp_opcode_t opcode;            /**< Fixed to @ref ESL_RSP_SENSOR_VALUE. */
+    uint8_t          sensor_index;      /**< Index of the sensor that this reading was taken from. */
+    uint8_t          sensor_data[];     /**< Sensor reading data, format depends on the sensor type. */
+} esls_ctrl_point_rsp_sensor_state_param_t;
 
+/** ESL Control Point Response - Vendor Specific Response Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_ctrl_point_rsp_vendor_state_param_s
 {
-    esl_rsp_opcode_t opcode;
-    uint8_t          vendor_data[];
-} esls_ctrl_point_rsp_vendor_state_param_t; 
+    esl_rsp_opcode_t opcode;           /**< Fixed to @ref ESL_RSP_VENDOR_SPECIFIC_RSP. */
+    uint8_t          vendor_data[];    /**< Vendor specific response data. */
+} esls_ctrl_point_rsp_vendor_state_param_t;
 
+/** ESL Control Point Response Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef union __attribute__((packed)) esls_ctrl_point_rsp_param_s
 {
-    esl_rsp_opcode_t opcode;
-    esls_ctrl_point_rsp_err_param_t           err;
-    esls_ctrl_point_rsp_led_state_param_t     led_state;
-    esls_ctrl_point_rsp_basic_state_param_t   basic_state;
-    esls_ctrl_point_rsp_display_state_param_t display_state;
-    esls_ctrl_point_rsp_sensor_state_param_t  sensor_state;
-    esls_ctrl_point_rsp_vendor_state_param_t  vendor_state;
-} esls_ctrl_point_rsp_param_t; 
+    esl_rsp_opcode_t opcode;                                  /**< Response opcode. @ref esl_rsp_opcode_t */
+    esls_ctrl_point_rsp_err_param_t           err;             /**< Valid when opcode is @ref ESL_RSP_ERROR. */
+    esls_ctrl_point_rsp_led_state_param_t     led_state;        /**< Valid when opcode is @ref ESL_RSP_LED_STATE. */
+    esls_ctrl_point_rsp_basic_state_param_t   basic_state;      /**< Valid when opcode is @ref ESL_RSP_BASIC_STATE. */
+    esls_ctrl_point_rsp_display_state_param_t display_state;    /**< Valid when opcode is @ref ESL_RSP_DISPLAY_STATE. */
+    esls_ctrl_point_rsp_sensor_state_param_t  sensor_state;     /**< Valid when opcode is @ref ESL_RSP_SENSOR_VALUE. */
+    esls_ctrl_point_rsp_vendor_state_param_t  vendor_state;     /**< Valid when opcode is @ref ESL_RSP_VENDOR_SPECIFIC_RSP. */
+} esls_ctrl_point_rsp_param_t;
 
 
+/** ESL Control Point Response as Carried in a Periodic Advertising Response Slot
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) esls_padv_rsp_param_s
 {
-    uint8_t len;
-    uint8_t esl_tag;
-    uint8_t rsp[]; //esls_ctrl_point_rsp_param_t
-} esls_padv_rsp_param_t; 
+    uint8_t len;        /**< Length of the remaining fields, i.e. esl_tag + rsp[]. */
+    uint8_t esl_tag;     /**< ESL tag (ESL ID) that this response belongs to. */
+    uint8_t rsp[]; //esls_ctrl_point_rsp_param_t    /**< ESL control point response. @ref esls_ctrl_point_rsp_param_t */
+} esls_padv_rsp_param_t;
 
+/** ESL Control Point Command - Read Sensor Data Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_read_sensor_data_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t sensor_index;
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_READ_SENSOR_DATA. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t sensor_index;             /**< Index of the sensor to be read. */
 } ble_esl_cmd_read_sensor_data_t;
 
+/** ESL Control Point Command - Refresh Display Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_refresh_display_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t display_index;
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_REFRESH_DISPLAY. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t display_index;            /**< Index of the display to be refreshed. */
 } ble_esl_cmd_refresh_display_t;
 
+/** ESL Control Point Command - Display Image Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_display_image_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t display_index;
-    uint8_t image_index;
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_DISPLAY_IMAGE. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t display_index;            /**< Index of the display to show the image on. */
+    uint8_t image_index;              /**< Index of the stored image to be displayed. */
 } ble_esl_cmd_display_image_t;
 
+/** ESL Control Point Command - Display Timed Image Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_display_timed_image_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t display_index;
-    uint8_t image_index;
-    uint32_t absolute_time;
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_DISPLAY_TIMED_IMAGE. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t display_index;            /**< Index of the display to show the image on. */
+    uint8_t image_index;              /**< Index of the stored image to be displayed. */
+    uint32_t absolute_time;           /**< Absolute time at which the image shall be displayed. */
 } ble_esl_cmd_display_timed_image_t;
 
+/** ESL Control Point Command - LED Control Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_led_control_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t led_index;
-    uint8_t color_red:2,
-            color_green:2,
-            color_blue:2,
-            brightness:2;
-    uint8_t flashing_pattern[7];
-    uint16_t repeat_type:1,
-             repeat_duration:15;        
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_LED_CONTROL. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t led_index;                /**< Index of the LED to be controlled. */
+    uint8_t color_red:2,              /**< Red color intensity. */
+            color_green:2,            /**< Green color intensity. */
+            color_blue:2,             /**< Blue color intensity. */
+            brightness:2;             /**< LED brightness level. */
+    uint8_t flashing_pattern[7];      /**< LED flashing pattern bitmap. */
+    uint16_t repeat_type:1,           /**< Flashing pattern repeat type. */
+             repeat_duration:15;      /**< Flashing pattern repeat duration. */
 } ble_esl_cmd_led_control_t;
 
+/** ESL Control Point Command - LED Timed Control Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_led_timed_control_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
-    uint8_t led_index;
-    uint8_t color_red:2,
-            color_green:2,
-            color_blue:2,
-            brightness:2;
-    uint8_t flashing_pattern[7];
-    uint16_t repeat_type:1,
-             repeat_duration:15;
-    uint32_t absolute_time;
+    esl_cmd_opcode_t opcode;          /**< Fixed to @ref ESL_CMD_LED_TIMED_CONTROL. */
+    uint8_t esl_id;                   /**< ESL ID that this command is addressed to. */
+    uint8_t led_index;                /**< Index of the LED to be controlled. */
+    uint8_t color_red:2,              /**< Red color intensity. */
+            color_green:2,            /**< Green color intensity. */
+            color_blue:2,             /**< Blue color intensity. */
+            brightness:2;             /**< LED brightness level. */
+    uint8_t flashing_pattern[7];      /**< LED flashing pattern bitmap. */
+    uint16_t repeat_type:1,           /**< Flashing pattern repeat type. */
+             repeat_duration:15;      /**< Flashing pattern repeat duration. */
+    uint32_t absolute_time;           /**< Absolute time at which the LED control shall take effect. */
 } ble_esl_cmd_led_timed_control_t;
 
+/** ESL Control Point Command Header Definition
+ * @ingroup app_esls_structureDef
+ * @note Common header shared by all ESL control point commands.
+*/
 typedef struct __attribute__((packed)) ble_esl_ctrl_point_cmd_header_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Command opcode. @ref esl_cmd_opcode_t */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_ctrl_point_cmd_header_t;
 
+/** ESL Control Point Command - Ping Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_ping_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Fixed to @ref ESL_CMD_PING. */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_cmd_ping_t;
 
+/** ESL Control Point Command - Unassociate from AP Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_unassociate_from_ap_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Fixed to @ref ESL_CMD_UNASSOCIATE_FROM_AP. */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_cmd_unassociate_from_ap_t;
 
+/** ESL Control Point Command - Service Reset Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_service_reset_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Fixed to @ref ESL_CMD_SERVICE_RESET. */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_cmd_service_reset_t;
 
+/** ESL Control Point Command - Factory Reset Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_factory_reset_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Fixed to @ref ESL_CMD_FACTORY_RESET. */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_cmd_factory_reset_t;
 
+/** ESL Control Point Command - Update Complete Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef struct __attribute__((packed)) ble_esl_cmd_update_complete_s
 {
-    esl_cmd_opcode_t opcode;
-    uint8_t esl_id;
+    esl_cmd_opcode_t opcode;    /**< Fixed to @ref ESL_CMD_UPDATE_COMPLETE. */
+    uint8_t esl_id;             /**< ESL ID that this command is addressed to. */
 }ble_esl_cmd_update_complete_t;
 
+/** ESL Control Point Command Parameter Definition
+ * @ingroup app_esls_structureDef
+*/
 typedef union __attribute__((packed)) ble_esl_control_point_cmd_s
 {
 
-    ble_esl_ctrl_point_cmd_header_t   cmd_header;
-    ble_esl_cmd_ping_t                ping;
-    ble_esl_cmd_unassociate_from_ap_t unassoc_from_ap;
-    ble_esl_cmd_service_reset_t       service_reset;
-    ble_esl_cmd_factory_reset_t       factory_reset;
-    ble_esl_cmd_update_complete_t     update_complete;
-    ble_esl_cmd_read_sensor_data_t    read_sensor_data;
-    ble_esl_cmd_refresh_display_t     refresh_display;
-    ble_esl_cmd_display_image_t       display_image;
-    ble_esl_cmd_display_timed_image_t display_timed_image;
-    ble_esl_cmd_led_control_t         led_ctrl;
-    ble_esl_cmd_led_timed_control_t   led_timed_ctrl;
+    ble_esl_ctrl_point_cmd_header_t   cmd_header;            /**< Common command header. @ref ble_esl_ctrl_point_cmd_header_t */
+    ble_esl_cmd_ping_t                ping;                  /**< Valid when opcode is @ref ESL_CMD_PING. */
+    ble_esl_cmd_unassociate_from_ap_t unassoc_from_ap;        /**< Valid when opcode is @ref ESL_CMD_UNASSOCIATE_FROM_AP. */
+    ble_esl_cmd_service_reset_t       service_reset;          /**< Valid when opcode is @ref ESL_CMD_SERVICE_RESET. */
+    ble_esl_cmd_factory_reset_t       factory_reset;          /**< Valid when opcode is @ref ESL_CMD_FACTORY_RESET. */
+    ble_esl_cmd_update_complete_t     update_complete;        /**< Valid when opcode is @ref ESL_CMD_UPDATE_COMPLETE. */
+    ble_esl_cmd_read_sensor_data_t    read_sensor_data;       /**< Valid when opcode is @ref ESL_CMD_READ_SENSOR_DATA. */
+    ble_esl_cmd_refresh_display_t     refresh_display;        /**< Valid when opcode is @ref ESL_CMD_REFRESH_DISPLAY. */
+    ble_esl_cmd_display_image_t       display_image;          /**< Valid when opcode is @ref ESL_CMD_DISPLAY_IMAGE. */
+    ble_esl_cmd_display_timed_image_t display_timed_image;    /**< Valid when opcode is @ref ESL_CMD_DISPLAY_TIMED_IMAGE. */
+    ble_esl_cmd_led_control_t         led_ctrl;                /**< Valid when opcode is @ref ESL_CMD_LED_CONTROL. */
+    ble_esl_cmd_led_timed_control_t   led_timed_ctrl;          /**< Valid when opcode is @ref ESL_CMD_LED_TIMED_CONTROL. */
 } ble_esl_control_point_cmd_t;
 
 
+/** ESL Control Point Command as Carried in an Encrypted Periodic Advertising Data Fragment
+ * @ingroup app_esls_structureDef
+*/
 typedef struct  __attribute__((packed)) esls_padv_enc_data_param_s
 {
-    uint8_t len;
-    uint8_t esl_tag;
-    uint8_t group_id:7,
-            rfu:1;
-    uint8_t  cmd[]; //ble_esl_control_point_cmd_t
+    uint8_t len;              /**< Length of the remaining fields, i.e. esl_tag + group_id/rfu + cmd[]. */
+    uint8_t esl_tag;          /**< ESL tag (ESL ID) that this command is addressed to, or the group tag if group_id is used. */
+    uint8_t group_id:7,       /**< Group ID that this command is addressed to. */
+            rfu:1;            /**< Reserved for future use. */
+    uint8_t  cmd[]; //ble_esl_control_point_cmd_t    /**< ESL control point command. @ref ble_esl_control_point_cmd_t */
 } esls_padv_enc_data_param_t;
 
-typedef struct __attribute__((packed)) esls_padv_rsp_enc_hdr_param_s
+/** Encrypted Periodic Advertising Data Header Definition
+ * @ingroup app_esls_structureDef
+ * @note Wraps one or more @ref esls_padv_enc_data_param_t entries encrypted with AES-CCM.
+*/
+typedef struct __attribute__((packed)) esls_padv_enc_hdr_param_s
 {
-     uint8_t length;
-     uint8_t type;
-     uint8_t randomizer[5];
-     uint8_t enc_data[]; // esls_padv_enc_data_param_t
-} esls_padv_enc_hdr_param_t; 
+     uint8_t length;          /**< Length of the remaining fields, i.e. type + randomizer + enc_data[]. */
+     uint8_t type;            /**< AD type of the encrypted ESL payload. */
+     uint8_t randomizer[5];   /**< Randomizer used to derive the per-frame nonce for decryption. */
+     uint8_t enc_data[]; // esls_padv_enc_data_param_t    /**< Encrypted ESL control point command(s). @ref esls_padv_enc_data_param_t */
+} esls_padv_enc_hdr_param_t;
 
 
 /**

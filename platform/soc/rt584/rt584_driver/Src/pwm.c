@@ -434,7 +434,7 @@ uint32_t pwm_fmt1_duty(uint32_t id, uint8_t duty) {
     }
 
     if(m_pwm_handle[id].invert==1) {
-        duty_val = PWM_DUTY_MAX_PERCENT - duty_val; 
+        duty_val = m_pwm_handle[id].full_count - duty_val; 
     }
     
     if (pwm_set_cfg.bit.cfg_seq_order == PWM_SEQ_ORDER_R) {
@@ -474,8 +474,8 @@ uint32_t pwm_fmt0_duty(uint32_t id, uint8_t duty) {
     }
 
     if(m_pwm_handle[id].invert==1) {
-        duty1 = PWM_DUTY_MAX_PERCENT - duty1; 
-        duty2 = PWM_DUTY_MAX_PERCENT - duty2; 
+        duty1 = count_end_value - duty1; 
+        duty2 = count_end_value - duty2; 
     }
 
     if (pwm_set_cfg.bit.cfg_seq_order == PWM_SEQ_ORDER_R) {
@@ -601,7 +601,7 @@ uint32_t pwm_multi_init(pwm_config_t pwm_cfg, uint32_t freqency) {
     pwm->pwm_rdma0_set1 = (uint32_t)pwm_cfg.rseq.rdma_addr;
 
     //Save rseq start address
-    m_pwm_handle[pwm_cfg.id].tseq_addr = pwm->pwm_rdma0_set1;
+    m_pwm_handle[pwm_cfg.id].rseq_addr = pwm->pwm_rdma0_set1;
 
     //TSEQ
     pwm->pwm_set6 = pwm_cfg.tseq.element_num;
@@ -610,14 +610,14 @@ uint32_t pwm_multi_init(pwm_config_t pwm_cfg, uint32_t freqency) {
 
     //Simple format 1
     pwm->pwm_rdma1_set0 = (pwm_cfg.dma_smp_fmt == PWM_DMA_SMP_FMT_0)
-                              ? ((pwm_cfg.rseq.element_num >> 1)
-                                 | ((pwm_cfg.rseq.element_num >> 2) << 16))
-                              : ((pwm_cfg.rseq.element_num)
-                                 | ((pwm_cfg.rseq.element_num >> 1) << 16));
+                              ? ((pwm_cfg.tseq.element_num >> 1)
+                                 | ((pwm_cfg.tseq.element_num >> 2) << 16))
+                              : ((pwm_cfg.tseq.element_num)
+                                 | ((pwm_cfg.tseq.element_num >> 1) << 16));
     pwm->pwm_rdma1_set1 = (uint32_t)pwm_cfg.tseq.rdma_addr;
 
     //Save tseq start address
-    m_pwm_handle[pwm_cfg.id].rseq_addr = pwm->pwm_rdma1_set1;
+    m_pwm_handle[pwm_cfg.id].tseq_addr = pwm->pwm_rdma1_set1;
 
     pwm->pwm_rdma0_ctl0 &= ~PWM_RDMA_ENABLE;
     pwm->pwm_rdma1_ctl0 &= ~PWM_RDMA_ENABLE;
@@ -653,7 +653,7 @@ uint32_t pwm_multi_fmt1_duty(uint32_t id, pwm_seq_order_t seq_order,
     }
 
     if(m_pwm_handle[id].invert==1) {
-        duty_val = PWM_DUTY_MAX_PERCENT - duty_val; 
+        duty_val = m_pwm_handle[id].full_count - duty_val;
     }
 
     if (seq_order == PWM_SEQ_ORDER_R) {
@@ -699,8 +699,8 @@ uint32_t pwm_multi_fmt0_duty(uint32_t id, pwm_seq_order_t seq_order,
     }
 
     if(m_pwm_handle[id].invert==1) {
-        duty_val1 = PWM_DUTY_MAX_PERCENT - duty_val1; 
-        duty_val1 = PWM_DUTY_MAX_PERCENT - duty_val1; 
+        duty_val1 = count_end_value - duty_val1;
+        duty_val2 = count_end_value - duty_val2;
     }
 
     if (seq_order == PWM_SEQ_ORDER_R) {

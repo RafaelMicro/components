@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_control_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Light HSL server and setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -48,10 +48,12 @@ static void mmdl_light_hsl_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc
 static void mmdl_light_hsl_send_status(uint16_t opcode, uint32_t paramter_size,  mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_light_hsl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model);
 
+/** @brief Initialize the Light HSL server model instance on an element. */
 void mmdl_light_hsl_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 }
 
+/** @brief Dispatch an incoming Light HSL message to the handler matching its opcode. */
 void mmdl_light_hsl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -104,6 +106,7 @@ void mmdl_light_hsl_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
 
 }
 
+/** @brief Handle a state update from an extended child model and propagate/publish the change. */
 void mmdl_light_hsl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t  *p_parent_model;
@@ -156,6 +159,7 @@ void mmdl_light_hsl_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_
     } while (0);
 }
 
+/** @brief Apply the Light HSL state recalled from a scene and propagate it to the extended Lightness model. */
 void mmdl_light_hsl_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     light_hsl_state_t       *p_light_hsl_state;
@@ -177,6 +181,7 @@ void mmdl_light_hsl_scene_set(ble_mesh_element_param_t *p_current_element)
 
 }
 
+/** @brief Handle the Light HSL Get message by replying with the current HSL status. */
 static void mmdl_light_hsl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_hsl_send_status(MMDL_LIGHT_HSL_STATUS_OPCODE,
@@ -184,6 +189,7 @@ static void mmdl_light_hsl_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
                                p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light HSL Set / Set Unacknowledged message, updating lightness/hue/saturation and optionally replying with status. */
 static void mmdl_light_hsl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_hsl_state_t    *p_light_hsl_state = (light_hsl_state_t *)p_model->p_state_var;
@@ -203,6 +209,7 @@ static void mmdl_light_hsl_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_
 
 }
 
+/** @brief Handle the Light HSL Target Get message by replying with the current target HSL status. */
 static void mmdl_light_hsl_target_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_hsl_send_status(MMDL_LIGHT_HSL_TARGET_STATUS_OPCODE,
@@ -211,6 +218,7 @@ static void mmdl_light_hsl_target_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 
 }
 
+/** @brief Handle the Light HSL Default Get message by replying with the default HSL status. */
 static void mmdl_light_hsl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_hsl_send_status(MMDL_LIGHT_HSL_DEFAULT_STATUS_OPCODE,
@@ -218,6 +226,7 @@ static void mmdl_light_hsl_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
                                p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light HSL Default Set / Set Unacknowledged message, updating the default hue/saturation/lightness. */
 static void mmdl_light_hsl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_hsl_state_t            *p_light_hsl_state = (light_hsl_state_t *)p_model->p_state_var;
@@ -237,6 +246,7 @@ static void mmdl_light_hsl_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_i
 
 }
 
+/** @brief Handle the Light HSL Range Get message by replying with the current hue/saturation range status. */
 static void mmdl_light_hsl_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_hsl_send_status(MMDL_LIGHT_HSL_RANGE_STATUS_OPCODE,
@@ -245,6 +255,7 @@ static void mmdl_light_hsl_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
 
 }
 
+/** @brief Handle the Light HSL Range Set / Set Unacknowledged message, updating the hue and saturation ranges. */
 static void mmdl_light_hsl_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_hsl_state_t          *p_light_hsl_state = (light_hsl_state_t *)p_model->p_state_var;
@@ -264,6 +275,7 @@ static void mmdl_light_hsl_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc
 
 }
 
+/** @brief Build and send a Light HSL status-family message (Status/Target/Default/Range Status) to the requester. */
 static void mmdl_light_hsl_send_status(uint16_t opcode, uint32_t paramter_size,  mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -355,6 +367,7 @@ static void mmdl_light_hsl_send_status(uint16_t opcode, uint32_t paramter_size, 
 
 }
 
+/** @brief Push the current HSL lightness state down to the extended Light Lightness model. */
 static void mmdl_light_hsl_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     light_hsl_state_t       *p_light_hsl_state = (light_hsl_state_t *)p_parent_model->p_state_var;
@@ -372,6 +385,7 @@ static void mmdl_light_hsl_update_extend(ble_mesh_element_param_t *p_current_ele
 
 }
 
+/** @brief Publish the current Light HSL status to the model's configured publish address. */
 void mmdl_light_hsl_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

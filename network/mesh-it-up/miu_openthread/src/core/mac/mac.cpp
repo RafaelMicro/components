@@ -739,8 +739,7 @@ void Mac::PerformNextOperation(void)
         break;
 
     case kOperationWaitingForData:
-        // mLinks.Receive(mRadioChannel) is not needed here; Rafael FW automatically
-        // keeps RX open upon receiving an ACK with frame-pending bit set.
+        mLinks.Receive(mRadioChannel);
         mTimer.Start(kDataPollTimeout);
         break;
     }

@@ -34,8 +34,8 @@ extern "C" {
 /**
  * \brief           software interrupt const define
  */
-#define MAX_NUMBER_OF_SOFT_INT              2
-#define MAX_NUMBER_OF_SWI                   32
+#define MAX_NUMBER_OF_SOFT_INT              (2)
+#define MAX_NUMBER_OF_SWI                   (32)
 
 /**
  * \brief           software interrupt enum define

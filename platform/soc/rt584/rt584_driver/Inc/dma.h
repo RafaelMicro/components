@@ -35,9 +35,9 @@ extern "C" {
 /**
  * \brief 
  */
-#define MAX_NUMBER_OF_DMA      2
-#define DMA_STATUS_BUSY        1
-#define DMA_STATUS_FREE        0
+#define MAX_NUMBER_OF_DMA      (2)
+#define DMA_STATUS_BUSY        (1)
+#define DMA_STATUS_FREE        (0)
 
 
 /**

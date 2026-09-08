@@ -57,6 +57,7 @@ extern "C"
 #define CONFIG_VENDOR_MODEL_APP_LIST                0x4E80
 
 
+/** @brief Describes a single element entry within Composition Data Page 0 (location plus SIG/vendor model ID lists). */
 typedef struct __attribute__((packed))
 {
     uint16_t loc;
@@ -66,6 +67,7 @@ typedef struct __attribute__((packed))
 }
 element_format;
 
+/** @brief Composition Data Page 0 content: CID/PID/VID, feature flags, and the variable-length element list. */
 typedef struct __attribute__((packed))
 {
     uint16_t  cid;   /*company identifier assigned by the Bluetooth SIG*/
@@ -81,10 +83,11 @@ typedef struct __attribute__((packed))
 }
 comp_data_page_0;
 
+/** @brief Payload of the Config Composition Data Status message (page number plus the page-specific data union). */
 typedef struct __attribute__((packed))
 {
     uint8_t   page_num;
-    union packed 
+    union packed
     {
         comp_data_page_0 comp_data;
     } data;
@@ -92,18 +95,20 @@ typedef struct __attribute__((packed))
 cfg_comp_data_status;
 
 
+/** @brief Payload of the Config AppKey Status message (result status plus the affected NetKey/AppKey index). */
 typedef struct
 {
     uint32_t  status: 8;
     uint32_t  key_index: 24;
 } cfg_appkey_status;
 
+/** @brief Payload of the Config Model App Status message (result status, element address, AppKey index and bound model ID). */
 typedef struct __attribute__((packed))
 {
     uint8_t   status;
     uint16_t  element_address;
     uint16_t  appkey_index;
-    union 
+    union
     {
         uint16_t sig_model;
         uint32_t vendor_model;
@@ -111,6 +116,7 @@ typedef struct __attribute__((packed))
 }
 cfg_model_app_status;
 
+/** @brief Build and send a Configuration Client message (e.g. AppKey/NetKey/model management) to a destination node. */
 void cfgmdl_client_send(uint32_t opcode, uint16_t dst, uint8_t *p_param, uint16_t pram_len);
 
 

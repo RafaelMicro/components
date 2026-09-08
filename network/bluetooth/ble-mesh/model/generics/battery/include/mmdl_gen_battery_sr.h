@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+/** @brief Dispatch an incoming Generic Battery model message to the matching opcode handler. */
 extern void mmdl_generic_battery_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
 
 #ifdef __cplusplus

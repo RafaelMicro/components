@@ -35,9 +35,9 @@ extern "C" {
  * \brief           DMA const definetions
  */
 
-#define MAX_NUMBER_OF_DMA 4                     /*RT58x has 4 DMA channel*/
-#define DMA_MODE32 2                            /*!< DMA move 32-bits width data    */
-#define DMA_MODE8  0                            /*!< DMA move 8-bits width data     */
+#define MAX_NUMBER_OF_DMA (4)                     /*RT58x has 4 DMA channel*/
+#define DMA_MODE32 (2)                            /*!< DMA move 32-bits width data    */
+#define DMA_MODE8  (0)                            /*!< DMA move 8-bits width data     */
 #define DMA_CNTL_SRC_FIXED (1U << 31)           /*!< DMA source address is fixed     */
 #define DMA_CNTL_SRC_INC   (0U << 31)           /*!< DMA source address is increment  */
 #define DMA_CNTL_SRC_WIDTH_8BIT (0 << 28)       /*!< DMA source AHB HSIZE 8-bits */

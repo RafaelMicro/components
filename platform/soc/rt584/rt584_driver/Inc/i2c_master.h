@@ -35,47 +35,47 @@ extern "C" {
 /**
  * \brief           I2C Master Clock Constant Definitions
  */
-#define I2C_CLOCK_400K      0
-#define I2C_CLOCK_200K      1
-#define I2C_CLOCK_100K      2
-#define I2C_CLOCK_800K      3
-#define I2C_CLOCK_1M        4
-#define I2C_CLOCK_MAX       5
+#define I2C_CLOCK_400K      (0)
+#define I2C_CLOCK_200K      (1)
+#define I2C_CLOCK_100K      (2)
+#define I2C_CLOCK_800K      (3)
+#define I2C_CLOCK_1M        (4)
+#define I2C_CLOCK_MAX       (5)
 
 /**
  * \brief           I2C Master return callback constant definitions
  */
-#define I2C_STATUS_OK             0
-#define I2C_STATUS_ERR_NOACK      1
+#define I2C_STATUS_OK             (0)
+#define I2C_STATUS_ERR_NOACK      (1)
 
 /**
  * \brief           I2C Master control register bit definitions
  */
-#define I2CM_CONTROL_ENABLE             0x01
-#define I2CM_CONTROL_RESTART            0x02
-#define I2CM_CONTROL_STOP_EN            0x04
-#define I2CM_CONTROL_BUS_CLEAR          0x08
-#define I2CM_CONTROL_FIFO_CLEAR         0x10
+#define I2CM_CONTROL_ENABLE             (0x01)
+#define I2CM_CONTROL_RESTART            (0x02)
+#define I2CM_CONTROL_STOP_EN            (0x04)
+#define I2CM_CONTROL_BUS_CLEAR          (0x08)
+#define I2CM_CONTROL_FIFO_CLEAR         (0x10)
 
 /**
  * \brief           I2C Master interrupt register bit definitions
  */
-#define I2CM_INT_RX_UNDER           0x0001
-#define I2CM_INT_RX_OVER            0x0002
-#define I2CM_INT_RX_FULL            0x0004
-#define I2CM_INT_RX_FINISH          0x0008
-#define I2CM_INT_TX_OVER            0x0010
-#define I2CM_INT_TX_EMPTY           0x0020
-#define I2CM_INT_ADDR_NACK          0x0040
-#define I2CM_INT_WRITE_NACK         0x0080
-#define I2CM_INT_LOSTARB            0x0100
-#define I2CM_INT_IDLE               0x0200
-#define I2CM_INT_MASK_ALL           0x03FF
+#define I2CM_INT_RX_UNDER           (0x0001)
+#define I2CM_INT_RX_OVER            (0x0002)
+#define I2CM_INT_RX_FULL            (0x0004)
+#define I2CM_INT_RX_FINISH          (0x0008)
+#define I2CM_INT_TX_OVER            (0x0010)
+#define I2CM_INT_TX_EMPTY           (0x0020)
+#define I2CM_INT_ADDR_NACK          (0x0040)
+#define I2CM_INT_WRITE_NACK         (0x0080)
+#define I2CM_INT_LOSTARB            (0x0100)
+#define I2CM_INT_IDLE               (0x0200)
+#define I2CM_INT_MASK_ALL           (0x03FF)
 
 /**
  * \brief           I2C Master FIFO number definitionss
  */
-#define I2CM_FIFO_NUM           16      /*!< the max fifo number */
+#define I2CM_FIFO_NUM           (16)      /*!< the max fifo number */
 
 
 /**

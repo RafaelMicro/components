@@ -26,36 +26,36 @@
  * \brief           Sadc test mode value define
  */
 #ifdef CONFIG_SADC_TEST_MODE
-#define SADC_TEST_VALUE 0x5AF
+#define SADC_TEST_VALUE (0x5AF)
 #endif
 
 /**
  * \brief           Sadc channel setting value
  */
 /* VGA gain selection, [3:0] +3dB/step, [5:4] +6dB/step */
-#define SADC_GAIN_AIN 0x14
+#define SADC_GAIN_AIN (0x14)
 /* Channel pull selection, [0] P-CH pull high, [1] P-CH pull low, [2] N-CH pull high, [3] N-CH pull low */
-#define SADC_PULL_AIN 0x00
+#define SADC_PULL_AIN (0x00)
 /* VGA gain selection, [3:0] +3dB/step, [5:4] +6dB/step */
-#define SADC_GAIN_VBAT 0x14
+#define SADC_GAIN_VBAT (0x14)
 /* Channel pull selection, [0] P-CH pull high, [1] P-CH pull low, [2] N-CH pull high, [3] N-CH pull low */
-#define SADC_PULL_VBAT 0x03
+#define SADC_PULL_VBAT (0x03)
 /* VGA gain selection, [3:0] +3dB/step, [5:4] +6dB/step */
-#define SADC_GAIN_VCM 0x14
+#define SADC_GAIN_VCM (0x14)
 /* Channel pull selection, [0] P-CH pull high, [1] P-CH pull low, [2] N-CH pull high, [3] N-CH pull low */
-#define SADC_PULL_VCM 0x00
+#define SADC_PULL_VCM (0x00)
 /* VGA gain selection, [3:0] +3dB/step, [5:4] +6dB/step */
-#define SADC_GAIN_TEMPERATURE 0x14
+#define SADC_GAIN_TEMPERATURE (0x14)
 /* Channel pull selection, [0] P-CH pull high, [1] P-CH pull low, [2] N-CH pull high, [3] N-CH pull low */
-#define SADC_PULL_TEMPERATURE 0x00
+#define SADC_PULL_TEMPERATURE (0x00)
 /* Channel pull selection, P-CH pull low, N-CH no pull*/
-#define SADC_PULL_OVADC 0x02
+#define SADC_PULL_OVADC (0x02)
 
 /**
  * \brief           Sadc temperature calibration setting
  */
-#define TEMPERATURE_CALIBRATION_CONST 111820
-#define TEMPERATURE_CALIBRATION_RATIO 1000
+#define TEMPERATURE_CALIBRATION_CONST (111820)
+#define TEMPERATURE_CALIBRATION_RATIO (1000)
 
 static sadc_cb_fn sadc_reg_handler = NULL;
 static sadc_cb_fn sadc_adcomp_handler = NULL;

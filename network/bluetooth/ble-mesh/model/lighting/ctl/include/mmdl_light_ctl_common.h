@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_ctl_sr.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Shared state and message structures for the BLE Mesh Light CTL server/setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -47,6 +47,7 @@ typedef struct light_ctl_state_s
     uint8_t     remaining_time;
 } light_ctl_state_t;
 
+/** @brief Wire format for the Light CTL Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_ctl_set_msg_s
 {
     uint16_t    ctl_lightness;
@@ -57,6 +58,7 @@ typedef struct __attribute__((packed)) light_ctl_set_msg_s
     uint8_t     delay;
 } light_ctl_set_msg_t;
 
+/** @brief Wire format for the Light CTL Temperature Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_ctl_temperature_set_msg_s
 {
     uint16_t    ctl_temperature;
@@ -66,12 +68,14 @@ typedef struct __attribute__((packed)) light_ctl_temperature_set_msg_s
     uint8_t     delay;
 } light_ctl_temperature_set_msg_t;
 
+/** @brief Wire format for the Light CTL Temperature Range Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_ctl_temperature_range_set_msg_s
 {
     uint16_t    range_min;
     uint16_t    range_max;
 } light_ctl_temperature_range_set_msg_t;
 
+/** @brief Wire format for the Light CTL Default Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_ctl_default_set_msg_s
 {
     uint16_t    lightness;
@@ -79,6 +83,7 @@ typedef struct __attribute__((packed)) light_ctl_default_set_msg_s
     uint16_t    delta_uv;
 } light_ctl_default_set_msg_t;
 
+/** @brief Wire format for the Light CTL Status reply message. */
 typedef struct __attribute__((packed)) light_ctl_status_msg_s
 {
     uint16_t    present_ctl_lightness;
@@ -88,6 +93,7 @@ typedef struct __attribute__((packed)) light_ctl_status_msg_s
     uint8_t     remaining_time;
 } light_ctl_status_msg_t;
 
+/** @brief Wire format for the Light CTL Temperature Range Status reply message. */
 typedef struct __attribute__((packed)) light_ctl_temperature_range_status_msg_s
 {
     uint8_t     status_code;
@@ -95,6 +101,7 @@ typedef struct __attribute__((packed)) light_ctl_temperature_range_status_msg_s
     uint16_t    range_max;
 } light_ctl_temperature_range_status_msg_t;
 
+/** @brief Wire format for the Light CTL Default Status reply message. */
 typedef struct __attribute__((packed)) light_ctl_default_status_msg_s
 {
     uint16_t    lightness;

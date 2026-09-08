@@ -33,24 +33,24 @@
 #endif
 #endif
 
-#ifndef RF_FW_INCLUDE_PCI
-#define RF_FW_INCLUDE_PCI           (TRUE)
+#ifndef CONFIG_RF_FW_INCLUDE_PCI
+#define CONFIG_RF_FW_INCLUDE_PCI           (FALSE)
 #endif
 
-#ifndef RF_FW_INCLUDE_BLE
-#define RF_FW_INCLUDE_BLE           (TRUE)
+#ifndef CONFIG_RF_FW_INCLUDE_BLE
+#define CONFIG_RF_FW_INCLUDE_BLE           (FALSE)
 #endif
 
-#ifndef RF_FW_INCLUDE_MULTI_2P4G
-#define RF_FW_INCLUDE_MULTI_2P4G    (FALSE)
+#ifndef CONFIG_RF_FW_INCLUDE_MULTI_2P4G
+#define CONFIG_RF_FW_INCLUDE_MULTI_2P4G    (FALSE)
 #endif
 
-#ifndef RF_FW_INCLUDE_MAC_ACC
-#define RF_FW_INCLUDE_MAC_ACC       (FALSE)
+#ifndef CONFIG_RF_FW_INCLUDE_MAC_ACC
+#define CONFIG_RF_FW_INCLUDE_MAC_ACC       (FALSE)
 #endif
 
-#ifndef RF_FW_INCLUDE_INTERNAL_TEST
-#define RF_FW_INCLUDE_INTERNAL_TEST (FALSE)
+#ifndef CONFIG_RF_FW_INCLUDE_INTERNAL_TEST
+#define CONFIG_RF_FW_INCLUDE_INTERNAL_TEST (FALSE)
 #endif
 
 #ifndef RF_TX_POWER_COMP
@@ -106,7 +106,10 @@ bool rf_common_tx_pwr_ch_seg_set(int8_t segA, int8_t segB, int8_t segC, int8_t m
 bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 bool rf_common_init_fw_preload(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_func);
 void rf_common_radio_reg_dump (void);
+uint32_t rf_common_radio_get_version(void);
 bool rf_common_restart_vco_bank_search(void);
+uint32_t rf_common_radio_get_rtc_from_radio(void);
+uint32_t rf_common_radio_get_rtc_from_host(void);
 
 #endif  //_RF_COMMON_INIT_H__
 

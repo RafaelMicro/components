@@ -5,6 +5,11 @@
  *
  */
 
+/**
+ * @file mmdl_scheduler_common.h
+ * @brief Common types, message layouts and defines shared by the BLE Mesh Scheduler model.
+ */
+
 #ifndef __MMDL_SCHEDULER_COMMON_H__
 #define __MMDL_SCHEDULER_COMMON_H__
 
@@ -21,6 +26,7 @@ extern "C" {
 #define MMDL_SCHEDULE_REG_ACTION_NO_ACTION      0x0F
 
 
+/** @brief One Schedule Register entry: the scheduled trigger time/action plus its next-occurrence bookkeeping. */
 typedef struct schedule_reg_state_s
 {
     /* public variables */
@@ -46,6 +52,7 @@ typedef struct schedule_reg_state_s
     uint8_t     Next;           /**< next schedule register in list */
 } schedule_reg_state_t;
 
+/** @brief Persistent Scheduler Server model state: bitmask of active schedules plus the register table. */
 typedef struct scheduler_state_s
 {
     /* public variables */
@@ -56,16 +63,19 @@ typedef struct scheduler_state_s
     //uint8_t    dummy;
 } scheduler_state_t;
 
+/** @brief Payload of the Scheduler Status message: bitmask of which register entries hold an action. */
 typedef struct __attribute__((packed)) scheduler_status_msg_s
 {
     uint16_t    schedules;
 } scheduler_status_msg_t;
 
+/** @brief Payload of the Scheduler Action Get message. */
 typedef struct scheduler_action_get_msg_s
 {
     uint16_t    index;   /**< Scene number to be used for some actions */
 } scheduler_action_get_msg_t;
 
+/** @brief Bit-packed schedule time/action fields shared by the Action Set and Action Status messages. */
 typedef struct __attribute__((packed)) scheduler_action_status_time_reg_s
 {
     uint64_t    index:          4;      /**< Index of the Schedule Register entry to set */
@@ -80,12 +90,14 @@ typedef struct __attribute__((packed)) scheduler_action_status_time_reg_s
     uint64_t    trans_time:     8;      /**< Transition time for this action */
 } scheduler_action_status_time_reg_t;
 
+/** @brief Payload of the Scheduler Action Set(/Unacknowledged) message. */
 typedef struct __attribute__((packed)) scheduler_action_set_msg_s
 {
     scheduler_action_status_time_reg_t  time_reg;
     uint16_t                            scene_number;   /**< Scene number to be used for some actions */
 } scheduler_action_set_msg_t;
 
+/** @brief Payload of the Scheduler Action Status message. */
 typedef struct __attribute__((packed)) scheduler_action_status_msg_s
 {
     scheduler_action_status_time_reg_t  time_reg;

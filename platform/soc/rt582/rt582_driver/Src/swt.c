@@ -18,19 +18,19 @@
 #include "mcu.h"
 
 
-#define RT_TIMER0           0
-#define RT_TIMER1           1
-#define RT_TIMER2           2
-#define RT_TIMER3           3
-#define RT_TIMER4           4
-#define MAX_NUMBER_OF_TIMER 5                   /* RT570 has 5 timer */
+#define RT_TIMER0           (0)
+#define RT_TIMER1           (1)
+#define RT_TIMER2           (2)
+#define RT_TIMER3           (3)
+#define RT_TIMER4           (4)
+#define MAX_NUMBER_OF_TIMER (5)                   /* RT570 has 5 timer */
 #define Timer_ID RT_TIMER3
 
-#define configTICK_RATE_HZ             1000
-#define configTIMER_INTERRUPT_PRIORITY 255
+#define configTICK_RATE_HZ             (1000)
+#define configTIMER_INTERRUPT_PRIORITY (255)
 
-#define SWT_QUEUE_SIZE         32
-#define CONTEXT_QUEUE_SIZE_MAX 2
+#define SWT_QUEUE_SIZE         (32)
+#define CONTEXT_QUEUE_SIZE_MAX (2)
 
 
 static swt_queue_header_t* p_swt_queue = NULL;  /* Array of timer users. */

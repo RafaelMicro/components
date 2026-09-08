@@ -5,10 +5,6 @@
  *
  */
 
-#if !defined(CONFIG_BOOTLOADER_APP)
-#include <FreeRTOS.h>
-#include <task.h>
-#endif
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

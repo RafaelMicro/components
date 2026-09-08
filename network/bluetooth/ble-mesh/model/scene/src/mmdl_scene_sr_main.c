@@ -8,7 +8,7 @@
 /**
  * @file mmdl_scene_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Scene Server model, including flash persistence of scene data.
  * @version 0.1
  * @date 2022-07-25
  *
@@ -39,6 +39,7 @@
 //=============================================================================
 //                Private Structure
 //=============================================================================
+/** @brief On-flash record layout used to persist one element's scene_state_t with a header and CRC32. */
 typedef struct __attribute__((packed)) scene_flash_data_s
 {
     uint16_t       header;       //Specific string for the header of scene data
@@ -66,6 +67,7 @@ static void mmdl_scene_delete(uint32_t is_ack, mesh_app_mdl_evt_msg_idc_t *p_evt
 static void mmdl_scene_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code);
 static void mmdl_scene_send_register_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code);
 
+/** @brief Compute the CRC32 checksum over a buffer, used to validate persisted scene records. */
 static uint32_t scene_data_crc32( uint8_t *p_data, uint32_t data_len)
 {
     uint16_t k;
@@ -82,6 +84,7 @@ static uint32_t scene_data_crc32( uint8_t *p_data, uint32_t data_len)
     return ~chk_sum;
 }
 
+/** @brief Erase the entire scene data flash region (all sectors), removing all persisted scene records. */
 static uint32_t scene_data_remove_all(void)
 {
     uint32_t i;
@@ -93,6 +96,12 @@ static uint32_t scene_data_remove_all(void)
     }
 }
 
+/**
+ * @brief Scan the scene data flash region for the most recent valid record of an element and copy it out.
+ * @param element_address Element address whose scene data should be located.
+ * @param p_data Output buffer receiving the scene_state_t data if found.
+ * @param p_data_length Set to the copied data length, or 0 if no valid record was found.
+ */
 static uint32_t scene_data_read(uint16_t element_address, uint8_t *p_data, uint8_t *p_data_length)
 {
     uint8_t *p_buff, read_idx;
@@ -137,6 +146,11 @@ static uint32_t scene_data_read(uint16_t element_address, uint8_t *p_data, uint8
     }
 }
 
+/**
+ * @brief Append or rewrite an element's scene data record in flash, compacting the region first if it is full.
+ * @param element_address Element address whose scene data is being updated.
+ * @param p_updata_data New scene_state_t data to persist for the element.
+ */
 static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_data)
 {
     uint8_t *p_buff, update_idx, data_len, backup_element_cnt;
@@ -248,11 +262,13 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
     }
 }
 
+/** @brief Erase all persisted scene data for every element from flash. */
 void scene_info_reset(void)
 {
     scene_data_remove_all();
 }
 
+/** @brief Initialize the Scene Server model state for an element, loading any stored scene data from flash. */
 void mmdl_scene_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scene_state_t  *p_scene_state = (scene_state_t *)p_model->p_state_var;
@@ -266,6 +282,7 @@ void mmdl_scene_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_para
     //printf("EleAddr 0x%04x DataLen %d\n", p_element->element_address, data_len);
 }
 
+/** @brief Dispatch an incoming Scene model message to the appropriate opcode handler. */
 void mmdl_scene_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
     /* store the data in private variables */
@@ -308,11 +325,13 @@ void mmdl_scene_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_eleme
     }
 }
 
+/** @brief Handle a Scene Get request by replying with the current Scene Status. */
 static void mmdl_scene_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_scene_send_status(p_evt_msg, p_element, p_model, MMDL_SCENE_SUCCESS);
 }
 
+/** @brief Handle a Scene Recall(/Unacknowledged) request: look up the scene number, apply it via the user callback, and optionally reply with status. */
 static void mmdl_scene_recall(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scene_recall_msg_t  *p_scene_recall_msg = (scene_recall_msg_t *)p_evt_msg->parameter;
@@ -358,11 +377,13 @@ static void mmdl_scene_recall(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
     }
 }
 
+/** @brief Handle a Scene Register Get request by replying with the current Scene Register Status. */
 static void mmdl_scene_register_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_scene_send_register_status(p_evt_msg, p_element, p_model, MMDL_SCENE_SUCCESS);
 }
 
+/** @brief Handle a Scene Store(/Unacknowledged) request: update or add a register entry, invoke the user callback, persist to flash, and optionally reply with register status. */
 static void mmdl_scene_store(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scene_store_msg_t  *p_scene_store_msg = (scene_store_msg_t *)p_evt_msg->parameter;
@@ -411,6 +432,7 @@ static void mmdl_scene_store(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_ev
     }
 }
 
+/** @brief Handle a Scene Delete(/Unacknowledged) request: remove the register entry, invoke the user callback, persist to flash, and optionally reply with register status. */
 static void mmdl_scene_delete(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scene_delete_msg_t  *p_scene_delete_msg = (scene_delete_msg_t *)p_evt_msg->parameter;
@@ -449,6 +471,7 @@ static void mmdl_scene_delete(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
     }
 }
 
+/** @brief Build and send a Scene Status message back to the requester. */
 static void mmdl_scene_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -496,6 +519,7 @@ static void mmdl_scene_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
     }
 }
 
+/** @brief Build and send a Scene Register Status message, including the list of valid stored scene numbers. */
 static void mmdl_scene_send_register_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code)
 {
     mesh_app_mdl_evt_msg_req_t   *pt_req;

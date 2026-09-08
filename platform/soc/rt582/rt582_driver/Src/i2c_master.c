@@ -20,20 +20,20 @@
 /**
  * \brief           I2C software state definitions
  */
-#define I2C_STATE_UNINIT     0
-#define I2C_STATE_IDLE       1
-#define I2C_STATE_WRITE      2
-#define I2C_STATE_WRITE_DATA 3
-#define I2C_STATE_READ       4
-#define I2C_STATE_READ_WADDR 5
-#define I2C_STATE_READ_RDATA 6
+#define I2C_STATE_UNINIT     (0)
+#define I2C_STATE_IDLE       (1)
+#define I2C_STATE_WRITE      (2)
+#define I2C_STATE_WRITE_DATA (3)
+#define I2C_STATE_READ       (4)
+#define I2C_STATE_READ_WADDR (5)
+#define I2C_STATE_READ_RDATA (6)
 /* BIT5 as stop MASK */
-#define I2C_STOP_MASK   16
-#define I2C_STATE_NOACK 16
-#define I2C_STATE_STOP  17
-#define I2C_STATE_ESTOP 18
+#define I2C_STOP_MASK   (16)
+#define I2C_STATE_NOACK (16)
+#define I2C_STATE_STOP  (17)
+#define I2C_STATE_ESTOP (18)
 /* this mode only in i2c_init, avoid multi-task i2c_init at same time */
-#define I2C_STATE_HOST_INIT 32
+#define I2C_STATE_HOST_INIT (32)
 
 /**
  * \brief           I2C clock speed devide definitions
@@ -46,8 +46,8 @@
 /**
  * \brief           I2C mode definitions
  */
-#define I2C_MODE_READ  1
-#define I2C_MODE_WRITE 0
+#define I2C_MODE_READ  (1)
+#define I2C_MODE_WRITE (0)
 
 /**
  * \brief           I2C max data packet size for one transfer

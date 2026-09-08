@@ -371,6 +371,15 @@ uint32_t lmac15p4_frame_counter_get(void);
 void lmac15p4_2ch_scan_set(uint32_t eanble, lmac154_channel_t ch1,
                            lmac154_channel_t ch2);
 
+
+void lmac15p4_csl_receive_at_set(uint32_t start_time, uint32_t rx_on_time);
+
+void lmac15p4_read_cca_energy(uint8_t *cca_energy_q);
+
+void lmac15p4_idle_state_set(void);
+
+void lmac15p4_sleep_state_set(uint32_t state);
+
 /*@}*/ /* end of 15P4_group lmac15p4 */
 
 #ifdef __cplusplus

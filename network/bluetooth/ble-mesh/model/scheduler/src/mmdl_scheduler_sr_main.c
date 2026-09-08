@@ -8,7 +8,7 @@
 /**
  * @file mmdl_schedular_sr_main.c
  * @author Jeffrey (jeffrey.lin@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Scheduler Server and Scheduler Setup Server models.
  * @version 0.1
  * @date 2022-08-01
  *
@@ -45,6 +45,7 @@ static void mmdl_scheduler_action_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 static void mmdl_scheduler_action_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
+/** @brief Dispatch an incoming Scheduler model message (Get/Action Get) to the appropriate opcode handler. */
 void mmdl_scheduler_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t in_is_broadcast)
 {
 
@@ -68,6 +69,7 @@ void mmdl_scheduler_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
 
 }
 
+/** @brief Dispatch an incoming Scheduler Setup model message (Action Set/Set Unacknowledged) to the appropriate opcode handler. */
 void mmdl_scheduler_setup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -91,12 +93,14 @@ void mmdl_scheduler_setup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
 }
 
 
+/** @brief Reply to a Scheduler-related get request with the current Scheduler Status message. */
 static void mmdl_scheduler_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_scheduler_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Build and send a Scheduler Status message (active-schedules bitmask) back to the requester. */
 static void mmdl_scheduler_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -142,6 +146,7 @@ static void mmdl_scheduler_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
 }
 
 
+/** @brief Handle a Scheduler Action Get request: validate the requested register index and reply with its status. */
 static void mmdl_scheduler_action_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scheduler_action_get_msg_t  *p_scheduler_action_get_msg = (scheduler_action_get_msg_t *)p_model->p_state_var;
@@ -153,6 +158,7 @@ static void mmdl_scheduler_action_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 }
 
 
+/** @brief Handle a Scheduler Action Set(/Unacknowledged) request: store the schedule register entry, update the schedules bitmask, and optionally reply with status. */
 static void mmdl_scheduler_action_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scheduler_state_t           *p_scheduler_state = (scheduler_state_t *)p_model->p_state_var;
@@ -190,6 +196,7 @@ static void mmdl_scheduler_action_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_id
     }
 }
 
+/** @brief Build and send a Scheduler Action Status message for one schedule register entry. */
 static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t     *pt_req;
@@ -243,6 +250,7 @@ static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_
     }
 }
 
+/** @brief Initialize the Scheduler Server model state for an element, resetting all schedule register entries to defaults. */
 void mmdl_scheduler_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     scheduler_state_t  *p_scheduler_state = (scheduler_state_t *)p_model->p_state_var;

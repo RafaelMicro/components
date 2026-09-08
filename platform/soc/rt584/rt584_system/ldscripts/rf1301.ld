@@ -215,10 +215,11 @@ SECTIONS
 	PROVIDE(_heap_end = .);
 	PROVIDE(_heap_size = _heap_end - _heap_start);
 
-	/* seconde Heap region */
+	/* second Heap region */
 	PROVIDE(_heap2_start = 0);
 	PROVIDE(_heap2_end   = 0);
 	PROVIDE(_heap2_size  = 0);
+    PROVIDE(_comm_subsys_reserved_ram = _heap2_size);
 
 	/* log */
 	PROVIDE( _ld_rf_static_logcomponent_code_start = _rf_static_logcomponent_code_start );

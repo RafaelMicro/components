@@ -13,8 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "FreeRTOS.h"
-#include "task.h"
 #include "mcu.h"
 #include "qspi.h"
 #include "hosal_qspi.h"

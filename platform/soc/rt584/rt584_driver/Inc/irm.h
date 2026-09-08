@@ -51,13 +51,13 @@ extern "C" {
 #define IR_EVELOPE_HIGH (1)
 #define IR_EVELOPE_LOW (0)
 
-#define ENV_START_INT 1
-#define ENV_LAST_INT  2
-#define FIFO_UFL_INT  4
+#define ENV_START_INT (1)
+#define ENV_LAST_INT  (2)
+#define FIFO_UFL_INT  (4)
 
-#define IR_ENV_START_INT_EN 1
-#define IR_ENV_LAST_INT_EN  2
-#define IR_FIFO_UFL_INT_EN  4
+#define IR_ENV_START_INT_EN (1)
+#define IR_ENV_LAST_INT_EN  (2)
+#define IR_FIFO_UFL_INT_EN  (4)
 #define IR_ALL_INT_EN (IR_ENV_START_INT_EN|IR_ENV_LAST_INT_EN|IR_FIFO_UFL_INT_EN)
 
 /**

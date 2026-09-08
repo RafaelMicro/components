@@ -298,7 +298,7 @@ ble_err_t ble_cmd_adv_enable(uint8_t host_id)
 
         // check adv type
         if (((host_id == BLE_HOSTID_RESERVED) || (bhc_host_connected_link_number_get() == MAX_CONN_NO_APP)) &&
-                ((g_adv_param.adv_type != ADV_TYPE_ADV_NONCONN_IND) && (g_adv_param.adv_type != ADV_TYPE_ADV_NONCONN_IND)))
+                ((g_adv_param.adv_type != ADV_TYPE_ADV_NONCONN_IND) && (g_adv_param.adv_type != ADV_TYPE_SCAN_IND)))
         {
             status = BLE_ERR_CMD_NOT_SUPPORTED;
             break;

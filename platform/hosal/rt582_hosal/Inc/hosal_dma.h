@@ -36,7 +36,7 @@ extern "C" {
 /**
  *  \brief           HOSAL DMA LINK LIST Number const defined
  */
-#define HOSAL_DMA_LINK_LIST_ITEM            8
+#define HOSAL_DMA_LINK_LIST_ITEM            (8)
 
 /**
  *  \brief           dma callback function typedef defineds

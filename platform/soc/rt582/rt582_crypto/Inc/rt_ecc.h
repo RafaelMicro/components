@@ -78,13 +78,13 @@ extern "C"
 /*The following define in size of "uint32_t" */
 
 /*secp192r1 curve is 192 bytes, 6*uint32_t = 192 */
-#define secp192r1_op_num      6             /*!< SECP192R1 key size is 6*sizeof(uint32_t)   */
+#define secp192r1_op_num      (6)             /*!< SECP192R1 key size is 6*sizeof(uint32_t)   */
 
 /*secp256r1 curve is 256 bytes, 8*uint32_t = 256 */
-#define secp256r1_op_num      8             /*!< SECP256R1 key size is 8*sizeof(uint32_t)   */
+#define secp256r1_op_num      (8)             /*!< SECP256R1 key size is 8*sizeof(uint32_t)   */
 
 /*curve X25519/C25519 is 256 bytes data. 8*uint32_t = 256 */
-#define C25519_Length         8             /*!< X25519/C25519 key size is 8*sizeof(uint32_t)  */
+#define C25519_Length         (8)             /*!< X25519/C25519 key size is 8*sizeof(uint32_t)  */
 
 /**************************************************************************************************
  *    GLOBAL PROTOTYPES
@@ -142,7 +142,7 @@ extern uint32_t gfp_point_p192_mult(
 #if defined(CONFIG_CRYPTO_SECP256R1_ENABLE)
 
 
-#define secp256r1_op_num_in_byte        32
+#define secp256r1_op_num_in_byte        (32)
 
 
 typedef struct

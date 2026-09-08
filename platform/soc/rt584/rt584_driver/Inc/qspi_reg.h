@@ -78,8 +78,8 @@ typedef struct
 
 } qspi_t;
 
-#define  QSPI_TX_FIFO_OFFSET          0
-#define  QSPI_RX_FIFO_OFFSET          4
+#define  QSPI_TX_FIFO_OFFSET          (0)
+#define  QSPI_RX_FIFO_OFFSET          (4)
 
 /*QSPI_CONTROL */
 #define  QSPI_CNTL_MASTER_SHIFT      (0)

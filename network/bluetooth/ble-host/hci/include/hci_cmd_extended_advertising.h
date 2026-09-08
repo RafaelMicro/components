@@ -17,8 +17,8 @@
  *        - OCF = 0x0037 : LE Set extended advertising data command
  *        - OCF = 0x0038 : LE Set extended scan response data command
  *        - OCF = 0x0039 : LE Set extended advertising enable command
- *        - OCF = 0x003A : LE Set read maximum advertising data length command
- *        - OCF = 0x003B : LE Set read number of supported advertising set command
+ *        - OCF = 0x003A : LE Read maximum advertising data length command
+ *        - OCF = 0x003B : LE Read number of supported advertising sets command
  *        - OCF = 0x003C : LE Set remove advertising set command
  *        - OCF = 0x003D : LE Set clear advertising sets command
  *        - OCF = 0x003E : LE Set periodic advertising parameters command
@@ -98,6 +98,19 @@ ble_err_t hci_le_set_extended_adv_param_cmd(ble_hci_cmd_set_extended_adv_param_t
 ble_err_t hci_le_set_extended_adv_data_cmd(ble_hci_cmd_set_extended_adv_data_t *p_param);
 
 
+/** LE Set extended scan response data command
+ *
+ * @ingroup hci_cmd_adv
+ *
+ * @param p_param : a pointer to the set extended scan response data parameters.
+ *
+ * @return BLE_ERR_OK   : success.
+ * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
+ * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
+ */
+ble_err_t hci_le_set_extended_scan_rsp_data_cmd(ble_hci_cmd_set_extended_scan_rsp_data_t *p_param);
+
+
 /** LE Set extended advertising enable command
  *
  * @ingroup hci_cmd_adv
@@ -167,7 +180,7 @@ ble_err_t hci_le_clear_adv_sets_cmd(void);
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
  * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
  */
-ble_err_t hci_le_set_periodic_adv_param_cmd(ble_hci_set_periodic_adv_param_v2_t *p_param);
+ble_err_t hci_le_set_periodic_adv_param_cmd(ble_hci_set_periodic_adv_param_t *p_param);
 
 
 /** LE set periodic advertising data command
@@ -244,6 +257,19 @@ ble_err_t hci_le_set_periodic_terminate_sync_cmd(ble_hci_cmd_periodic_adv_termin
  * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
  */
 ble_err_t hci_le_add_device_to_periodic_advertiser_list_cmd(ble_hci_add_device_to_periodic_adv_list_param_t *p_param);
+
+
+/** LE Remove device from periodic advertiser list command
+ *
+ * @ingroup hci_cmd_extend_adv
+ *
+ * @param p_param : a pointer to remove the periodic advertiser list parameters.
+ *
+ * @return BLE_ERR_OK   : success.
+ * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
+ * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
+ */
+ble_err_t hci_le_remove_device_from_periodic_adv_list_cmd(ble_hci_rm_device_to_periodic_adv_list_param_t *p_param);
 
 
 /** LE Clear periodic advertiser list command

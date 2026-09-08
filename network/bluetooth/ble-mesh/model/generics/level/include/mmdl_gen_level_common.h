@@ -14,6 +14,7 @@ extern "C" {
 
 
 
+/** @brief Present/target level and transition info reported to upper layers. */
 typedef struct gen_level_model_status_s
 {
     int16_t        present_level;
@@ -22,6 +23,7 @@ typedef struct gen_level_model_status_s
     uint8_t         delay;
 } gen_level_model_status_t;
 
+/** @brief Runtime state of the Generic Level Server model, including transition/move bookkeeping. */
 typedef struct gen_level_state_s
 {
     /* public variables */
@@ -36,6 +38,7 @@ typedef struct gen_level_state_s
     uint8_t    remaining_time;
 } gen_level_state_t;
 
+/** @brief Payload layout of the Generic Level Set message. */
 typedef struct __attribute__((packed)) gen_level_set_msg_s
 {
     uint16_t    level;
@@ -44,6 +47,7 @@ typedef struct __attribute__((packed)) gen_level_set_msg_s
     uint8_t     delay;
 } gen_level_set_msg_t;
 
+/** @brief Payload layout of the Generic Delta Set message (relative level change). */
 typedef struct __attribute__((packed)) gen_level_delta_set_msg_s
 {
     int32_t     delta_level;
@@ -52,6 +56,7 @@ typedef struct __attribute__((packed)) gen_level_delta_set_msg_s
     uint8_t     delay;
 } gen_level_delta_set_msg_t;
 
+/** @brief Payload layout of the Generic Move Set message (continuous level change rate). */
 typedef struct __attribute__((packed)) gen_level_move_set_msg_s
 {
     int16_t     delta_level;
@@ -61,6 +66,7 @@ typedef struct __attribute__((packed)) gen_level_move_set_msg_s
 } gen_level_move_set_msg_t;
 
 
+/** @brief Payload layout of the Generic Level Status message. */
 typedef struct __attribute__((packed)) gen_level_status_msg_s
 {
     int16_t     present_level;
@@ -68,6 +74,7 @@ typedef struct __attribute__((packed)) gen_level_status_msg_s
     uint8_t     remaining_time;
 } gen_level_status_msg_t;
 
+/** @brief User callback invoked when the Generic Level state changes for an element. */
 typedef void (*model_level_user_call_back)(uint16_t element_address, uint16_t state);
 
 #ifdef __cplusplus

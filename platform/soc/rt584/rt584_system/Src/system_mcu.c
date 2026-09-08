@@ -502,7 +502,7 @@ void rco1m_and_rco32k_calibration() {
 
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_bypass_mv_settle = 1;
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_bypass_lv_settle = 1;
-    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_bypass_xtal_settle = 0;
+    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_bypass_xtal_settle = 1;
 }
 
 void system_pmu_update_dcdc_txpwr_lvl(txpower_default_cfg_t txpwrlevel) {
@@ -784,7 +784,7 @@ void system_pmu_update_dcdc_txpwr_lvl(txpower_default_cfg_t txpwrlevel) {
 
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_bypass_mv_settle = 1;
     PMU_CTRL->pmu_soc_pmu_timing.bit.cfg_bypass_lv_settle = 1;
-    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_bypass_xtal_settle = 0;
+    PMU_CTRL->pmu_soc_pmu_xtal1.bit.cfg_bypass_xtal_settle = 1;
 
     //Set RF Tx Power config
     set_sys_txpower_default(txpwrlevel);

@@ -23,8 +23,8 @@ extern "C" {
  * @{
  */
 
-#define  SM3_DIGEST_SIZE                32
-#define  SM3_BLOCK_SIZE                 64
+#define  SM3_DIGEST_SIZE                (32)
+#define  SM3_BLOCK_SIZE                 (64)
 
 
 #if defined(CONFIG_CRYPTO_SM3_ENABLE)

@@ -42,6 +42,13 @@ typedef ble_err_t (*ble_host_callback_t)(void* p_param);
 
 
 /** @brief  Define BLE Application event type.
+ *
+ * @details This is the callback category selector used by @ref ble_host_callback_set to
+ *          register an application callback for one of the event queues below.
+ *          @note This type is distinct from @ref ble_event_t (declared in ble_api.h), which is the
+ *          event type carried inside the callback's parameter (e.g. BLE_APP_GENERAL_EVENT,
+ *          BLE_APP_SERVICE_EVENT, BLE_APP_L2CAP_EVENT, BLE_APP_RETURN_PARAMETER_EVENT). Do not
+ *          confuse the two enums when writing @ref references.
  * @ingroup ble_host_api
  */
 typedef enum
@@ -67,15 +74,31 @@ typedef uint8_t host_timer_evt;
 #define TOTAL_TIMER_EVENT                                (TIMER_EVENT_GATT_COMMAND+1)   /**< Total sw timer event number.*/
 /** @} */
 
-#define SYNC_ACTIVE                             0x00
-#define PADV_ACTIVE                             0x01
+/** @defgroup ble_host_enhanced_active BLE Host Enhanced Active Select Type Definition
+ * @{
+ * @ingroup ble_host_api
+ * @details  Select which enhanced (periodic sync / extended advertising) host mapping table is
+ *           accessed by @ref bhc_host_id_state_active_enhanced_set, @ref bhc_host_id_state_enhance_active_release
+ *           and @ref bhc_host_id_state_enhance_active_get.
+ */
+#define SYNC_ACTIVE                             0x00 /**< Select the periodic advertising sync (indexed by sync handle) host mapping table. */
+#define PADV_ACTIVE                             0x01 /**< Select the periodic/extended advertising (indexed by adv handle) host mapping table. */
+/** @} */
 
-#define BLE_MAX_SYNC_HANDLE                     0x0002
-#define BLE_MAX_PADV_HANDLE                     0x02
+/** @defgroup ble_host_enhanced_limit BLE Host Enhanced Handle Limit Definition
+ * @{
+ * @ingroup ble_host_api
+ * @details  Maximum number of periodic sync / periodic (extended) advertising handles supported
+ *           by the enhanced host mapping tables.
+ */
+#define BLE_MAX_SYNC_HANDLE                     0x0002 /**< Maximum number of periodic sync handles supported. */
+#define BLE_MAX_PADV_HANDLE                     0x02   /**< Maximum number of periodic (extended) advertising handles supported. */
+/** @} */
 /**************************************************************************
  * EXTERN DEFINITIONS
  **************************************************************************/
-/** @brief  pointer of the BLE event callback.
+/** @brief  Pointer of the general BLE event callback, registered via @ref ble_host_callback_set
+ *          with callback_type @ref APP_GENERAL_EVENT.
  * @ingroup ble_host_api
  */
 extern ble_host_callback_t g_ble_event_cb;
@@ -85,12 +108,16 @@ extern ble_host_callback_t g_ble_event_cb;
  *    PUBLIC FUNCTIONS
  *************************************************************************************************/
 
-/** @brief Bluetooth LE Host event callback parameter initialization.
+/** @brief Register an application callback for a BLE host event category.
+ *
+ * @details Depending on @p callback_type, the callback is stored into the internal general/service/L2CAP
+ *          data callback used to notify the application. This is unrelated to @ref ble_event_t in ble_api.h,
+ *          which describes the event carried in the callback parameter, not the registration category.
  *
  * @ingroup ble_host_api
  *
- * @param[in]  callback_type : Type of the callback function.
- * @param[in]  ble_host_callback_t : pointer of the type callback.
+ * @param[in]  callback_type : the event category to register, see @ref ble_app_event_t.
+ * @param[in]  pfn_callback : the application callback function to be invoked for this category.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -137,8 +164,8 @@ bool bhc_host_id_is_connected_check(uint8_t host_id, uint16_t *conn_id);
  *
  * @param[in]  host_id : the link's host id.
  *
- * @retval  true : the host id is connected.
- * @retval  false: the host id is free.
+ * @retval  true : the host id is active (in use).
+ * @retval  false : the host id is free (not in use).
  */
 bool bhc_host_id_is_active_check(uint8_t host_id);
 
@@ -263,8 +290,7 @@ uint16_t bhc_gatt_att_mtu_get(uint8_t host_id);
  * @param[in]  handle_num : attribute handle number, set to "NULL" if att_opecode is @ref OPCODE_ATT_EXCHANGE_MTU_REQUEST.
  * @param[in]  p_data     : a point to the data.
  * @param[in]  length     : data length.
- * @retval  true : successful.
- * @retval  false: the queue is full or error handle number.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error" (e.g. the HCI TX queue is full or memory allocation failed).
  */
 int8_t bhc_att_req(uint16_t conn_id, uint8_t att_opcode, uint16_t handle_num, uint8_t *p_data, uint16_t length);
 
@@ -278,8 +304,7 @@ int8_t bhc_att_req(uint16_t conn_id, uint8_t att_opcode, uint16_t handle_num, ui
  * @param[in]  handle_num : attribute handle number, set to "NULL" if att_opecode is @ref OPCODE_ATT_EXCHANGE_MTU_REQUEST.
  * @param[in]  error_code : error code.
  *
- * @retval  true : successful.
- * @retval  false: the queue is full.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error" (e.g. the HCI TX queue is full).
  */
 int8_t bhc_att_error_rsp_req(uint16_t conn_id, uint8_t att_opcode, uint16_t handle_num, ble_att_error_code_t error_code);
 
@@ -300,11 +325,10 @@ uint8_t bhc_timer_evt_get(uint8_t host_id, host_timer_evt event);
  *
  * @ingroup ble_host_api
  *
- * @param[in]  conn_id : the link's host id.
+ * @param[in]  conn_id : the connection id.
  * @param[in]  p_param : a pointer to connection parameter.
  *
- * @retval  true : setting success.
- * @retval  false: event timer busy.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t bhc_gap_connection_update(uint16_t conn_id, ble_gap_conn_param_t *p_param);
 
@@ -327,7 +351,7 @@ ble_err_t bhc_sm_security_request(uint8_t host_id);
  * @param[in]  hex_passkey : the passkey in hex value.
  * @param[in]  conn_id : the link's connection id.
  *
- * @retval  true : always return true.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 int8_t bhc_sm_passkey_set(uint32_t hex_passkey, uint16_t conn_id);
 
@@ -339,7 +363,7 @@ int8_t bhc_sm_passkey_set(uint32_t hex_passkey, uint16_t conn_id);
  * @param[in]  same_numeric : numeric comparison result is same.
  * @param[in]  conn_id : the link's connection id.
  *
- * @retval  true : always return true.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t bhc_sm_numeric_comparison_set(uint8_t same_numeric, uint16_t conn_id);
 
@@ -370,7 +394,7 @@ void bhc_sm_bonding_flag_set(ble_sm_bonding_flag_param_t *p_param);
  *
  * @ingroup ble_host_api
  *
- * @param[in]  host_id : conn_id : the link's host id.
+ * @param[in]  host_id : the link's host id.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -380,8 +404,6 @@ ble_err_t bhc_sm_restore_cccd_from_bond(uint8_t host_id);
 /** @brief BLE Send Bonding space space init command.
  *
  * @ingroup ble_host_api
- *
- * @param[in]  host_id : conn_id : the link's host id.
  *
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
@@ -394,7 +416,7 @@ ble_err_t bhc_sm_bonding_space_init(void);
  *
  * @param[in]  p_param : a pointer to the identity reolving key parameter.
  *
- * @return none.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t bhc_sm_identity_resolving_key_set(ble_sm_irk_param_t *p_param);
 
@@ -405,8 +427,7 @@ ble_err_t bhc_sm_identity_resolving_key_set(ble_sm_irk_param_t *p_param);
  *
  * @param[in]  host_id : host id.
  *
- * @retval  0 : successful.
- * @retval  -1: the queue is full or memory not enough.
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 int8_t bhc_host_gen_resolvable_address(uint8_t host_id);
 
@@ -492,8 +513,40 @@ ble_err_t bhc_l2cap_chan_connect_reg(uint16_t conn_id, uint16_t psm, uint16_t mt
 ble_err_t bhc_l2cap_data_send(uint16_t conn_id, uint16_t dest_id, uint8_t* p_data, uint16_t length);
 
 
+/** @brief The BLE host ID is bound to an enhanced (periodic sync / extended advertising) handle mapping table entry.
+ *
+ * @ingroup ble_host_api
+ *
+ * @param[in]  host_id : the link's host id.
+ * @param[in]  handle  : the sync handle (if select is @ref SYNC_ACTIVE) or the adv handle (if select is @ref PADV_ACTIVE).
+ * @param[in]  select  : which mapping table to update, @ref SYNC_ACTIVE or @ref PADV_ACTIVE.
+ *
+ * @return none.
+ */
 void bhc_host_id_state_active_enhanced_set(uint8_t host_id, uint16_t handle, uint8_t select);
+
+
+/** @brief The BLE host ID bound to an enhanced (periodic sync / extended advertising) handle mapping table entry is released.
+ *
+ * @ingroup ble_host_api
+ *
+ * @param[in]  select : which mapping table to release, @ref SYNC_ACTIVE or @ref PADV_ACTIVE.
+ * @param[in]  handle : the sync handle (if select is @ref SYNC_ACTIVE) or the adv handle (if select is @ref PADV_ACTIVE).
+ *
+ * @return none.
+ */
 void bhc_host_id_state_enhance_active_release(uint8_t select, uint16_t handle);
+
+
+/** @brief Get the BLE host ID bound to an enhanced (periodic sync / extended advertising) handle mapping table entry.
+ *
+ * @ingroup ble_host_api
+ *
+ * @param[in]  select : which mapping table to query, @ref SYNC_ACTIVE or @ref PADV_ACTIVE.
+ * @param[in]  handle : the sync handle (if select is @ref SYNC_ACTIVE) or the adv handle (if select is @ref PADV_ACTIVE).
+ *
+ * @return the bound host id, or BLE_HOSTID_RESERVED if no host id is bound to the given handle.
+ */
 uint8_t bhc_host_id_state_enhance_active_get(uint8_t select, uint16_t handle);
 
 

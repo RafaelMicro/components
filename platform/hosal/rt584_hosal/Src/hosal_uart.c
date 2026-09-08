@@ -19,8 +19,8 @@
 #include "hosal_uart.h"
 #include "gpio.h"
 
-#define MAX_NUMBER_OF_UART  3
-#define UART0_BASE_CLK      0
+#define MAX_NUMBER_OF_UART  (3)
+#define UART0_BASE_CLK      (0)
 
 #define UART_ReadLineStatus(pReg) ((pReg)->lsr)
 
@@ -101,7 +101,7 @@ ISR_DMA_TX_INTR); /*write 1 to clear*/
     else    //UART0 
     {
         pin_disable_in_mode(MODE_UART0_RX); 
-    } 
+    }
 
     return rval;
 }
@@ -474,6 +474,12 @@ int hosal_uart_ioctl(hosal_uart_dev_t* uart_dev, int ctl, void* p_arg) {
 
             SYSCTRL->sys_clk_ctrl1.reg = (SYSCTRL->sys_clk_ctrl1.reg & ~(HOSAL_UART_CLOCK_SOURCE_MASK << (uart_dev->config.uart_id << 1)));
             SYSCTRL->sys_clk_ctrl1.reg = (SYSCTRL->sys_clk_ctrl1.reg | (tmp << (uart_dev->config.uart_id << 1)));
+            break;
+
+        case HOSAL_UART_LSR_DR_GET:
+            if (p_arg) {
+                *(uint32_t *)p_arg = (uart->lsr & UART_LSR_DR);
+            }
             break;
         default: break;
     }

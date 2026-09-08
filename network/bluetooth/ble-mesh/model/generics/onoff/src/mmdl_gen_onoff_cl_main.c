@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_onoff_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Client-side implementation of the BLE Mesh Generic OnOff model.
  * @version 0.1
  * @date 2022-06-09
  *
@@ -38,11 +38,13 @@ static uint8_t                      ttl = 4;
 //=============================================================================
 static void mmdl_generic_onoff_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
+/** @brief Initialize the Generic OnOff Client model instance for an element (currently a no-op). */
 void mmdl_generic_onoff_cl_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Generic OnOff model message to the matching opcode handler. */
 void mmdl_generic_onoff_cl_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t in_is_broadcast)
 {
 
@@ -60,6 +62,7 @@ void mmdl_generic_onoff_cl_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
 
 }
 
+/** @brief Handle a received Generic OnOff Status message by forwarding the reported state to the upper/user callback. */
 static void mmdl_generic_onoff_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_on_off_status_msg_t  *p_gen_on_off_status_msg = (gen_on_off_status_msg_t *)p_evt_msg->parameter;
@@ -90,6 +93,7 @@ static void mmdl_generic_onoff_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 }
 
 
+/** @brief Send an acknowledged Generic OnOff Set message to the given destination. */
 void mmdl_generic_onoff_send_set(mmdl_transmit_info_t tx_info, gen_on_off_set_msg_t *p_onoff_set)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -134,6 +138,7 @@ void mmdl_generic_onoff_send_set(mmdl_transmit_info_t tx_info, gen_on_off_set_ms
     }
 }
 
+/** @brief Send an unacknowledged Generic OnOff Set message to the given destination. */
 void mmdl_generic_onoff_send_unack_set(mmdl_transmit_info_t tx_info, gen_on_off_set_msg_t *p_onoff_set)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

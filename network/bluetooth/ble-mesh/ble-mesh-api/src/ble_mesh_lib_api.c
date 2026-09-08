@@ -5,15 +5,10 @@
  *
  */
 
-/**
- */
 /** @file ble_mesh_lib_api.c
  *
- * @author Rex
- * @version 0.1
- * @date 2021/10/19
- * @license
- * @description
+ * @brief Define BLE Mesh library API functions.
+ *
  */
 
 //=============================================================================
@@ -57,6 +52,8 @@
 //=============================================================================
 //                Functions
 //=============================================================================
+/** Start scanning for unprovisioned mesh devices.
+*/
 void ble_mesh_find_unprov_device_start(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -85,6 +82,8 @@ void ble_mesh_find_unprov_device_start(void)
     }
 }
 
+/** Stop scanning for unprovisioned mesh devices.
+*/
 void ble_mesh_find_unprov_device_stop(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -113,6 +112,8 @@ void ble_mesh_find_unprov_device_stop(void)
     }
 }
 
+/** Start the mesh provisioning procedure for the local device.
+*/
 void ble_mesh_provision_start(uint8_t from_gatt)
 {
     mesh_prov_start_req_t *p_start_req;
@@ -152,6 +153,8 @@ void ble_mesh_provision_start(uint8_t from_gatt)
     }
 }
 
+/** Stop the mesh provisioning procedure.
+*/
 void ble_mesh_provision_stop(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -180,6 +183,8 @@ void ble_mesh_provision_stop(void)
     }
 }
 
+/** Enable the mesh proxy service.
+*/
 void ble_mesh_proxy_enable(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -207,6 +212,8 @@ void ble_mesh_proxy_enable(void)
     }
 }
 
+/** Disable the mesh proxy service.
+*/
 void ble_mesh_proxy_disable(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -234,6 +241,8 @@ void ble_mesh_proxy_disable(void)
     }
 }
 
+/** Select an unprovisioned device and open the provisioning link (provisioner role).
+*/
 void ble_mesh_select_unprovisioned_device(uint16_t primary_address, uint8_t *p_uuid)
 {
     mesh_tlv_t   *pt_tlv;
@@ -265,6 +274,8 @@ void ble_mesh_select_unprovisioned_device(uint16_t primary_address, uint8_t *p_u
     }
 }
 
+/** Set the local mesh device name.
+*/
 bool ble_mesh_device_name_set(uint8_t len, uint8_t *p_device_name)
 {
     mesh_tlv_t *pt_tlv = NULL;
@@ -299,6 +310,8 @@ bool ble_mesh_device_name_set(uint8_t len, uint8_t *p_device_name)
     return set_success;
 }
 
+/** Create a BLE transparent service (TRSPS) connection.
+*/
 void ble_trsps_connection_create(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -326,6 +339,8 @@ void ble_trsps_connection_create(void)
     }
 }
 
+/** Cancel a BLE transparent service (TRSPS) connection.
+*/
 void ble_trsps_connection_cancel(void)
 {
     mesh_tlv_t   *pt_tlv;
@@ -353,6 +368,8 @@ void ble_trsps_connection_cancel(void)
     }
 }
 
+/** Send data over the BLE transparent service (TRSPS).
+*/
 bool ble_trsps_data_set(uint16_t len, uint8_t *p_data)
 {
     mesh_tlv_t   *pt_tlv;

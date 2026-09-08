@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_onoff_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Level model.
  * @version 0.1
  * @date 2022-07-21
  *
@@ -42,13 +42,16 @@ static void mmdl_generic_level_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
 static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_generic_level_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_generic_level_delta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+/** @brief Apply a Generic Move Set request (continuous level change rate), notify the extended model, and optionally acknowledge. */
 static void mmdl_generic_level_move_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *in_p_model);
 
+/** @brief Initialize the Generic Level Server model instance for an element (currently a no-op). */
 void mmdl_generic_level_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Generic Level model message to the matching opcode handler. */
 void mmdl_generic_level_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -90,12 +93,14 @@ void mmdl_generic_level_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
 
 }
 
+/** @brief Handle a Generic Level Get request by replying with the current level status. */
 static void mmdl_generic_level_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_level_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Level Set request (absolute level), notify the callback/extended model, and optionally acknowledge. */
 static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_level_set_msg_t  *p_gen_level_set_msg = (gen_level_set_msg_t *)p_evt_msg->parameter;
@@ -156,6 +161,7 @@ static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
     }
 }
 
+/** @brief Apply a Generic Delta Set request (relative level change), notify the callback/extended model, and optionally acknowledge. */
 static void mmdl_generic_level_delta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_level_delta_set_msg_t  *p_gen_level_delta_set_msg = (gen_level_delta_set_msg_t *)p_evt_msg->parameter;
@@ -259,6 +265,7 @@ static void mmdl_generic_level_move_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_
 }
 
 
+/** @brief Build and send a Generic Level Status message back to the requester. */
 static void mmdl_generic_level_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -308,6 +315,7 @@ static void mmdl_generic_level_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg
     }
 }
 
+/** @brief Update the level state from an extended (parent) model without going through message processing. */
 void mmdl_generic_level_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, int16_t level_state)
 {
     gen_level_state_t  *p_gen_level_state = (gen_level_state_t *)p_model->p_state_var;
@@ -329,6 +337,7 @@ void mmdl_generic_level_extend_set(ble_mesh_element_param_t *p_element, ble_mesh
 
 }
 
+/** @brief Publish the current Generic Level state to the model's configured publish address. */
 void mmdl_generic_level_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

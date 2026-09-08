@@ -106,7 +106,8 @@ void systemfrequencyupdate(void) /* Update System clock Frequency */
     }
 }
 
-#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB))
+#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB) || \
+     (CHIP_VERSION == RT58X_MPC) || (CHIP_VERSION == RT58X_MPD))
 void reg_bit_write(reg_bit_write_t reg_write_item) {
     uint32_t bit_max_value;
     uint32_t reg_value_buf;
@@ -244,13 +245,15 @@ void systempmuupdatedcdc(void) { /* Update PMU settings in DCDC mode */
 
 #if (CHIP_VERSION == RT58X_MPA)
     PMU->pmu_rco32k.bit.rn_32k = 2047;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     PMU->pmu_rco32k.bit.rn_32k = 0;
 #endif
     PMU->pmu_rco32k.bit.c_32k = 0;
 #if (CHIP_VERSION == RT58X_MPA)
     PMU->pmu_rco32k.bit.pw_32k = 2;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     PMU->pmu_rco32k.bit.pw_32k = 0;
 #endif
 
@@ -259,13 +262,15 @@ void systempmuupdatedcdc(void) { /* Update PMU settings in DCDC mode */
     pmu_dcdc_ctrl0_buf.bit.dcdc_en_comp_heavy = 1;
 #if (CHIP_VERSION == RT58X_MPA)
     pmu_dcdc_ctrl0_buf.bit.dcdc_npower_heavy = 7;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     pmu_dcdc_ctrl0_buf.bit.dcdc_npower_heavy = 0;
 #endif
     pmu_dcdc_ctrl0_buf.bit.dcdc_en_zcd_heavy = 0;
 #if (CHIP_VERSION == RT58X_MPA)
     pmu_dcdc_ctrl0_buf.bit.dcdc_pdrive_heavy = 5;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     pmu_dcdc_ctrl0_buf.bit.dcdc_pdrive_heavy = 6;
 #endif
     pmu_dcdc_ctrl0_buf.bit.dcdc_mg_heavy = 1;
@@ -276,19 +281,22 @@ void systempmuupdatedcdc(void) { /* Update PMU settings in DCDC mode */
     pmu_dcdc_ctrl0_buf.bit.dcdc_c_hg_heavy = 1;
 #if (CHIP_VERSION == RT58X_MPA)
     pmu_dcdc_ctrl0_buf.bit.dcdc_pwmf_heavy = 8;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     pmu_dcdc_ctrl0_buf.bit.dcdc_pwmf_heavy = 7;
 #endif
     pmu_dcdc_ctrl0_buf.bit.dcdc_os_pn_heavy = 1;
 #if (CHIP_VERSION == RT58X_MPA)
     pmu_dcdc_ctrl0_buf.bit.dcdc_os_heavy = 3;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     pmu_dcdc_ctrl0_buf.bit.dcdc_os_heavy = 1;
 #endif
     pmu_dcdc_ctrl0_buf.bit.dcdc_hg_heavy = 3;
 #if (CHIP_VERSION == RT58X_MPA)
     pmu_dcdc_ctrl0_buf.bit.dcdc_dly_heavy = 2;
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+       (CHIP_VERSION == RT58X_MPD))
     pmu_dcdc_ctrl0_buf.bit.dcdc_dly_heavy = 0;
 #endif
     PMU->pmu_dcdc_ctrl0 = pmu_dcdc_ctrl0_buf;
@@ -397,7 +405,8 @@ void SystemInit(void) {
 
     set_sram_shutdown_sleep(0);
 
-#if (CHIP_VERSION == RT58X_MPB)
+#if ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+     (CHIP_VERSION == RT58X_MPD))
     /*change BBPLL setting 2022/03/25 for MPB */
     PMU->pmu_bbpll.bit.bbpll_sel_vth = 1;
 #endif
@@ -405,7 +414,8 @@ void SystemInit(void) {
     /*enable flash QSPI mode.*/
     flash_enable_qe();
 
-#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB))
+#if ((CHIP_VERSION == RT58X_MPA) || (CHIP_VERSION == RT58X_MPB) || \
+     (CHIP_VERSION == RT58X_MPC) || (CHIP_VERSION == RT58X_MPD))
     systempmuupdatedig();
 
 #if (SET_PMU_MODE == PMU_LDO_MODE)

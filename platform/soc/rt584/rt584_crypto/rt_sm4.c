@@ -27,7 +27,7 @@ extern void crypto_start(uint8_t op_num, uint8_t sb_num);
 #define PUT_UINT32_BE(n,b,i)     { *((uint32_t *)(b+i)) = __rev(n); }
 #define GET_UINT32_BE(n,b,i)     { (n) = __rev( *((uint32_t *)((uint32_t *)(b+i)) ));}
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
 extern void crypto_mutex_lock(void);
 extern void crypto_mutex_unlock(void);

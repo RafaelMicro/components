@@ -38,8 +38,8 @@ extern "C" {
 /**
  * \brief           hosal_crypto_ecjpack const defined
  */
-#define HOSLA_CRYPTO_ECJPAKE_INI  1
-#define HOSAL_NUMBER_OF_GENERATES 2
+#define HOSLA_CRYPTO_ECJPAKE_INI  (1)
+#define HOSAL_NUMBER_OF_GENERATES (2)
 
 /**
  * \brief           hosal crypto ecjpack operation struct dfeindd

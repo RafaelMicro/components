@@ -15,11 +15,11 @@
 /* ============================================================================
  * Status / Error codes
  * ==========================================================================*/
-#define FLASH_BP_STATUS_SUCCESS          0u
-#define FLASH_BP_STATUS_EBUSY            1u
-#define FLASH_BP_STATUS_INVALID_PARAM    2u
-#define FLASH_BP_STATUS_TIMEOUT          3u
-#define FLASH_BP_STATUS_UNSUPPORTED      4u
+#define FLASH_BP_STATUS_SUCCESS          (0u)
+#define FLASH_BP_STATUS_EBUSY            (1u)
+#define FLASH_BP_STATUS_INVALID_PARAM    (2u)
+#define FLASH_BP_STATUS_TIMEOUT          (3u)
+#define FLASH_BP_STATUS_UNSUPPORTED      (4u)
 
 /* ============================================================================
  * Status Register bit definitions
@@ -35,23 +35,23 @@
 /* ============================================================================
  * Raw BP values (BP4..BP0)
  * ==========================================================================*/
-#define FLASH_BP_RAW_NONE        0x00u
-#define FLASH_BP_RAW_MAX         0x1Fu
+#define FLASH_BP_RAW_NONE        (0x00u)
+#define FLASH_BP_RAW_MAX         (0x1Fu)
 
 /*
  * Fixed-size protection modes
  * - Raw BP values defined by flash datasheet
  * - Applicable to all flash capacities
  */
-#define FLASH_BP_RAW_TOP_4KB     0x11u
-#define FLASH_BP_RAW_TOP_8KB     0x12u
-#define FLASH_BP_RAW_TOP_16KB    0x13u
-#define FLASH_BP_RAW_TOP_32KB    0x14u
+#define FLASH_BP_RAW_TOP_4KB     (0x11u)
+#define FLASH_BP_RAW_TOP_8KB     (0x12u)
+#define FLASH_BP_RAW_TOP_16KB    (0x13u)
+#define FLASH_BP_RAW_TOP_32KB    (0x14u)
 
-#define FLASH_BP_RAW_BOTTOM_4KB  0x19u
-#define FLASH_BP_RAW_BOTTOM_8KB  0x1Au
-#define FLASH_BP_RAW_BOTTOM_16KB 0x1Bu
-#define FLASH_BP_RAW_BOTTOM_32KB 0x1Cu
+#define FLASH_BP_RAW_BOTTOM_4KB  (0x19u)
+#define FLASH_BP_RAW_BOTTOM_8KB  (0x1Au)
+#define FLASH_BP_RAW_BOTTOM_16KB (0x1Bu)
+#define FLASH_BP_RAW_BOTTOM_32KB (0x1Cu)
 
 /* ============================================================================
  * Semantic protection modes (platform independent)

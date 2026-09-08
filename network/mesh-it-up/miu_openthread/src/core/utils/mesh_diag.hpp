@@ -157,7 +157,30 @@ public:
     explicit MeshDiag(Instance &aInstance);
 
     /**
+     * Gets how long a single router is given to answer.
+     *
+     * @returns The response timeout in milliseconds.
+     */
+    uint32_t GetResponseTimeout(void) const { return mResponseTimeout; }
+
+    /**
+     * Sets how long a single router is given to answer.
+     *
+     * The default is `OPENTHREAD_CONFIG_MESH_DIAG_RESPONSE_TIMEOUT`. A large or lossy mesh needs a longer one; the
+     * value applies per router, so a topology discovery can take up to (router count x timeout).
+     *
+     * Takes effect on the next query; an ongoing one keeps the timeout it started with.
+     *
+     * @param[in] aTimeout  The response timeout in milliseconds.
+     */
+    void SetResponseTimeout(uint32_t aTimeout) { mResponseTimeout = aTimeout; }
+
+    /**
      * Starts network topology discovery.
+     *
+     * Routers are queried one at a time: the next request is sent only after the previous router answered or its
+     * response timeout expired. Routers that never answer are simply absent from the reported set and make the final
+     * callback report `kErrorResponseTimeout`.
      *
      * @param[in] aConfig          The configuration to use for discovery (e.g., which items to discover).
      * @param[in] aCallback        The callback to report the discovered routers.
@@ -226,7 +249,10 @@ public:
 private:
     typedef ot::NetworkDiagnostic::Tlv Tlv;
 
-    static constexpr uint32_t kResponseTimeout = OPENTHREAD_CONFIG_MESH_DIAG_RESPONSE_TIMEOUT;
+    static constexpr uint32_t kDefaultResponseTimeout = OPENTHREAD_CONFIG_MESH_DIAG_RESPONSE_TIMEOUT;
+
+    // `Address16`, `ExtMacAddress`, `Route`, `Version`, `Ip6AddressList`, `ChildTable`.
+    static constexpr uint8_t kMaxDiscoverTlvs = 6;
 
     enum State : uint8_t
     {
@@ -241,6 +267,9 @@ private:
     {
         Callback<DiscoverCallback> mCallback;
         Mle::RouterIdSet           mExpectedRouterIdSet;
+        uint8_t                    mTlvs[kMaxDiscoverTlvs];
+        uint8_t                    mTlvsLength;
+        uint8_t                    mNextRouterId; // Sweep cursor; routers are queried one at a time.
     };
 
     struct QueryChildTableInfo
@@ -278,6 +307,7 @@ private:
     };
 
     Error SendQuery(uint16_t aRloc16, const uint8_t *aTlvs, uint8_t aTlvsLength);
+    void  SendNextTopologyQuery(void);
     void  Finalize(Error aError);
     void  HandleTimer(void);
     bool  HandleDiagnosticGetAnswer(Coap::Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
@@ -298,6 +328,7 @@ private:
     State        mState;
     uint16_t     mExpectedQueryId;
     uint16_t     mExpectedAnswerIndex;
+    uint32_t     mResponseTimeout;
     TimeoutTimer mTimer;
 
     union

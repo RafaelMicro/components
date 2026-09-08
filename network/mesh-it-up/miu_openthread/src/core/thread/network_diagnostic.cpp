@@ -858,6 +858,30 @@ Client::Client(Instance &aInstance)
 {
 }
 
+bool Client::TypeListRequiresQuery(const uint8_t aTlvTypes[], uint8_t aCount)
+{
+    // `AppendDiagTlv()` (the `DIAG_GET.req` path) ignores these three; only
+    // `PrepareAndSendAnswers()` generates them.
+
+    bool needsQuery = false;
+
+    for (uint8_t index = 0; index < aCount; index++)
+    {
+        switch (aTlvTypes[index])
+        {
+        case ChildTlv::kType:
+        case ChildIp6AddressListTlv::kType:
+        case RouterNeighborTlv::kType:
+            ExitNow(needsQuery = true);
+        default:
+            break;
+        }
+    }
+
+exit:
+    return needsQuery;
+}
+
 Error Client::SendDiagnosticGet(const Ip6::Address &aDestination,
                                 const uint8_t       aTlvTypes[],
                                 uint8_t             aCount,
@@ -866,7 +890,7 @@ Error Client::SendDiagnosticGet(const Ip6::Address &aDestination,
 {
     Error error;
 
-    if (aDestination.IsMulticast())
+    if (aDestination.IsMulticast() || TypeListRequiresQuery(aTlvTypes, aCount))
     {
         error = SendCommand(kUriDiagnosticGetQuery, Message::kPriorityNormal, aDestination, aTlvTypes, aCount);
     }
@@ -899,7 +923,10 @@ Error Client::SendCommand(Uri                   aUri,
     switch (aUri)
     {
     case kUriDiagnosticGetQuery:
-        message = Get<Tmf::Agent>().NewNonConfirmablePostMessage(aUri);
+        // Multicast must be non-confirmable; unicast is ACKed, so confirmable
+        // buys CoAP-level retransmission.
+        message = aDestination.IsMulticast() ? Get<Tmf::Agent>().NewNonConfirmablePostMessage(aUri)
+                                             : Get<Tmf::Agent>().NewConfirmablePostMessage(aUri);
         break;
 
     case kUriDiagnosticGetRequest:

@@ -6,6 +6,7 @@ __STACK_SIZE = 0x0800;   /* 2 KB */
 __HEAP_SIZE  = 0x0800;   /* 2 KB */
 __RAM_SIZE   = 192K;
 __DATA_SIZE  = __RAM_SIZE - __STACK_SIZE - __HEAP_SIZE - 8;
+__COMM_SUBSYS_RESERVED_SIZE = 16K;
 
 MEMORY
 {
@@ -27,6 +28,7 @@ MEMORY
     VMA_HEAP  (rwx) : ORIGIN = ORIGIN(VMA_DATA) + LENGTH(VMA_DATA), LENGTH = __HEAP_SIZE
     VMA_STACK (rwx) : ORIGIN = ORIGIN(VMA_HEAP) + LENGTH(VMA_HEAP), LENGTH = __STACK_SIZE + 8
 
+    VMA_RAM2  (rw) : ORIGIN = 0x30058000 - __COMM_SUBSYS_RESERVED_SIZE, LENGTH = __COMM_SUBSYS_RESERVED_SIZE
 }
 
 /* 定義程式區段（PHDRS）屬性 */
@@ -218,10 +220,11 @@ SECTIONS
 	PROVIDE(_heap_end = .);
 	PROVIDE(_heap_size = _heap_end - _heap_start);
 
-	/* seconde Heap region */
-	PROVIDE(_heap2_start = 0);
-	PROVIDE(_heap2_end   = 0);
-	PROVIDE(_heap2_size  = 0);
+	/* second Heap region */
+	PROVIDE(_heap2_start = ORIGIN(VMA_RAM2));
+	PROVIDE(_heap2_end   = ORIGIN(VMA_RAM2) + LENGTH(VMA_RAM2));
+	PROVIDE(_heap2_size  = _heap2_end - _heap2_start);
+    PROVIDE(_comm_subsys_reserved_ram = _heap2_size);
 
 	/* log */
 	PROVIDE( _ld_rf_static_logcomponent_code_start = _rf_static_logcomponent_code_start );

@@ -25,39 +25,39 @@ extern "C" {
 #include "flashctl.h"
 
 /* Flash read command */
-#define HOSAL_FLASH_READ_BYTE                0x00
-#define HOSAL_FLASH_READ_PAGE                0x01
-#define HOSAL_FLASH_SECURITY_READ            0x02
-#define HOSAL_FLASH_READ_ID                  0x04
+#define HOSAL_FLASH_READ_BYTE                (0x00)
+#define HOSAL_FLASH_READ_PAGE                (0x01)
+#define HOSAL_FLASH_SECURITY_READ            (0x02)
+#define HOSAL_FLASH_READ_ID                  (0x04)
 
 /* Flash write command */
-#define HOSAL_FLASH_WRITE_BYTE               0x10
-#define HOSAL_FLASH_WRITE_PAGE               0x11
-#define HOSAL_FLASH_SECURITY_WRITE           0x12
+#define HOSAL_FLASH_WRITE_BYTE               (0x10)
+#define HOSAL_FLASH_WRITE_PAGE               (0x11)
+#define HOSAL_FLASH_SECURITY_WRITE           (0x12)
 
 /* Flash erase command */
-#define HOSAL_FLASH_ERASE_PAGE               0x20
-#define HOSAL_FLASH_ERASE_SECTOR             0x21
-#define HOSAL_FLASH_ERASE_32K_SECTOR         0x22
-#define HOSAL_FLASH_ERASE_64K_SECTOR         0x23
-#define HOSAL_FLASH_ERASE_CHIP               0x24
-#define HOSAL_FLASH_ERASE_SECURITY_PAGE      0x25
+#define HOSAL_FLASH_ERASE_PAGE               (0x20)
+#define HOSAL_FLASH_ERASE_SECTOR             (0x21)
+#define HOSAL_FLASH_ERASE_32K_SECTOR         (0x22)
+#define HOSAL_FLASH_ERASE_64K_SECTOR         (0x23)
+#define HOSAL_FLASH_ERASE_CHIP               (0x24)
+#define HOSAL_FLASH_ERASE_SECURITY_PAGE      (0x25)
 
 /* Flash io control command */
-#define HOSAL_FLASH_ENABLE_SUSPEND           0x30
-#define HOSAL_FLASH_DISABLE_SUSPEND          0x31
-#define HOSAL_FLASH_CACHE                    0x32
-#define HOSAL_FLASH_BUSY                     0x33
-#define HOSAL_FLASH_GET_INFO                 0x34
-#define HOSAL_FLASH_ENABLE_VERIFY            0x35  /* Enable write verification    */
-#define HOSAL_FLASH_DISABLE_VERIFY           0x36  /* Disable write verification   */
-#define HOSAL_FLASH_LVD_ENABLE               0x37  /* low voltage detect           */
-#define HOSAL_FLASH_GET_PROTECTION_INFO      0x40  /* Get protection configuration */
-#define HOSAL_FLASH_BP_REMOVE_ALL            0x41  
-#define HOSAL_FLASH_SET_ALLOWED_REGION       0x42  
-#define HOSAL_FLASH_CLEAR_ALLOWED_REGION     0x43  
-#define HOSAL_FLASH_GET_PROTECTION_CONFIG    0x44  
-#define HOSAL_FLASH_GET_STATUS_SR12          0x45
+#define HOSAL_FLASH_ENABLE_SUSPEND           (0x30)
+#define HOSAL_FLASH_DISABLE_SUSPEND          (0x31)
+#define HOSAL_FLASH_CACHE                    (0x32)
+#define HOSAL_FLASH_BUSY                     (0x33)
+#define HOSAL_FLASH_GET_INFO                 (0x34)
+#define HOSAL_FLASH_ENABLE_VERIFY            (0x35)  /* Enable write verification    */
+#define HOSAL_FLASH_DISABLE_VERIFY           (0x36)  /* Disable write verification   */
+#define HOSAL_FLASH_LVD_ENABLE               (0x37)  /* low voltage detect           */
+#define HOSAL_FLASH_GET_PROTECTION_INFO      (0x40)  /* Get protection configuration */
+#define HOSAL_FLASH_BP_REMOVE_ALL            (0x41)  
+#define HOSAL_FLASH_SET_ALLOWED_REGION       (0x42)  
+#define HOSAL_FLASH_CLEAR_ALLOWED_REGION     (0x43)  
+#define HOSAL_FLASH_GET_PROTECTION_CONFIG    (0x44)  
+#define HOSAL_FLASH_GET_STATUS_SR12          (0x45)
 /* Flash size definitions */
 typedef enum {
     HOSAL_FLASH_NOT_SUPPORT = 0x00,

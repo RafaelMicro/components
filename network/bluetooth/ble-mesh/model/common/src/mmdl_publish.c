@@ -8,7 +8,7 @@
 /**
  * @file mmdl_publish_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Periodic timer-driven publication engine: schedules and retransmits model state publications.
  * @version 0.1
  * @date 2022-07-25
  *
@@ -41,6 +41,7 @@ static void mmdl_publish_state_msg_send(ble_mesh_element_param_t *p_element,  bl
 
 
 
+/** @brief Create the publish message queue and the periodic publication timer, then start the timer. */
 void mmdl_publish_init(void)
 {
     mmdl_publish_msg_q = xQueueCreate(16, sizeof(uint32_t));
@@ -57,11 +58,16 @@ void mmdl_publish_init(void)
 
 }
 
+/** @brief Start the periodic publication timer. */
 static void mmdl_publish_timer_start(void)
 {
     xTimerStart(p_mmdl_publish_timer);
 }
 
+/**
+ * @brief Periodic timer callback: walks every model on every element and, for those with active
+ * publication configured, counts down to the next publish/retransmit and triggers sending when due.
+ */
 static void mmdl_publish_timer_handle(void *param)
 {
     uint32_t i, j;
@@ -124,6 +130,7 @@ static void mmdl_publish_timer_handle(void *param)
     }
 }
 
+/** @brief Convert a publish period's step count and step resolution into a number of timer ticks. */
 static uint32_t mmdl_publish_interval_get(uint8_t steps, uint8_t resolution)
 {
     uint32_t unit_value = 0;
@@ -150,6 +157,7 @@ static uint32_t mmdl_publish_interval_get(uint8_t steps, uint8_t resolution)
     return (steps * unit_value);
 }
 
+/** @brief Enqueue a publish request for a model by posting its publication_info_t address to the publish queue. */
 static void mmdl_publish_state_msg_send(ble_mesh_element_param_t *p_element,  ble_mesh_model_param_t  *p_model)
 {
     uint32_t    publish_info_address;
@@ -168,6 +176,7 @@ static void mmdl_publish_state_msg_send(ble_mesh_element_param_t *p_element,  bl
 
 }
 
+/** @brief Dequeue handler: decode the publication_info_t pointer and invoke the model's publish-state callback. */
 void mmdl_publish_state_by_msg(uint32_t publish_address_value)
 {
     ble_mesh_element_param_t  *p_element;

@@ -25,7 +25,8 @@
 #define RF_CAL_MP_MODE     (0x02)
 #define RF_CAL_FT_MODE     (0x04)
 #ifndef RF_CAL_TYPE
-#if (CHIP_VERSION == RT58X_MPB)
+#if ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+     (CHIP_VERSION == RT58X_MPD))
 #if ((RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569M0)                                  \
      && (RF_MCU_CHIP_VER == RF_MCU_CHIP_VER_B))
 #define RF_CAL_TYPE (RF_CAL_PWR_ON_MODE | RF_CAL_FT_MODE)

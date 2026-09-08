@@ -47,7 +47,7 @@ extern "C" {
  * @defgroup ble_evt_type BLE Event Type Definition
  * @{
  * @ingroup ble_event
- * @details BLE module event type definition which is indicated the event from BLE stack.
+ * @details BLE module event type used to identify events reported by the BLE stack to the application.
  */
 typedef uint8_t ble_module_evt_t;
 #define BLE_COMMON_EVT_BASE                                      0x00                           /**< Common module event.*/
@@ -111,33 +111,33 @@ typedef uint8_t ble_module_evt_t;
 
 #define BLE_PADV_EVT_BASE                                       0x70                            /**< Periodic Advertising module event.*/
 #define BLE_EADV_EVT_BASE                                       0x80                            /**< Extended Advertising module event.*/
-#define BLE_PADV_EVT_SET_PADV_RECEIVE_ENABLE                    (BLE_PADV_EVT_BASE + 0x00)      /**<  */
-#define BLE_PADV_EVT_SET_PADV_SYNC_TRANSFER                     (BLE_PADV_EVT_BASE + 0x01)      /**<  */
-#define BLE_PADV_EVT_SET_PADV_SYNC_SET_INFO_TRANSFER_PARAM      (BLE_PADV_EVT_BASE + 0x02)      /**<  */
-#define BLE_PADV_EVT_SET_PADV_SYNC_TRANSFER_PARAM               (BLE_PADV_EVT_BASE + 0x03)      /**<  */
-#define BLE_PADV_EVT_SET_PADV_SUBEVENT_DATA                     (BLE_PADV_EVT_BASE + 0x04)      /**<  */
-#define BLE_PADV_EVT_SET_DEFAULT_PADV_SYNC_TRANSFER_PARAM       (BLE_PADV_EVT_BASE + 0x05)      /**<  */
-#define BLE_PADV_EVT_SET_PADV_RESPONSE_DATA_PARAM               (BLE_PADV_EVT_BASE + 0x06)      /**<  */
-#define BLE_PADV_EVT_PADV_SYNC_TRANSFER_RECEIVED                (BLE_PADV_EVT_BASE + 0x07)      /**<  */
-#define BLE_PADV_EVT_PADV_SYNC_TRANSFER_RECEIVED_V2             (BLE_PADV_EVT_BASE + 0x08)      /**<  */
-#define BLE_PADV_EVT_PADV_SYNC_ESTABLISHED                      (BLE_PADV_EVT_BASE + 0x09)
-#define BLE_PADV_EVT_PADV_SYNC_ESTABLISHED_V2                   (BLE_PADV_EVT_BASE + 0x0A)
-#define BLE_PADV_EVT_PADV_SUBEVENT_DATA_REQ                     (BLE_PADV_EVT_BASE + 0x0B)
-#define BLE_PADV_EVT_PADV_RESPONSE_REPORT                       (BLE_PADV_EVT_BASE + 0x0C)
-#define BLE_PADV_EVT_SET_PSYNC_SUBEVENT                         (BLE_PADV_EVT_BASE + 0x0D)
-#define BLE_PADV_EVT_PADV_REPORT                                (BLE_PADV_EVT_BASE + 0x0E)
-#define BLE_PADV_EVT_PADV_REPORT_V2                             (BLE_PADV_EVT_BASE + 0x0F)
-#define BLE_PADV_EVT_PADV_SYNC_LOST                             (BLE_PADV_EVT_BASE + 0x10)
-#define BLE_PADV_EVT_SET_PADV_PARAM                             (BLE_PADV_EVT_BASE + 0x11)
-#define BLE_PADV_EVT_SET_PADV_DATA                              (BLE_PADV_EVT_BASE + 0x12)
-#define BLE_PADV_EVT_ENABLE_PADV                                (BLE_PADV_EVT_BASE + 0x13)
-#define BLE_EADV_EVT_ENABLE_ADV                                 (BLE_PADV_EVT_BASE + 0x14)
-#define BLE_EADV_EVT_SET_EXTENDED_ADV_PARAM                     (BLE_PADV_EVT_BASE + 0x15)
-#define BLE_EADV_EVT_SET_EXTENDED_ADV_DATA                      (BLE_PADV_EVT_BASE + 0x16)
-#define BLE_EADV_EVT_SET_ADV_SET_RANDOM_ADDR                    (BLE_PADV_EVT_BASE + 0x17)
-#define BLE_EADV_EVT_ADV_SET_TERMINATED                         (BLE_PADV_EVT_BASE + 0x18)
-#define BLE_PADV_EVT_SET_PADV_SET_INFO_TRANSFER                 (BLE_PADV_EVT_BASE + 0x19)
-#define BLE_PADV_EVT_PADV_SYNC_TERMINATE                        (BLE_PADV_EVT_BASE + 0x1A)
+#define BLE_PADV_EVT_SET_PADV_RECEIVE_ENABLE                    (BLE_PADV_EVT_BASE + 0x00)      /**< Periodic Advertising module event: set periodic advertising sync receive enable command complete event. */
+#define BLE_PADV_EVT_SET_PADV_SYNC_TRANSFER                     (BLE_PADV_EVT_BASE + 0x01)      /**< Periodic Advertising module event: periodic advertising sync transfer command complete event. */
+#define BLE_PADV_EVT_SET_PADV_SYNC_SET_INFO_TRANSFER_PARAM      (BLE_PADV_EVT_BASE + 0x02)      /**< Periodic Advertising module event: periodic advertising sync set info transfer parameter command complete event. */
+#define BLE_PADV_EVT_SET_PADV_SYNC_TRANSFER_PARAM               (BLE_PADV_EVT_BASE + 0x03)      /**< Periodic Advertising module event: set periodic advertising sync transfer parameters command complete event. */
+#define BLE_PADV_EVT_SET_PADV_SUBEVENT_DATA                     (BLE_PADV_EVT_BASE + 0x04)      /**< Periodic Advertising module event: set periodic advertising subevent data command complete event. */
+#define BLE_PADV_EVT_SET_DEFAULT_PADV_SYNC_TRANSFER_PARAM       (BLE_PADV_EVT_BASE + 0x05)      /**< Periodic Advertising module event: set default periodic advertising sync transfer parameters command complete event. */
+#define BLE_PADV_EVT_SET_PADV_RESPONSE_DATA_PARAM               (BLE_PADV_EVT_BASE + 0x06)      /**< Periodic Advertising module event: set periodic advertising response data command complete event. */
+#define BLE_PADV_EVT_PADV_SYNC_TRANSFER_RECEIVED                (BLE_PADV_EVT_BASE + 0x07)      /**< Periodic Advertising module event: periodic advertising sync transfer received event. */
+#define BLE_PADV_EVT_PADV_SYNC_TRANSFER_RECEIVED_V2             (BLE_PADV_EVT_BASE + 0x08)      /**< Periodic Advertising module event: periodic advertising sync transfer received event (v2, with subevents information). */
+#define BLE_PADV_EVT_PADV_SYNC_ESTABLISHED                      (BLE_PADV_EVT_BASE + 0x09)      /**< Periodic Advertising module event: periodic advertising sync established event. */
+#define BLE_PADV_EVT_PADV_SYNC_ESTABLISHED_V2                   (BLE_PADV_EVT_BASE + 0x0A)      /**< Periodic Advertising module event: periodic advertising sync established event (v2, with subevents information). */
+#define BLE_PADV_EVT_PADV_SUBEVENT_DATA_REQ                     (BLE_PADV_EVT_BASE + 0x0B)      /**< Periodic Advertising module event: periodic advertising subevent data request event. */
+#define BLE_PADV_EVT_PADV_RESPONSE_REPORT                       (BLE_PADV_EVT_BASE + 0x0C)      /**< Periodic Advertising module event: periodic advertising response report event. */
+#define BLE_PADV_EVT_SET_PSYNC_SUBEVENT                         (BLE_PADV_EVT_BASE + 0x0D)      /**< Periodic Advertising module event: set periodic advertising sync subevent command complete event. */
+#define BLE_PADV_EVT_PADV_REPORT                                (BLE_PADV_EVT_BASE + 0x0E)      /**< Periodic Advertising module event: periodic advertising report event. */
+#define BLE_PADV_EVT_PADV_REPORT_V2                             (BLE_PADV_EVT_BASE + 0x0F)      /**< Periodic Advertising module event: periodic advertising report event (v2, with subevents information). */
+#define BLE_PADV_EVT_PADV_SYNC_LOST                             (BLE_PADV_EVT_BASE + 0x10)      /**< Periodic Advertising module event: periodic advertising sync lost event. */
+#define BLE_PADV_EVT_SET_PADV_PARAM                             (BLE_PADV_EVT_BASE + 0x11)      /**< Periodic Advertising module event: set periodic advertising parameters command complete event. */
+#define BLE_PADV_EVT_SET_PADV_DATA                              (BLE_PADV_EVT_BASE + 0x12)      /**< Periodic Advertising module event: set periodic advertising data command complete event. */
+#define BLE_PADV_EVT_ENABLE_PADV                                (BLE_PADV_EVT_BASE + 0x13)      /**< Periodic Advertising module event: set periodic advertising enable command complete event. */
+#define BLE_EADV_EVT_ENABLE_ADV                                 (BLE_PADV_EVT_BASE + 0x14)      /**< Extended Advertising module event: set extended advertising enable command complete event. */
+#define BLE_EADV_EVT_SET_EXTENDED_ADV_PARAM                     (BLE_PADV_EVT_BASE + 0x15)      /**< Extended Advertising module event: set extended advertising parameters command complete event. */
+#define BLE_EADV_EVT_SET_EXTENDED_ADV_DATA                      (BLE_PADV_EVT_BASE + 0x16)      /**< Extended Advertising module event: set extended advertising data command complete event. */
+#define BLE_EADV_EVT_SET_ADV_SET_RANDOM_ADDR                    (BLE_PADV_EVT_BASE + 0x17)      /**< Extended Advertising module event: set advertising set random address command complete event. */
+#define BLE_EADV_EVT_ADV_SET_TERMINATED                         (BLE_PADV_EVT_BASE + 0x18)      /**< Extended Advertising module event: advertising set terminated event. */
+#define BLE_PADV_EVT_SET_PADV_SET_INFO_TRANSFER                 (BLE_PADV_EVT_BASE + 0x19)      /**< Periodic Advertising module event: periodic advertising set info transfer command complete event. */
+#define BLE_PADV_EVT_PADV_SYNC_TERMINATE                        (BLE_PADV_EVT_BASE + 0x1A)      /**< Periodic Advertising module event: periodic advertising terminate sync command complete event. */
 
 #define BLE_VENDOR_EVT_BASE                                     0x90                            /**< vendor event.*/
 #define BLE_VENDOR_EVT_SCAN_REQ_REPORT                          (BLE_VENDOR_EVT_BASE + 0x00)    /**< vendor event: scan request report event. */
@@ -151,7 +151,7 @@ typedef uint8_t ble_module_evt_t;
 typedef struct ble_evt_param_s
 {
     ble_module_evt_t        event;                  /**< BLE event @ref ble_evt_type "ble_module_evt_t". */
-    uint8_t                 extended_length;        /**< Extended length flag, 1 means the event parameters is extended length. */
+    uint8_t                 extended_length;        /**< Length in bytes of variable-length data appended after this structure, 0 if the event has no extended (variable-length) data. */
     union
     {
         ble_evt_common_t        ble_evt_common;     /**< BLE common related event parameters. */

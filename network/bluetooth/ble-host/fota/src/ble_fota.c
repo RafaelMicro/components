@@ -572,12 +572,12 @@ void ble_fota_cmd(uint8_t host_id, uint8_t length, uint8_t *p_data)
     {
 
         /* FOTA start command format.
-            ________________________________________________________
-            octets    |1          |4       |4    |4         |1     |
-            ________________________________________________________
-            parameter | CommandID | FW     | FW  | Notify   | FW   |
-                      | (0x01)    | length | CRC | interval | info |
-            _________________________________________________________ */
+            ____________________________________________________________________
+            octets    |1          |4       |4    |4         |1     |3          |
+            ____________________________________________________________________
+            parameter | CommandID | FW     | FW  | Notify   | FW   | Signature |
+                      | (0x01)    | length | CRC | interval | info | length    |
+            ____________________________________________________________________ */
         fota_data_param.notify_interval = p_fota_cmd->cmd_param.start_cmd.notify_interval;
 
         if ((p_fota_info->status == FOTABANK_STATUS_FLASH_PROGRAMMING) || (fota_upgrade_state == OTA_STATE_START)) /*Check if there were unfinish FOTA data */

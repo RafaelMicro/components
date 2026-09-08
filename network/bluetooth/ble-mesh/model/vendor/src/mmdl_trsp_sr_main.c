@@ -8,7 +8,7 @@
 /**
  * @file mmdl_trsp_sr_main.c
  * @author Jeffrey (jeffrey.lin@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the Rafael vendor Transparent Transport Server model.
  * @version 0.1
  * @date 2022-08-01
  *
@@ -41,6 +41,7 @@ static void mmdl_rafael_trsp_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, 
 
 static void mmdl_rafael_trsp_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
 
+/** @brief Dispatch an incoming Transparent Transport model message (Set/Set Unacknowledged) to the appropriate opcode handler. */
 void mmdl_rafael_trsp_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
     ttl                     = 4;
@@ -63,6 +64,7 @@ void mmdl_rafael_trsp_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh
 }
 
 
+/** @brief Handle a Transparent Transport Set(/Unacknowledged) request: forward the raw payload to the user callback and, if unicast and acknowledged, reply with status. */
 static void mmdl_rafael_trsp_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t in_is_broadcast)
 {
     raf_trsp_cb_params_t *p_raf_trsp_cb_params;
@@ -93,6 +95,7 @@ static void mmdl_rafael_trsp_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *
     } while (0);
 }
 
+/** @brief Build and send a Transparent Transport Status message, echoing back the received payload. */
 void mmdl_rafael_trsp_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, uint16_t src_address)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

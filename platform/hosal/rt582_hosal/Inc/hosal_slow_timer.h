@@ -32,38 +32,38 @@ extern "C" {
 /**
  * \brief           Slow timer counting mode definitions.
  */
-#define HOSAL_SLOW_TIMER_DOWN_COUNTING 0
-#define HOSAL_SLOW_TIMER_UP_COUNTING   1
+#define HOSAL_SLOW_TIMER_DOWN_COUNTING (0)
+#define HOSAL_SLOW_TIMER_UP_COUNTING   (1)
 
 /**
  * \brief           Slow timer one-shot mode definitions.
  */
-#define HOSAL_SLOW_TIMER_ONE_SHOT_DISABLE 0
-#define HOSAL_SLOW_TIMER_ONE_SHOT_ENABLE  1
+#define HOSAL_SLOW_TIMER_ONE_SHOT_DISABLE (0)
+#define HOSAL_SLOW_TIMER_ONE_SHOT_ENABLE  (1)
 
 /**
  * \brief           Slow timer mode definitions.
  */
-#define HOSAL_SLOW_TIMER_FREERUN_MODE  0
-#define HOSAL_SLOW_TIMER_PERIODIC_MODE 1
+#define HOSAL_SLOW_TIMER_FREERUN_MODE  (0)
+#define HOSAL_SLOW_TIMER_PERIODIC_MODE (1)
 
 /**
  * \brief           Slow timer interrupt definitions.
  */
-#define HOSAL_SLOW_TIMER_INT_DISABLE 0
-#define HOSAL_SLOW_TIMER_INT_ENABLE  1
+#define HOSAL_SLOW_TIMER_INT_DISABLE (0)
+#define HOSAL_SLOW_TIMER_INT_ENABLE  (1)
 
 /**
  * \brief           Slow timer prescale definitions.
  */
-#define HOSAL_SLOW_TIMER_PRESCALE_1    0
-#define HOSAL_SLOW_TIMER_PRESCALE_2    3
-#define HOSAL_SLOW_TIMER_PRESCALE_8    4
-#define HOSAL_SLOW_TIMER_PRESCALE_16   1
-#define HOSAL_SLOW_TIMER_PRESCALE_32   5
-#define HOSAL_SLOW_TIMER_PRESCALE_128  6
-#define HOSAL_SLOW_TIMER_PRESCALE_256  2
-#define HOSAL_SLOW_TIMER_PRESCALE_1024 7
+#define HOSAL_SLOW_TIMER_PRESCALE_1    (0)
+#define HOSAL_SLOW_TIMER_PRESCALE_2    (3)
+#define HOSAL_SLOW_TIMER_PRESCALE_8    (4)
+#define HOSAL_SLOW_TIMER_PRESCALE_16   (1)
+#define HOSAL_SLOW_TIMER_PRESCALE_32   (5)
+#define HOSAL_SLOW_TIMER_PRESCALE_128  (6)
+#define HOSAL_SLOW_TIMER_PRESCALE_256  (2)
+#define HOSAL_SLOW_TIMER_PRESCALE_1024 (7)
 
 /**
  * \brief Hal slow timer config structure holding configuration settings 

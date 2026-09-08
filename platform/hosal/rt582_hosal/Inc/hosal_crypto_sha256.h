@@ -37,10 +37,10 @@ extern "C" {
 /**
 * \brief           HOSAL SHA256 const define
 */
-#define HOSLA_CRYPTO_SHA256_INI   2
+#define HOSLA_CRYPTO_SHA256_INI   (2)
 #define HOSAL_SHA256_DIGEST_SIZE  SHA256_DIGEST_SIZE
 #define HOSAL_SHA256_BLOCK_SIZE   SHA256_BLOCK_SIZE
-#define HOSAL_NUMBER_OF_GENERATES 2
+#define HOSAL_NUMBER_OF_GENERATES (2)
 
 /**
 * \brief           HOSAL SHA256 operation enum type

@@ -37,13 +37,13 @@ extern "C"
 /**
  * \brief           Gosal WDT prescale definitions.
  */
-#define HOSAL_WDT_PRESCALE_1               0
-#define HOSAL_WDT_PRESCALE_16              15
-#define HOSAL_WDT_PRESCALE_32              31
-#define HOSAL_WDT_PRESCALE_128             127
-#define HOSAL_WDT_PRESCALE_256             255
-#define HOSAL_WDT_PRESCALE_1024            1023
-#define HOSAL_WDT_PRESCALE_4096            4095
+#define HOSAL_WDT_PRESCALE_1               (0)
+#define HOSAL_WDT_PRESCALE_16              (15)
+#define HOSAL_WDT_PRESCALE_32              (31)
+#define HOSAL_WDT_PRESCALE_128             (127)
+#define HOSAL_WDT_PRESCALE_256             (255)
+#define HOSAL_WDT_PRESCALE_1024            (1023)
+#define HOSAL_WDT_PRESCALE_4096            (4095)
 
 
 /**

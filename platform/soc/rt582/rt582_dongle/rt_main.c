@@ -21,11 +21,11 @@ extern uint8_t _heap2_start;
 extern uint8_t _heap2_size;
 
 #ifndef CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_SIZE
-#define CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_SIZE 8192
+#define CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_SIZE (8192)
 #endif
 
 #ifndef CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_PRIORITY
-#define CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_PRIORITY 5
+#define CONFIG_HOSAL_SOC_MAIN_ENTRY_TASK_PRIORITY (5)
 #endif
 static HeapRegion_t xHeapRegions[] = {
     {&_heap_start, (unsigned int)&_heap_size}, //set on runtime

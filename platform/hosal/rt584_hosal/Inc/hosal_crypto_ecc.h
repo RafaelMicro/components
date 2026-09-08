@@ -35,13 +35,13 @@ extern "C" {
 /**
  * \brief           hosal crypto ecc const defined
  */
-#define HOSAL_NULL                          0
-#define HOSAL_ECC_CURVE_P256_INIT           1
-#define HOSAL_ECDA_CURVE_P256_VERIFY_INIT   2
-#define HOSAL_ECC_CURVE_P192_INIT           3
-#define HOSAL_ECC_CURVE_B163_INIT           4
-#define HOSAL_ECC_CURVE_SM2P192_INIT        6
-#define HOSAL_ECC_CURVE_SM2P256_INIT        7
+#define HOSAL_NULL                          (0)
+#define HOSAL_ECC_CURVE_P256_INIT           (1)
+#define HOSAL_ECDA_CURVE_P256_VERIFY_INIT   (2)
+#define HOSAL_ECC_CURVE_P192_INIT           (3)
+#define HOSAL_ECC_CURVE_B163_INIT           (4)
+#define HOSAL_ECC_CURVE_SM2P192_INIT        (6)
+#define HOSAL_ECC_CURVE_SM2P256_INIT        (7)
 
 /**
  * \brief           hosal crypto ecc p256 enum defined

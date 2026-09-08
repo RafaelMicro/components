@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+/** @brief Runtime state of the Generic Location Server model, combining Global and Local Location states. */
 typedef struct gen_location_state_s
 {
     uint32_t     global_latitude;
@@ -25,6 +26,7 @@ typedef struct gen_location_state_s
 } gen_location_state_t;
 
 
+/** @brief Payload layout of the Generic Location Global Set message. */
 typedef struct __attribute__((packed)) gen_location_global_set_msg_s
 {
     uint32_t     global_latitude;
@@ -32,6 +34,7 @@ typedef struct __attribute__((packed)) gen_location_global_set_msg_s
     uint16_t     global_altitude;
 } gen_location_global_set_msg_t;
 
+/** @brief Payload layout of the Generic Location Local Set message. */
 typedef struct __attribute__((packed)) gen_location_local_set_msg_s
 {
     uint16_t     local_north;
@@ -41,6 +44,7 @@ typedef struct __attribute__((packed)) gen_location_local_set_msg_s
     uint16_t     uncertainty;
 } gen_location_local_set_msg_t;
 
+/** @brief Payload layout of the Generic Location Global Status message. */
 typedef struct __attribute__((packed)) gen_location_global_status_msg_s
 {
     uint32_t     global_latitude;
@@ -48,6 +52,7 @@ typedef struct __attribute__((packed)) gen_location_global_status_msg_s
     uint16_t     global_altitude;
 } gen_location_global_status_msg_t;
 
+/** @brief Payload layout of the Generic Location Local Status message. */
 typedef struct __attribute__((packed)) gen_location_local_status_msg_s
 {
     uint16_t     local_north;

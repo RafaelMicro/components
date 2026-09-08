@@ -35,7 +35,7 @@ static volatile  uint32_t low_power_aux_level = 0;
 static volatile  uint32_t low_power_bod_level = 0;
 static volatile  uint32_t low_power_peri_keep_on_mask = 0;
 
-#define LPM_SRAM0_RETAIN 0x1F
+#define LPM_SRAM0_RETAIN (0x1F)
 
 void lpm_init() {
     low_power_mask_status = LOW_POWER_NO_MASK;

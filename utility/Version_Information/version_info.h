@@ -22,7 +22,7 @@ typedef struct __attribute__((packed, aligned(4))) {
     uint32_t ble_fw_ver;            // 4B
     uint32_t multi_fw_ver;          // 4B
     uint32_t app_start_address;     // 4B   //44B
-    uint8_t reserved1[4];           // 4B   //48B
+    uint16_t reserved1[2];          // 4B   //48B
     uint8_t sha256[32];             // 32B  //76B
     uint8_t reserved2[48];          // 128 - (76) = 52 
 } build_info_t;

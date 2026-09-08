@@ -5,6 +5,11 @@
  *
  */
 
+/**
+ * @file mmdl_time_common.h
+ * @brief Common types, message layouts and TAI/UTC conversion constants shared by the BLE Mesh Time model.
+ */
+
 #ifndef __MMDL_TIME_COMMON_H__
 #define __MMDL_TIME_COMMON_H__
 
@@ -31,6 +36,7 @@ extern "C" {
 #define MMDL_TIME_SRV_TIME_ROLE_MESH_TIME_CLIENT        0x03
 
 
+/** @brief Persistent Time Server model state: current TAI time plus time-zone/TAI-UTC delta and role info. */
 typedef struct time_state_s
 {
     /* public variables */
@@ -50,6 +56,7 @@ typedef struct time_state_s
     uint16_t    UTC_year;
 } time_state_t;
 
+/** @brief First bit-packed section (TAI seconds/subsecond/uncertainty) of the Time Status/Set message. */
 typedef struct __attribute__((packed)) time_status_msg_sec0_s
 {
     uint64_t    dummy:                  8;
@@ -58,6 +65,7 @@ typedef struct __attribute__((packed)) time_status_msg_sec0_s
     uint64_t    uncertainty:            8;
 } time_status_msg_sec0_t;
 
+/** @brief Second bit-packed section (authority/TAI-UTC delta/zone offset) of the Time Status/Set message. */
 typedef struct __attribute__((packed)) time_status_msg_sec1_s
 {
     uint32_t    time_authority:         1;
@@ -66,12 +74,14 @@ typedef struct __attribute__((packed)) time_status_msg_sec1_s
     uint32_t    dummy:                  8;
 } time_status_msg_sec1_t;
 
+/** @brief Payload of the Time Status/Time Set message, combining both bit-packed sections. */
 typedef struct __attribute__((packed)) time_status_msg_s
 {
     time_status_msg_sec0_t     msg_sec0;
     time_status_msg_sec1_t     msg_sec1;
 } time_status_msg_t;
 
+/** @brief Payload of the Time Zone Set message. */
 typedef struct __attribute__((packed)) timezone_set_msg_s
 {
     uint64_t    time_zone_offset_new:   8;          /**< Upcoming Time Zone Offset */
@@ -79,6 +89,7 @@ typedef struct __attribute__((packed)) timezone_set_msg_s
     uint64_t    dummy:                  16;
 } timezone_set_msg_t;
 
+/** @brief Payload of the Time Zone Status message. */
 typedef struct __attribute__((packed)) timezone_status_msg_s
 {
     uint64_t    time_zone_offset:       8;          /**< Current Time Zone Offset */
@@ -87,12 +98,14 @@ typedef struct __attribute__((packed)) timezone_status_msg_s
     uint64_t    dummy:                  8;
 } timezone_status_msg_t;
 
+/** @brief Current TAI-UTC delta field used within the TAI-UTC Delta Status message. */
 typedef struct __attribute__((packed)) timedelta_current_param_s
 {
     uint16_t    tai_utc_delta:          15;         /**< Current difference between TAI and UTC in seconds */
     uint16_t    padding:                1;          /**< Need always 0b0 */
 } timedelta_current_param_t;
 
+/** @brief Upcoming TAI-UTC delta and its change time, used by both the Set and Status messages. */
 typedef struct __attribute__((packed)) timedelta_upcoming_param_s
 {
     uint64_t    tai_utc_delta_new:      15;         /**< Upcoming difference between TAI and UTC in seconds */
@@ -101,22 +114,26 @@ typedef struct __attribute__((packed)) timedelta_upcoming_param_s
     uint64_t    dummy:                  8;
 } timedelta_upcoming_param_t;
 
+/** @brief Payload of the TAI-UTC Delta Set message. */
 typedef struct __attribute__((packed)) timedelta_set_msg_s
 {
     timedelta_upcoming_param_t  upcoming;
 } timedelta_set_msg_t;
 
+/** @brief Payload of the TAI-UTC Delta Status message. */
 typedef struct __attribute__((packed)) timedelta_status_msg_s
 {
     timedelta_current_param_t   current;
     timedelta_upcoming_param_t  upcoming;
 } timedelta_status_msg_t;
 
+/** @brief Payload of the Time Role Set message. */
 typedef struct __attribute__((packed)) timerole_set_msg_s
 {
     uint8_t     time_role;                          /**< Time Role */
 } timerole_set_msg_t;
 
+/** @brief Payload of the Time Role Status message. */
 typedef struct __attribute__((packed)) timerole_status_msg_s
 {
     uint8_t     time_role;                          /**< Time Role */

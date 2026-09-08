@@ -190,6 +190,8 @@ private:
     static constexpr uint16_t kMaxUserCommandEntries = OPENTHREAD_CONFIG_CLI_MAX_USER_CMD_ENTRIES;
 
     static constexpr uint32_t kNetworkDiagnosticTimeoutMsecs = 5000;
+    // Wait for further answer messages after the first one has arrived.
+    static constexpr uint32_t kNetworkDiagnosticFollowUpTimeoutMsecs = 1000;
     static constexpr uint32_t kLocateTimeoutMsecs            = 2500;
 
     static constexpr uint16_t kMaxTxtDataSize = OPENTHREAD_CONFIG_CLI_TXT_RECORD_MAX_SIZE;

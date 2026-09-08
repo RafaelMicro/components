@@ -44,28 +44,28 @@ typedef struct {
 } flashctl_t;
 
 
-#define  CMD_READBYTE       0x00
+#define  CMD_READBYTE       (0x00)
 
-#define  CMD_READVERIFY     0x04
-#define  CMD_READPAGE       0x08
-#define  CMD_READUID        0x09
+#define  CMD_READVERIFY     (0x04)
+#define  CMD_READPAGE       (0x08)
+#define  CMD_READUID        (0x09)
 
-#define  CMD_READ_STATUS1      0x0D
-#define  CMD_READ_STATUS2      0x0E
-#define  CMD_READ_STATUS3      0x0F
+#define  CMD_READ_STATUS1      (0x0D)
+#define  CMD_READ_STATUS2      (0x0E)
+#define  CMD_READ_STATUS3      (0x0F)
 
-#define  CMD_ERASEPAGE         0x20
-#define  CMD_ERASESECTOR       0x21
-#define  CMD_ERASE_BL32K       0x22
-#define  CMD_ERASE_BL64K       0x24
+#define  CMD_ERASEPAGE         (0x20)
+#define  CMD_ERASESECTOR       (0x21)
+#define  CMD_ERASE_BL32K       (0x22)
+#define  CMD_ERASE_BL64K       (0x24)
 
-#define  CMD_WRITEBYTE         0x10
-#define  CMD_WRITEPAGE         0x18
+#define  CMD_WRITEBYTE         (0x10)
+#define  CMD_WRITEPAGE         (0x18)
 
-#define  CMD_WRITE_STATUS      0x1C
-#define  CMD_WRITE_STATUS1     0x1D
-#define  CMD_WRITE_STATUS2     0x1E
-#define  CMD_WRITE_STATUS3     0x1F
+#define  CMD_WRITE_STATUS      (0x1C)
+#define  CMD_WRITE_STATUS1     (0x1D)
+#define  CMD_WRITE_STATUS2     (0x1E)
+#define  CMD_WRITE_STATUS3     (0x1F)
 
 
 #define  CMD_READ_SEC_PAGE     ((1<<6) | CMD_READPAGE)
@@ -75,9 +75,9 @@ typedef struct {
 #define  STARTBIT          (1)
 #define  BUSYBIT           (1<<8)
 
-#define  CMD_FLASH_RESET_ENABLE     0x66
-#define  CMD_FLASH_RESET            0x99
-#define  CMD_MANUAL_MODE            0x30
+#define  CMD_FLASH_RESET_ENABLE     (0x66)
+#define  CMD_FLASH_RESET            (0x99)
+#define  CMD_MANUAL_MODE            (0x30)
 
 
 #ifdef __cplusplus

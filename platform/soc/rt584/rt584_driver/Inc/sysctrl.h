@@ -39,261 +39,261 @@ extern "C" {
 #define OD_BASE          ((uint32_t)SYSCTRL + 0x38)
 
 
-#define SYS_CLK_OFFSET              1
-#define SYS_CLK_32MHZ               0
-#define SYS_CLK_48MHZ               1
-#define SYS_CLK_64MHZ               2
-#define SYS_CLK_16MHZ               3
-#define SYS_CLK_RCO1MHZ             4
-#define SYS_CLK_24MHZ               5
-#define SYS_CLK_36MHZ               6
-#define SYS_CLK_40MHZ               7
+#define SYS_CLK_OFFSET              (1)
+#define SYS_CLK_32MHZ               (0)
+#define SYS_CLK_48MHZ               (1)
+#define SYS_CLK_64MHZ               (2)
+#define SYS_CLK_16MHZ               (3)
+#define SYS_CLK_RCO1MHZ             (4)
+#define SYS_CLK_24MHZ               (5)
+#define SYS_CLK_36MHZ               (6)
+#define SYS_CLK_40MHZ               (7)
 
 
 
-#define PLL_LOCK_DOWN                   1
-#define PLL_LOCK_VIBIT_1                1
-#define PLL_LOCK_VIBIT_0                0
-#define PLL_LOCK_VIBIT_3                3
-#define PLL_LOCK_BANK_VCO_4             4
-#define PLL_LOCK_BANK_VCO_7             7
-#define PLL_CHECK_COUNT                 5
+#define PLL_LOCK_DOWN                   (1)
+#define PLL_LOCK_VIBIT_1                (1)
+#define PLL_LOCK_VIBIT_0                (0)
+#define PLL_LOCK_VIBIT_3                (3)
+#define PLL_LOCK_BANK_VCO_4             (4)
+#define PLL_LOCK_BANK_VCO_7             (7)
+#define PLL_CHECK_COUNT                 (5)
 
 
 /**
  * \brief           Because compiler code optimize, 
  *                  we should set PLL_WAIT_PERIOD as 4N
  */
-#define PLL_WAIT_PERIOD              1600
-#define PLL_DELAY_PERIOD             400
-#define PLL_BANK_ADJUST_PERIOD       800     /*!< ~100us NOP delay after bank adjustment */
+#define PLL_WAIT_PERIOD              (1600)
+#define PLL_DELAY_PERIOD             (400)
+#define PLL_BANK_ADJUST_PERIOD       (800)     /*!< ~100us NOP delay after bank adjustment */
 /**
  * \brief           Slow clock source select
  *                  
  */
-#define EXT_GPIO_RCO32K              3
+#define EXT_GPIO_RCO32K              (3)
 /**
  * \brief           RT584 output pin mux register value definitions
  */
-#define  MODE_GPIO_REG_VALUE              0x00
-#define  MODE_UART0_TX_REG_VALUE          0x01
-#define  MODE_UART1_TX_REG_VALUE          0x02
-#define  MODE_UART1_RTSN_REG_VALUE        0x03
-#define  MODE_UART2_TX_REG_VALUE          0x04
-#define  MODE_UART2_RTSN_REG_VALUE        0x05
-#define  MODE_PWM0_REG_VALUE              0x06
-#define  MODE_PWM1_REG_VALUE              0x07
-#define  MODE_PWM2_REG_VALUE              0x08
-#define  MODE_PWM3_REG_VALUE              0x09
-#define  MODE_PWM4_REG_VALUE              0x0A
-#define  MODE_IRM_REG_VALUE               0x0B
-#define  MODE_I2CM0_SCL_OUT_REG_VALUE     0x0C
-#define  MODE_I2CM0_SDA_OUT_REG_VALUE     0x0D
-#define  MODE_I2CM1_SCL_OUT_REG_VALUE     0x0E
-#define  MODE_I2CM1_SDA_OUT_REG_VALUE     0x0F
-#define  MODE_I2CS_SCL_OUT_REG_VALUE      0x10
-#define  MODE_I2CS_SDA_OUT_REG_VALUE      0x11
-#define  MODE_SPI0_SCLK_OUT_REG_VALUE     0x12
-#define  MODE_SPI0_SDATA_OUT0_REG_VALUE   0x13
-#define  MODE_SPI0_SDATA_OUT1_REG_VALUE   0x14
-#define  MODE_SPI0_SDATA_OUT2_REG_VALUE   0x15
-#define  MODE_SPI0_SDATA_OUT3_REG_VALUE   0x16
-#define  MODE_SPI0_CSN0_REG_VALUE         0x17
-#define  MODE_SPI0_CSN1_REG_VALUE         0x18
-#define  MODE_SPI0_CSN2_REG_VALUE         0x19
-#define  MODE_SPI0_CSN3_REG_VALUE         0x1A
-#define  MODE_SPI1_SCLK_OUT_REG_VALUE     0x1B
-#define  MODE_SPI1_SDATA_OUT0_REG_VALUE   0x1C
-#define  MODE_SPI1_SDATA_OUT1_REG_VALUE   0x1D
-#define  MODE_SPI1_SDATA_OUT2_REG_VALUE   0x1E
-#define  MODE_SPI1_SDATA_OUT3_REG_VALUE   0x1F
-#define  MODE_SPI1_CSN0_REG_VALUE         0x20
-#define  MODE_SPI1_CSN1_REG_VALUE         0x21
-#define  MODE_SPI1_CSN2_REG_VALUE         0x22
-#define  MODE_SPI1_CSN3_REG_VALUE         0x23
-#define  MODE_I2S_BCK_REG_VALUE           0x24
-#define  MODE_I2S_WCK_REG_VALUE           0x25
-#define  MODE_I2S_SDO_REG_VALUE           0x26
-#define  MODE_I2S_MCLK_REG_VALUE          0x27
-#define  MODE_SWD_REG_VALUE               0x2F
-#define  MODE_DBG0_REG_VALUE              0x30
-#define  MODE_DBG1_REG_VALUE              0x31
-#define  MODE_DBG2_REG_VALUE              0x32
-#define  MODE_DBG3_REG_VALUE              0x33
-#define  MODE_DBG4_REG_VALUE              0x34
-#define  MODE_DBG5_REG_VALUE              0x35
-#define  MODE_DBG6_REG_VALUE              0x36
-#define  MODE_DBG7_REG_VALUE              0x37
-#define  MODE_DBG8_REG_VALUE              0x38
-#define  MODE_DBG9_REG_VALUE              0x39
-#define  MODE_DBGA_REG_VALUE              0x3A
-#define  MODE_DBGB_REG_VALUE              0x3B
-#define  MODE_DBGC_REG_VALUE              0x3C
-#define  MODE_DBGD_REG_VALUE              0x3D
-#define  MODE_DBGE_REG_VALUE              0x3E
-#define  MODE_DBGF_REG_VALUE              0x3F
+#define  MODE_GPIO_REG_VALUE              (0x00)
+#define  MODE_UART0_TX_REG_VALUE          (0x01)
+#define  MODE_UART1_TX_REG_VALUE          (0x02)
+#define  MODE_UART1_RTSN_REG_VALUE        (0x03)
+#define  MODE_UART2_TX_REG_VALUE          (0x04)
+#define  MODE_UART2_RTSN_REG_VALUE        (0x05)
+#define  MODE_PWM0_REG_VALUE              (0x06)
+#define  MODE_PWM1_REG_VALUE              (0x07)
+#define  MODE_PWM2_REG_VALUE              (0x08)
+#define  MODE_PWM3_REG_VALUE              (0x09)
+#define  MODE_PWM4_REG_VALUE              (0x0A)
+#define  MODE_IRM_REG_VALUE               (0x0B)
+#define  MODE_I2CM0_SCL_OUT_REG_VALUE     (0x0C)
+#define  MODE_I2CM0_SDA_OUT_REG_VALUE     (0x0D)
+#define  MODE_I2CM1_SCL_OUT_REG_VALUE     (0x0E)
+#define  MODE_I2CM1_SDA_OUT_REG_VALUE     (0x0F)
+#define  MODE_I2CS_SCL_OUT_REG_VALUE      (0x10)
+#define  MODE_I2CS_SDA_OUT_REG_VALUE      (0x11)
+#define  MODE_SPI0_SCLK_OUT_REG_VALUE     (0x12)
+#define  MODE_SPI0_SDATA_OUT0_REG_VALUE   (0x13)
+#define  MODE_SPI0_SDATA_OUT1_REG_VALUE   (0x14)
+#define  MODE_SPI0_SDATA_OUT2_REG_VALUE   (0x15)
+#define  MODE_SPI0_SDATA_OUT3_REG_VALUE   (0x16)
+#define  MODE_SPI0_CSN0_REG_VALUE         (0x17)
+#define  MODE_SPI0_CSN1_REG_VALUE         (0x18)
+#define  MODE_SPI0_CSN2_REG_VALUE         (0x19)
+#define  MODE_SPI0_CSN3_REG_VALUE         (0x1A)
+#define  MODE_SPI1_SCLK_OUT_REG_VALUE     (0x1B)
+#define  MODE_SPI1_SDATA_OUT0_REG_VALUE   (0x1C)
+#define  MODE_SPI1_SDATA_OUT1_REG_VALUE   (0x1D)
+#define  MODE_SPI1_SDATA_OUT2_REG_VALUE   (0x1E)
+#define  MODE_SPI1_SDATA_OUT3_REG_VALUE   (0x1F)
+#define  MODE_SPI1_CSN0_REG_VALUE         (0x20)
+#define  MODE_SPI1_CSN1_REG_VALUE         (0x21)
+#define  MODE_SPI1_CSN2_REG_VALUE         (0x22)
+#define  MODE_SPI1_CSN3_REG_VALUE         (0x23)
+#define  MODE_I2S_BCK_REG_VALUE           (0x24)
+#define  MODE_I2S_WCK_REG_VALUE           (0x25)
+#define  MODE_I2S_SDO_REG_VALUE           (0x26)
+#define  MODE_I2S_MCLK_REG_VALUE          (0x27)
+#define  MODE_SWD_REG_VALUE               (0x2F)
+#define  MODE_DBG0_REG_VALUE              (0x30)
+#define  MODE_DBG1_REG_VALUE              (0x31)
+#define  MODE_DBG2_REG_VALUE              (0x32)
+#define  MODE_DBG3_REG_VALUE              (0x33)
+#define  MODE_DBG4_REG_VALUE              (0x34)
+#define  MODE_DBG5_REG_VALUE              (0x35)
+#define  MODE_DBG6_REG_VALUE              (0x36)
+#define  MODE_DBG7_REG_VALUE              (0x37)
+#define  MODE_DBG8_REG_VALUE              (0x38)
+#define  MODE_DBG9_REG_VALUE              (0x39)
+#define  MODE_DBGA_REG_VALUE              (0x3A)
+#define  MODE_DBGB_REG_VALUE              (0x3B)
+#define  MODE_DBGC_REG_VALUE              (0x3C)
+#define  MODE_DBGD_REG_VALUE              (0x3D)
+#define  MODE_DBGE_REG_VALUE              (0x3E)
+#define  MODE_DBGF_REG_VALUE              (0x3F)
 
 
 /**
  * \brief           RT584 input pin mux register value definitions
  */
 //A0
-#define  MODE_UART1_RX_REG_VALUE           0x00000000
-#define  MODE_UART1_CTSN_REG_VALUE         0x00000008
-#define  MODE_UART2_RX_REG_VALUE           0x00000010
-#define  MODE_UART2_CTSN_REG_VALUE         0x00000018
+#define  MODE_UART1_RX_REG_VALUE           (0x00000000)
+#define  MODE_UART1_CTSN_REG_VALUE         (0x00000008)
+#define  MODE_UART2_RX_REG_VALUE           (0x00000010)
+#define  MODE_UART2_CTSN_REG_VALUE         (0x00000018)
 //A4
-#define  MODE_UART0_RX_REG_VALUE           0x10000000
-#define  MODE_I2S_SDI_REG_VALUE            0x10000008
-#define  MODE_I2CS_SCL_REG_VALUE           0x10000010
-#define  MODE_I2CS_SDA_REG_VALUE           0x10000018
+#define  MODE_UART0_RX_REG_VALUE           (0x10000000)
+#define  MODE_I2S_SDI_REG_VALUE            (0x10000008)
+#define  MODE_I2CS_SCL_REG_VALUE           (0x10000010)
+#define  MODE_I2CS_SDA_REG_VALUE           (0x10000018)
 //A8
-#define  MODE_I2CM0_SCL_REG_VALUE          0x20000000
-#define  MODE_I2CM0_SDA_REG_VALUE          0x20000008
-#define  MODE_I2CM1_SCL_REG_VALUE          0x20000010
-#define  MODE_I2CM1_SDA_REG_VALUE          0x20000018
+#define  MODE_I2CM0_SCL_REG_VALUE          (0x20000000)
+#define  MODE_I2CM0_SDA_REG_VALUE          (0x20000008)
+#define  MODE_I2CM1_SCL_REG_VALUE          (0x20000010)
+#define  MODE_I2CM1_SDA_REG_VALUE          (0x20000018)
 //AC
-#define  MODE_QSPI0_CSN_REG_VALUE          0x40000000
-#define  MODE_QSPI0_SCLK_REG_VALUE         0x40000008
-#define  MODE_QSPI0_SDATA0_REG_VALUE       0x40000010
-#define  MODE_QSPI0_SDATA1_REG_VALUE       0x40000018
+#define  MODE_QSPI0_CSN_REG_VALUE          (0x40000000)
+#define  MODE_QSPI0_SCLK_REG_VALUE         (0x40000008)
+#define  MODE_QSPI0_SDATA0_REG_VALUE       (0x40000010)
+#define  MODE_QSPI0_SDATA1_REG_VALUE       (0x40000018)
 //B0
-#define  MODE_QSPI0_SDATA2_REG_VALUE       0x50000000
-#define  MODE_QSPI0_SDATA3_REG_VALUE       0x50000008
+#define  MODE_QSPI0_SDATA2_REG_VALUE       (0x50000000)
+#define  MODE_QSPI0_SDATA3_REG_VALUE       (0x50000008)
 //B4
-#define  MODE_QSPI1_CSN_REG_VALUE          0x60000000
-#define  MODE_QSPI1_SCLK_REG_VALUE         0x60000008
-#define  MODE_QSPI1_SDATA0_REG_VALUE       0x60000010
-#define  MODE_QSPI1_SDATA1_REG_VALUE       0x60000018
+#define  MODE_QSPI1_CSN_REG_VALUE          (0x60000000)
+#define  MODE_QSPI1_SCLK_REG_VALUE         (0x60000008)
+#define  MODE_QSPI1_SDATA0_REG_VALUE       (0x60000010)
+#define  MODE_QSPI1_SDATA1_REG_VALUE       (0x60000018)
 //B8
-#define  MODE_QSPI1_SDATA2_REG_VALUE       0x70000000
-#define  MODE_QSPI1_SDATA3_REG_VALUE       0x70000008
+#define  MODE_QSPI1_SDATA2_REG_VALUE       (0x70000000)
+#define  MODE_QSPI1_SDATA3_REG_VALUE       (0x70000008)
 
-#define  MODE_PIN_MUX_NULL                 0xFFFFFFFF
+#define  MODE_PIN_MUX_NULL                 (0xFFFFFFFF)
 
 
 /**
  * \brief           RT584 pin mux definitions
  */
-#define  MODE_GPIO              0x00
-#define  MODE_UART0_TX          0x01
-#define  MODE_UART0_RX          0x02
-#define  MODE_UART1_TX          0x03
-#define  MODE_UART1_RX          0x04
-#define  MODE_UART1_RTSN        0x05
-#define  MODE_UART1_CTSN        0x06
-#define  MODE_UART2_TX          0x07
-#define  MODE_UART2_RX          0x08
-#define  MODE_UART2_RTSN        0x09
-#define  MODE_UART2_CTSN        0x0A
-#define  MODE_PWM0              0x0B
-#define  MODE_PWM1              0x0C
-#define  MODE_PWM2              0x0D
-#define  MODE_PWM3              0x0E
-#define  MODE_PWM4              0x0F
-#define  MODE_IRM               0x10
-#define  MODE_I2CM0_SCL         0x11
-#define  MODE_I2CM0_SDA         0x12
-#define  MODE_I2CM1_SCL         0x13
-#define  MODE_I2CM1_SDA         0x14
-#define  MODE_I2CS_SCL          0x15
-#define  MODE_I2CS_SDA          0x16
+#define  MODE_GPIO              (0x00)
+#define  MODE_UART0_TX          (0x01)
+#define  MODE_UART0_RX          (0x02)
+#define  MODE_UART1_TX          (0x03)
+#define  MODE_UART1_RX          (0x04)
+#define  MODE_UART1_RTSN        (0x05)
+#define  MODE_UART1_CTSN        (0x06)
+#define  MODE_UART2_TX          (0x07)
+#define  MODE_UART2_RX          (0x08)
+#define  MODE_UART2_RTSN        (0x09)
+#define  MODE_UART2_CTSN        (0x0A)
+#define  MODE_PWM0              (0x0B)
+#define  MODE_PWM1              (0x0C)
+#define  MODE_PWM2              (0x0D)
+#define  MODE_PWM3              (0x0E)
+#define  MODE_PWM4              (0x0F)
+#define  MODE_IRM               (0x10)
+#define  MODE_I2CM0_SCL         (0x11)
+#define  MODE_I2CM0_SDA         (0x12)
+#define  MODE_I2CM1_SCL         (0x13)
+#define  MODE_I2CM1_SDA         (0x14)
+#define  MODE_I2CS_SCL          (0x15)
+#define  MODE_I2CS_SDA          (0x16)
 
-#define  MODE_SPI0_MASTER_SCLK   0x17
-#define  MODE_SPI0_MASTER_CSN0   0x18
-#define  MODE_SPI0_MASTER_MOSI   0x19
-#define  MODE_SPI0_MASTER_MISO   0x1A
+#define  MODE_SPI0_MASTER_SCLK   (0x17)
+#define  MODE_SPI0_MASTER_CSN0   (0x18)
+#define  MODE_SPI0_MASTER_MOSI   (0x19)
+#define  MODE_SPI0_MASTER_MISO   (0x1A)
 
-#define  MODE_SPI0_SLAVE_SCLK    0x1B
-#define  MODE_SPI0_SLAVE_CSN0    0x1C
-#define  MODE_SPI0_SLAVE_MOSI    0x1D
-#define  MODE_SPI0_SLAVE_MISO    0x1E
+#define  MODE_SPI0_SLAVE_SCLK    (0x1B)
+#define  MODE_SPI0_SLAVE_CSN0    (0x1C)
+#define  MODE_SPI0_SLAVE_MOSI    (0x1D)
+#define  MODE_SPI0_SLAVE_MISO    (0x1E)
 
-#define  MODE_SPI1_MASTER_SCLK   0x1F
-#define  MODE_SPI1_MASTER_CSN0   0x20
-#define  MODE_SPI1_MASTER_MOSI   0x21
-#define  MODE_SPI1_MASTER_MISO   0x22
-#define  MODE_SPI1_SLAVE_SCLK    0x23
-#define  MODE_SPI1_SLAVE_CSN0    0x24
-#define  MODE_SPI1_SLAVE_MOSI    0x25
-#define  MODE_SPI1_SLAVE_MISO    0x26
-#define  MODE_SPI0_MASTER_SDATA0 0x27
-#define  MODE_SPI0_MASTER_SDATA1 0x28
-#define  MODE_SPI0_MASTER_SDATA2 0x29
-#define  MODE_SPI0_MASTER_SDATA3 0x2A
-#define  MODE_SPI1_MASTER_SDATA0 0x2B
-#define  MODE_SPI1_MASTER_SDATA1 0x2C
-#define  MODE_SPI1_MASTER_SDATA2 0x2D
-#define  MODE_SPI1_MASTER_SDATA3 0x2E
-#define  MODE_SPI0_MASTER_CSN1   0x2F
-#define  MODE_SPI0_MASTER_CSN2   0x30
-#define  MODE_SPI0_MASTER_CSN3   0x31
-#define  MODE_SPI0_SLAVE_CSN1    0x32
-#define  MODE_SPI0_SLAVE_CSN2    0x33
-#define  MODE_SPI0_SLAVE_CSN3    0x34
-#define  MODE_SPI1_MASTER_CSN1   0x35
-#define  MODE_SPI1_MASTER_CSN2   0x36
-#define  MODE_SPI1_MASTER_CSN3   0x37
-#define  MODE_SPI1_SLAVE_CSN1    0x38
-#define  MODE_SPI1_SLAVE_CSN2    0x39
-#define  MODE_SPI1_SLAVE_CSN3    0x3A
-#define  MODE_I2S_BCK            0x3B
-#define  MODE_I2S_WCK            0x3C
-#define  MODE_I2S_SDO            0x3D
-#define  MODE_I2S_SDI            0x3E
-#define  MODE_I2S_MCLK           0x3F
-#define  MODE_SWD                0x40
-#define  MODE_DBG0               0x41
-#define  MODE_DBG1               0x42
-#define  MODE_DBG2               0x43
-#define  MODE_DBG3               0x44
-#define  MODE_DBG4               0x45
-#define  MODE_DBG5               0x46
-#define  MODE_DBG6               0x47
-#define  MODE_DBG7               0x48
-#define  MODE_DBG8               0x49
-#define  MODE_DBG9               0x4A
-#define  MODE_DBGA               0x4B
-#define  MODE_DBGB               0x4C
-#define  MODE_DBGC               0x4D
-#define  MODE_DBGD               0x4E
-#define  MODE_DBGE               0x4F
-#define  MODE_DBGF               0x50
-#define  MODE_MAX                0x51
+#define  MODE_SPI1_MASTER_SCLK   (0x1F)
+#define  MODE_SPI1_MASTER_CSN0   (0x20)
+#define  MODE_SPI1_MASTER_MOSI   (0x21)
+#define  MODE_SPI1_MASTER_MISO   (0x22)
+#define  MODE_SPI1_SLAVE_SCLK    (0x23)
+#define  MODE_SPI1_SLAVE_CSN0    (0x24)
+#define  MODE_SPI1_SLAVE_MOSI    (0x25)
+#define  MODE_SPI1_SLAVE_MISO    (0x26)
+#define  MODE_SPI0_MASTER_SDATA0 (0x27)
+#define  MODE_SPI0_MASTER_SDATA1 (0x28)
+#define  MODE_SPI0_MASTER_SDATA2 (0x29)
+#define  MODE_SPI0_MASTER_SDATA3 (0x2A)
+#define  MODE_SPI1_MASTER_SDATA0 (0x2B)
+#define  MODE_SPI1_MASTER_SDATA1 (0x2C)
+#define  MODE_SPI1_MASTER_SDATA2 (0x2D)
+#define  MODE_SPI1_MASTER_SDATA3 (0x2E)
+#define  MODE_SPI0_MASTER_CSN1   (0x2F)
+#define  MODE_SPI0_MASTER_CSN2   (0x30)
+#define  MODE_SPI0_MASTER_CSN3   (0x31)
+#define  MODE_SPI0_SLAVE_CSN1    (0x32)
+#define  MODE_SPI0_SLAVE_CSN2    (0x33)
+#define  MODE_SPI0_SLAVE_CSN3    (0x34)
+#define  MODE_SPI1_MASTER_CSN1   (0x35)
+#define  MODE_SPI1_MASTER_CSN2   (0x36)
+#define  MODE_SPI1_MASTER_CSN3   (0x37)
+#define  MODE_SPI1_SLAVE_CSN1    (0x38)
+#define  MODE_SPI1_SLAVE_CSN2    (0x39)
+#define  MODE_SPI1_SLAVE_CSN3    (0x3A)
+#define  MODE_I2S_BCK            (0x3B)
+#define  MODE_I2S_WCK            (0x3C)
+#define  MODE_I2S_SDO            (0x3D)
+#define  MODE_I2S_SDI            (0x3E)
+#define  MODE_I2S_MCLK           (0x3F)
+#define  MODE_SWD                (0x40)
+#define  MODE_DBG0               (0x41)
+#define  MODE_DBG1               (0x42)
+#define  MODE_DBG2               (0x43)
+#define  MODE_DBG3               (0x44)
+#define  MODE_DBG4               (0x45)
+#define  MODE_DBG5               (0x46)
+#define  MODE_DBG6               (0x47)
+#define  MODE_DBG7               (0x48)
+#define  MODE_DBG8               (0x49)
+#define  MODE_DBG9               (0x4A)
+#define  MODE_DBGA               (0x4B)
+#define  MODE_DBGB               (0x4C)
+#define  MODE_DBGC               (0x4D)
+#define  MODE_DBGD               (0x4E)
+#define  MODE_DBGE               (0x4F)
+#define  MODE_DBGF               (0x50)
+#define  MODE_MAX                (0x51)
 
 
 /**
  * \brief  Driving through setting mode
  */
-#define PULL_NONE         0                     /*!< set pin for no pull */
-#define PULLDOWN_10K      1                     /*!< set pin for 10K pull down */
-#define PULLDOWN_100K     2                     /*!< set pin for 100K pull down */
-#define PULLDOWN_1M       3                     /*!< set pin for 1M pull down */
-#define PULLUP_10K        5                     /*!< set pin for 10K pull up */
-#define PULLUP_100K       6                     /*!< set pin for 100K pull up, this is default pin mode */
-#define PULLUP_1M         7                     /*!< set pin for 1M pull up */
+#define PULL_NONE         (0)                     /*!< set pin for no pull */
+#define PULLDOWN_10K      (1)                     /*!< set pin for 10K pull down */
+#define PULLDOWN_100K     (2)                     /*!< set pin for 100K pull down */
+#define PULLDOWN_1M       (3)                     /*!< set pin for 1M pull down */
+#define PULLUP_10K        (5)                     /*!< set pin for 10K pull up */
+#define PULLUP_100K       (6)                     /*!< set pin for 100K pull up, this is default pin mode */
+#define PULLUP_1M         (7)                     /*!< set pin for 1M pull up */
 
 /**
  * \brief           Define pin driver option
  */
-#define DRV_6MA             0                   /*!< set pin for 6mA driver   */
-#define DRV_15MA            1                   /*!< set pin for 15mA driver  */
-#define DRV_20MA            2                   /*!< set pin for 20mA driver  */
-#define DRV_30MA            3                   /*!< set pin for 30mA driver  */
+#define DRV_6MA             (0)                   /*!< set pin for 6mA driver   */
+#define DRV_15MA            (1)                   /*!< set pin for 15mA driver  */
+#define DRV_20MA            (2)                   /*!< set pin for 20mA driver  */
+#define DRV_30MA            (3)                   /*!< set pin for 30mA driver  */
 
 /**
  * \brief           Define IC chip id  and chip revision information
  */
-#define IC_CHIP_ID_MASK_SHIFT               16
+#define IC_CHIP_ID_MASK_SHIFT               (16)
 #define IC_CHIP_ID_MASK                     (0xFFFF<<IC_CHIP_ID_MASK_SHIFT)
 #define IC_RT58X                            (0x0584<<IC_CHIP_ID_MASK_SHIFT)        /*!< RT584 IC Chip ID  */
-#define IC_CHIP_REVISION_MASK_SHIFT         0
+#define IC_CHIP_REVISION_MASK_SHIFT         (0)
 #define IC_CHIP_REVISION_MASK               (0xF<<IC_CHIP_REVISION_MASK_SHIFT)
 #define IC_CHIP_REVISION_MPA                (1<<IC_CHIP_REVISION_MASK_SHIFT)       /*!< RT584 IC Chip Revision ID For MPA  */
 #define IC_CHIP_REVISION_MPB                (2<<IC_CHIP_REVISION_MASK_SHIFT)       /*!< RT584 IC Chip Revision ID For MPB  */
 
 
-#define DPD_RETENTION_BASE          0x10
+#define DPD_RETENTION_BASE          (0x10)
 
 /**
  * \brief           Selecting the system clock source.

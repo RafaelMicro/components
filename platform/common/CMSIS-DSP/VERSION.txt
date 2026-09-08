@@ -1,0 +1,32 @@
+CMSIS-DSP (vendored)
+====================
+
+Vendored from : https://github.com/ARM-software/CMSIS-DSP
+Release tag   : v1.17.0  (annotated release tag)
+Commit        : a6dd3e38adab71ac49b21b19e45292cf3030eb9a
+License       : Apache-2.0  (see LICENSE)
+Imported on   : 2026-07-06
+
+Contents imported
+-----------------
+  Include/         public headers (arm_math.h, dsp/*.h, ...)
+  PrivateInclude/  build-only headers
+  Source/          full source tree
+  LICENSE          Apache-2.0 license text
+
+Notes
+-----
+- The per-file "@version" doc stamps inside the headers (e.g. V1.10.0) are stale
+  upstream markers and do NOT reflect the package version. The authoritative
+  version is the release tag above.
+- Upstream build files (CMakeLists.txt / Makefile / configDsp.cmake) were removed;
+  the library is built by components/platform/common/CMakeLists.txt via
+  CONFIG_CMSIS_DSP (16 module consolidation .c files; F16 modules are not
+  compiled).
+- Core/FPU path is auto-selected from the compiler's __ARM_FEATURE_DSP / __ARM_FP
+  (set via -mcpu); no ARM_MATH_* defines are required for CMSIS-DSP >= 1.15.
+
+To update
+---------
+  git clone --depth 1 --branch <tag> https://github.com/ARM-software/CMSIS-DSP
+  then replace Include/ PrivateInclude/ Source/ LICENSE and update this file.

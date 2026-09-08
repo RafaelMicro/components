@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_lughtness_sr.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Public API of the BLE Mesh Light Lightness server model.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -25,11 +25,17 @@ extern "C"
 #endif
 
 
+/** @brief Initialize the Light Lightness server model instance on an element. */
 extern void mmdl_light_lightness_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+/** @brief Dispatch an incoming Light Lightness model message to the proper opcode handler. */
 extern void mmdl_light_lightness_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
+/** @brief Callback invoked by an extended child model (Generic OnOff/Level) to propagate its state into the lightness state. */
 extern void mmdl_light_lightness_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p);
+/** @brief Apply the Light Lightness state recalled from a scene and propagate it to extended models. */
 extern void mmdl_light_lightness_scene_set(ble_mesh_element_param_t *p_current_element);
+/** @brief Apply a lightness level pushed down from a parent model that extends this Light Lightness model. */
 extern void mmdl_light_lightness_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint16_t lightness_level_state);
+/** @brief Publish the current Light Lightness status to the model's configured publish address. */
 extern void mmdl_light_lightness_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 #ifdef __cplusplus

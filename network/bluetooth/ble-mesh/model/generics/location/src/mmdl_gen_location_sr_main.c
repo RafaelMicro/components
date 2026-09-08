@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_location_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Location model (Global and Local Location states).
  * @version 0.1
  * @date 2022-06-09
  *
@@ -49,6 +49,7 @@ static void mmdl_generic_location_local_set(uint32_t ack_flag, mesh_app_mdl_evt_
 static void mmdl_generic_location_local_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_generic_location_local_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
+/** @brief Dispatch an incoming Generic Location model message to the matching opcode handler. */
 void mmdl_generic_location_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -85,12 +86,14 @@ void mmdl_generic_location_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 
 }
 
+/** @brief Handle a Generic Location Global Get request by replying with the current global location status. */
 static void mmdl_generic_location_global_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_location_global_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Location Global Set request and optionally acknowledge and publish the change. */
 static void mmdl_generic_location_global_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_location_global_set_msg_t  *p_gen_location_global_set_msg = (gen_location_global_set_msg_t *)p_evt_msg->parameter;
@@ -128,6 +131,7 @@ static void mmdl_generic_location_global_set(uint32_t ack_flag, mesh_app_mdl_evt
 
 }
 
+/** @brief Build and send a Generic Location Global Status message back to the requester. */
 static void mmdl_generic_location_global_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_location_state_t              *p_gen_location_state = (gen_location_state_t *)p_model->p_state_var;
@@ -175,6 +179,7 @@ static void mmdl_generic_location_global_send_status(mesh_app_mdl_evt_msg_idc_t 
 }
 
 
+/** @brief Publish the current Generic Location Global state to the model's configured publish address. */
 void mmdl_generic_location_global_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -231,12 +236,14 @@ void mmdl_generic_location_global_publish_state(ble_mesh_element_param_t *p_elem
     }
 }
 
+/** @brief Handle a Generic Location Local Get request by replying with the current location status. */
 static void mmdl_generic_location_local_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_location_global_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Location Local Set request and optionally acknowledge and publish the change. */
 static void mmdl_generic_location_local_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_location_local_set_msg_t  *p_gen_location_local_set_msg = (gen_location_local_set_msg_t *)p_evt_msg->parameter;
@@ -278,6 +285,7 @@ static void mmdl_generic_location_local_set(uint32_t ack_flag, mesh_app_mdl_evt_
 
 }
 
+/** @brief Build and send a Generic Location Local Status message back to the requester. */
 static void mmdl_generic_location_local_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t       *pt_req;
@@ -327,6 +335,7 @@ static void mmdl_generic_location_local_send_status(mesh_app_mdl_evt_msg_idc_t *
 }
 
 
+/** @brief Publish the current Generic Location Local state to the model's configured publish address. */
 void mmdl_generic_location_local_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

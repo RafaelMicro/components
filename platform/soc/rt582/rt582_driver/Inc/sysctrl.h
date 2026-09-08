@@ -32,9 +32,9 @@ extern "C" {
 /**
  * \brief            Define AHB SYSTEM CLOCK mode
  */
-#define SYS_CLK_32MHZ 0                         /*!< SYS HCLK RUN IN 32MHz  */
-#define SYS_CLK_48MHZ 1                         /*!< SYS HCLK RUN IN 48MHz  */
-#define SYS_CLK_64MHZ 2                         /*!< SYS HCLK RUN IN 64MHz  */
+#define SYS_CLK_32MHZ (0)                         /*!< SYS HCLK RUN IN 32MHz  */
+#define SYS_CLK_48MHZ (1)                         /*!< SYS HCLK RUN IN 48MHz  */
+#define SYS_CLK_64MHZ (2)                         /*!< SYS HCLK RUN IN 64MHz  */
 
 #define FLASH_DRV_SEL_MASK (0x03 << 16)
 #define FLASH_DRV_SEL_SET  (0x01 << 16)
@@ -49,19 +49,19 @@ extern "C" {
 /**
  * \brief             MCU Clock sleep mask and shift value
  */
-#define HCLK_SLEEP_SELECT_SHIFT 4
+#define HCLK_SLEEP_SELECT_SHIFT (4)
 #define SLEEP_CLOCK_SEL_MASK    (3 << HCLK_SLEEP_SELECT_SHIFT)
 
 /**
  * \brief             MCU Clock sleep mask and shift value
  */
-#define HCLK_SLEEP_DISABLE    0
+#define HCLK_SLEEP_DISABLE    (0)
 #define HCLK_SLEEP_RUN_IN_32K (1 << HCLK_SLEEP_SELECT_SHIFT)
 
-#define PERCLK_SLEEP_DISABLE    0
+#define PERCLK_SLEEP_DISABLE    (0)
 #define PERCLK_SLEEP_RUN_IN_32K (1 << 5)
 
-#define BASEBAND_PLL_EN_SHIFT 8
+#define BASEBAND_PLL_EN_SHIFT (8)
 #define BASEBAND_PLL_MASK     (1 << BASEBAND_PLL_EN_SHIFT)
 
 #define BASEBAND_PLL_ENABLE  (1 << BASEBAND_PLL_EN_SHIFT)
@@ -71,7 +71,7 @@ extern "C" {
 #define PLL_RUN_IN_64M (3 << BASEBAND_PLL_EN_SHIFT)
 #define PLL_RUN_IN_48M (1 << BASEBAND_PLL_EN_SHIFT)
 
-#define BASEBAND_PLL_FREQ_SHIFT 9
+#define BASEBAND_PLL_FREQ_SHIFT (9)
 #define BASEBAND_PLL_FREQ_MASK  (1 << BASEBAND_PLL_FREQ_SHIFT)
 
 #define BASEBAND_PLL_64M (1 << BASEBAND_PLL_FREQ_SHIFT)
@@ -81,43 +81,43 @@ extern "C" {
 #define BASEBAND_PLL_FREQ_48M (0 << BASEBAND_PLL_FREQ_SHIFT)
 #define BASEBAND_PLL_FREQ_64M (1 << BASEBAND_PLL_FREQ_SHIFT)
 
-#define CK32_TIMER3_CLOCK_SHIFT 26
+#define CK32_TIMER3_CLOCK_SHIFT (26)
 #define CK32_TIMER3_CLOCK_MASK  (1 << CK32_TIMER3_CLOCK_SHIFT)
-#define CK32_TIMER4_CLOCK_SHIFT 27
+#define CK32_TIMER4_CLOCK_SHIFT (27)
 #define CK32_TIMER4_CLOCK_MASK  (1 << CK32_TIMER4_CLOCK_SHIFT)
 
-#define UART0_CLK         16
-#define UART1_CLK         17
-#define UART2_CLK         18
-#define I2CM_CLK          19
-#define QSPI0_CLK         20
-#define QSPI1_CLK         21
-#define TIMER0_CLK_ENABLE 22
-#define TIMER1_CLK        23
-#define TIMER2_CLK        24
-#define I2S_CLK           25
+#define UART0_CLK         (16)
+#define UART1_CLK         (17)
+#define UART2_CLK         (18)
+#define I2CM_CLK          (19)
+#define QSPI0_CLK         (20)
+#define QSPI1_CLK         (21)
+#define TIMER0_CLK_ENABLE (22)
+#define TIMER1_CLK        (23)
+#define TIMER2_CLK        (24)
+#define I2S_CLK           (25)
 
-#define UART0_SLEEP_WAKE_EN_SHIFT 16
+#define UART0_SLEEP_WAKE_EN_SHIFT (16)
 #define UART0_SLEEP_WAKE_EN_MASK  (1 << UART0_SLEEP_WAKE_EN_SHIFT)
 #define UART0_SLEEP_WAKE_ENABLE   (1 << UART0_SLEEP_WAKE_EN_SHIFT)
 #define UART0_SLEEP_WAKE_DISABLE  (0)
 
-#define UART1_SLEEP_WAKE_EN_SHIFT 17
+#define UART1_SLEEP_WAKE_EN_SHIFT (17)
 #define UART1_SLEEP_WAKE_EN_MASK  (1 << UART1_SLEEP_WAKE_EN_SHIFT)
 #define UART1_SLEEP_WAKE_ENABLE   (1 << UART1_SLEEP_WAKE_EN_SHIFT)
 #define UART1_SLEEP_WAKE_DISABLE  (0)
 
-#define UART2_SLEEP_WAKE_EN_SHIFT 18
+#define UART2_SLEEP_WAKE_EN_SHIFT (18)
 #define UART2_SLEEP_WAKE_EN_MASK  (1 << UART2_SLEEP_WAKE_EN_SHIFT)
 #define UART2_SLEEP_WAKE_ENABLE   (1 << UART2_SLEEP_WAKE_EN_SHIFT)
 #define UART2_SLEEP_WAKE_DISABLE  (0)
 
-#define EN_HCLK_FROZEN_SHIFT 28
+#define EN_HCLK_FROZEN_SHIFT (28)
 #define HCLK_FROZEN_MASK     (1 << EN_HCLK_FROZEN_SHIFT)
 #define HCLK_FROZEN_ENABLE   (1 << EN_HCLK_FROZEN_SHIFT)
 #define HCLK_FROZEN_DISABLE  (0)
 
-#define EN_RTC_PCLK_DS_SHIFT 29
+#define EN_RTC_PCLK_DS_SHIFT (29)
 #define RTC_PCLK_DS_MASK     (1 << EN_RTC_PCLK_DS_SHIFT)
 #define RTC_PCLK_DS_ENABLE   (1 << EN_RTC_PCLK_DS_SHIFT)
 #define RTC_PCLK_DS_DISABLE  (0)
@@ -125,17 +125,17 @@ extern "C" {
 #define ENTER_SLEEP      (1)
 #define ENTER_DEEP_SLEEP (2)
 
-#define SLOW_CLOCK_SEL_SHIFT 6
+#define SLOW_CLOCK_SEL_SHIFT (6)
 #define SLOW_CLOCK_SEL_MASK  (0x3 << SLOW_CLOCK_SEL_SHIFT)
 
-#define SLOW_CLOCK_INTERNAL     0
-#define SLOW_CLOCK_FROM_GPIO    1
-#define SLOW_CLOCK_32M_DIV_1000 2
-#define SLOW_CLOCK_XO_32K       3
+#define SLOW_CLOCK_INTERNAL     (0)
+#define SLOW_CLOCK_FROM_GPIO    (1)
+#define SLOW_CLOCK_32M_DIV_1000 (2)
+#define SLOW_CLOCK_XO_32K       (3)
 
 #define SYS_SCRATCH_OFFSET (0x60)
 
-#define LOWPOWER_SRAM_DS_AUTO_SHIFT   7
+#define LOWPOWER_SRAM_DS_AUTO_SHIFT   (7)
 #define LOWPOWER_SRAM_DS_AUTO_MASK    (1 << LOWPOWER_SRAM_DS_AUTO_SHIFT)
 #define LOWPOWER_SRAM_DS_AUTO_ENABLE  (1 << LOWPOWER_SRAM_DS_AUTO_SHIFT)
 #define LOWPOWER_SRAM_DS_AUTO_DISABLE (0)
@@ -145,15 +145,15 @@ extern "C" {
 #define DRV_BASE     (SYSCTRL_BASE + 0x30)
 #define OD_BASE      (SYSCTRL_BASE + 0x38)
 
-#define PLL_LOCK_DOWN                   1
-#define PLL_LOCK_VIBIT_0                0
-#define PLL_LOCK_VIBIT_3                3
-#define PLL_LOCK_BANK_VCO_4             4
-#define PLL_LOCK_BANK_VCO_7             7
-#define PLL_CHECK_COUNT                 50
+#define PLL_LOCK_DOWN                   (1)
+#define PLL_LOCK_VIBIT_0                (0)
+#define PLL_LOCK_VIBIT_3                (3)
+#define PLL_LOCK_BANK_VCO_4             (4)
+#define PLL_LOCK_BANK_VCO_7             (7)
+#define PLL_CHECK_COUNT                 (50)
 /*Because compiler code optimize, we should set PLL_WAIT_PERIOD as 4N */
-#define PLL_WAIT_PERIOD              1600
-#define PLL_DELAY_PERIOD             400
+#define PLL_WAIT_PERIOD              (1600)
+#define PLL_DELAY_PERIOD             (400)
 
 
 /**
@@ -161,20 +161,20 @@ extern "C" {
  *                  When system after power up, it should initialize the pin mode ASAP, and don't change setting anymore.
  *                  The pin mode will not change after sleep return back.
  */
-#define MODE_GPIO  0                            /*!< set pin for GPIO mode  */
-#define MODE_QSPI0 1                            /*!< set pin for QSPI0 mode */
-#define MODE_I2C   4                            /*!< set pin for I2C mode   */
-#define MODE_UART  6                            /*!< set pin for UART mode  */
+#define MODE_GPIO  (0)                            /*!< set pin for GPIO mode  */
+#define MODE_QSPI0 (1)                            /*!< set pin for QSPI0 mode */
+#define MODE_I2C   (4)                            /*!< set pin for I2C mode   */
+#define MODE_UART  (6)                            /*!< set pin for UART mode  */
 
-#define MODE_I2S  4                             /*!< set pin for I2S mode  */
-#define MODE_PWM  4                             /*!< set pin for PWM mode  */
-#define MODE_PWM0 1                             /*!< set pin for PWM0 mode  */
-#define MODE_PWM1 2                             /*!< set pin for PWM1 mode  */
-#define MODE_PWM2 3                             /*!< set pin for PWM2 mode  */
-#define MODE_PWM3 5                             /*!< set pin for PWM3 mode  */
-#define MODE_PWM4 7                             /*!< set pin for PWM4 mode  */
+#define MODE_I2S  (4)                             /*!< set pin for I2S mode  */
+#define MODE_PWM  (4)                             /*!< set pin for PWM mode  */
+#define MODE_PWM0 (1)                             /*!< set pin for PWM0 mode  */
+#define MODE_PWM1 (2)                             /*!< set pin for PWM1 mode  */
+#define MODE_PWM2 (3)                             /*!< set pin for PWM2 mode  */
+#define MODE_PWM3 (5)                             /*!< set pin for PWM3 mode  */
+#define MODE_PWM4 (7)                             /*!< set pin for PWM4 mode  */
 
-#define MODE_QSPI1 5                            /*!< set pin for QSPI1 mode  */
+#define MODE_QSPI1 (5)                            /*!< set pin for QSPI1 mode  */
 
 #define MODE_EXT32K 5                           /*!< set pin for EXT32K mode, 
                                                  only GPIO0~GPIO9 available for 
@@ -196,33 +196,35 @@ extern "C" {
 #define PULL_NONE 0                             /*!< set pin for no pull, if you set
                                                  pin to GPIO output mode, system will
                                                  set this option for output pin */
-#define PULLDOWN_10K  1                        /*!< set pin for 10K pull down  */
-#define PULLDOWN_100K 2                        /*!< set pin for 100K pull down  */
-#define PULLDOWN_1M   3                        /*!< set pin for 1M pull down  */
-#define PULLUP_10K    5                        /*!< set pin for 10K pull up  */
+#define PULLDOWN_10K  (1)                        /*!< set pin for 10K pull down  */
+#define PULLDOWN_100K (2)                        /*!< set pin for 100K pull down  */
+#define PULLDOWN_1M   (3)                        /*!< set pin for 1M pull down  */
+#define PULLUP_10K    (5)                        /*!< set pin for 10K pull up  */
 #define PULLUP_100K   6                        /*!< set pin for 100K pull up,
                                                  this is default pin mode */
-#define PULLUP_1M 7                            /*!< set pin for 1M pull up  */
+#define PULLUP_1M (7)                            /*!< set pin for 1M pull up  */
 
 /**
  * \brief  Define pin driver option
  */
-#define DRV_4MA  0                              /*!< set pin for 4mA driver   */
-#define DRV_10MA 1                              /*!< set pin for 10mA driver  */
-#define DRV_14MA 2                              /*!< set pin for 14mA driver  */
-#define DRV_20MA 3                              /*!< set pin for 20mA driver  */
+#define DRV_4MA  (0)                              /*!< set pin for 4mA driver   */
+#define DRV_10MA (1)                              /*!< set pin for 10mA driver  */
+#define DRV_14MA (2)                              /*!< set pin for 14mA driver  */
+#define DRV_20MA (3)                              /*!< set pin for 20mA driver  */
 
 /**
  * \brief  Define IC chip id  and chip revision information
  */
 
-#define IC_CHIP_ID_MASK_SHIFT          8
+#define IC_CHIP_ID_MASK_SHIFT          (8)
 #define IC_CHIP_ID_MASK                (0xFF << IC_CHIP_ID_MASK_SHIFT)
 #define IC_RT58X                       (0x70 << IC_CHIP_ID_MASK_SHIFT)         /*!< RT58X IC Chip ID  */
-#define IC_CHIP_REVISION_MASK_SHIFT    4
+#define IC_CHIP_REVISION_MASK_SHIFT    (4)
 #define IC_CHIP_REVISION_MASK          (0xF << IC_CHIP_REVISION_MASK_SHIFT)
 #define IC_CHIP_REVISION_MPA           (1 << IC_CHIP_REVISION_MASK_SHIFT)       /*!< RT58X IC Chip Revision ID For MPA  */
 #define IC_CHIP_REVISION_MPB           (2  << IC_CHIP_REVISION_MASK_SHIFT)      /*!< RT58X IC Chip Revision ID For MPB  */
+#define IC_CHIP_REVISION_MPC           (3  << IC_CHIP_REVISION_MASK_SHIFT)      /*!< RT58X IC Chip Revision ID For MPC  */
+#define IC_CHIP_REVISION_MPD           (4  << IC_CHIP_REVISION_MASK_SHIFT)      /*!< RT58X IC Chip Revision ID For MPD  */
 
 typedef enum {
     SYS_32MHZ_CLK = SYS_CLK_32MHZ,

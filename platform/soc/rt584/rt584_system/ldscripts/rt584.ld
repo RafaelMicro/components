@@ -192,6 +192,7 @@ SECTIONS
 
 	PROVIDE( _heap2_start = 0 );
 	PROVIDE( _heap2_size = 0 );
+    PROVIDE(_comm_subsys_reserved_ram = _heap2_size);
 
     /* Reserve space and place heap in memory map. */
 

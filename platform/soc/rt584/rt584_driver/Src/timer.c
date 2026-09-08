@@ -20,14 +20,14 @@
 /**
  * \brief           Timer and slow timer max number definitions
  */
-#define MAX_NUMBER_OF_TIMER           3         /*3 timer*/
-#define MAX_NUMBER_OF_SLOW_TIMER      2         /*2 timer*/
+#define MAX_NUMBER_OF_TIMER           (3)         /*3 timer*/
+#define MAX_NUMBER_OF_SLOW_TIMER      (2)         /*2 timer*/
 
 /**
  * \brief           Timer and slow timer state definitions
  */
-#define TIMER_STATE_OPEN           1
-#define TIMER_STATE_CLOSED         0
+#define TIMER_STATE_OPEN           (1)
+#define TIMER_STATE_CLOSED         (0)
 
 
 /**
@@ -593,7 +593,7 @@ uint32_t slowtimer_open(uint32_t timer_id, slowtimer_config_mode_t cfg,
 
     timer->control.reg = 0;
     do {
-        get_timer_enable_status(timer_id, &en_status);
+        get_slowtimer_enable_status(timer_id, &en_status);
     }while(en_status);
     timer->clear = 1;
 

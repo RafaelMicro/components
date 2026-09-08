@@ -39,12 +39,12 @@ extern "C" {
 /**
  * \brief           hosal crypto aes const defined
  */
-#define HOSLA_CRYPTO_AES_INI          	1            /**< crypto aes intinal const defined */
+#define HOSLA_CRYPTO_AES_INI          	(1)            /**< crypto aes intinal const defined */
 #define HOSAL_AES_KEY128BIT     AES_KEY128           /*!< AES operation 128 bit            */
 #define HOSAL_AES_KEY192BIT     AES_KEY192           /*!< AES operation 192 bit            */
 #define	HOSAL_AES_KEY256BIT 	AES_KEY256           /*!< AES operation 256 bit            */
 #define HOSAL_AES_BLOCKLEN		AES_BLOCKLEN         /*!< Block length in bytes, AES is 128bits per block  */
-#define HOSAL_NUMBER_OF_GENERATES   2                /*!< crypto generates */
+#define HOSAL_NUMBER_OF_GENERATES   (2)                /*!< crypto generates */
 
 /**
  * \brief           hosal crypto operation defined

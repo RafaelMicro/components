@@ -24,9 +24,9 @@
  * can be transfered in 2 or 4 bits mode for QSPI flash.
  */
 
-#define MAX_NUMBER_OF_QSPI 2
+#define MAX_NUMBER_OF_QSPI (2)
 
-#define MAX_SLAVE_DEVICE 4
+#define MAX_SLAVE_DEVICE (4)
 
 typedef struct {
     /*callback for asynchronous notify finish.*/

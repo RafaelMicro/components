@@ -35,6 +35,8 @@
 #ifndef OPENTHREAD_PORT_H
 #define OPENTHREAD_PORT_H
 
+#include <stdbool.h>
+
 #if OT_FREERTOS_ENABLE
 #include <FreeRTOS.h>
 #include <portmacro.h>
@@ -42,10 +44,26 @@
 #endif
 
 #include <openthread/instance.h>
+// [Rafael] config.h first: it pulls in OPENTHREAD_CONFIG_FILE, without which
+// radio.h silently resolves OT_RADIO_FRAME_MAX_SIZE to 127 instead of 560.
+#include <openthread/config.h>
+#include <openthread/platform/radio.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// [Rafael] Build-time check under -std=gnu99: false gives a negative array size.
+#define MIU_BUILD_ASSERT(name, cond) \
+    typedef char miu_build_assert_##name[(cond) ? 1 : -1]
+
+// [Rafael] Max PSDU this lib was built for (sub-G PHY); intentionally not tied
+// to OT_RADIO_FRAME_MAX_SIZE, which app config can move between 560 and 127.
+#define MIU_RADIO_PSDU_MAX 560
+
+// [Rafael] App may buffer less than the lib carries, never more.
+MIU_BUILD_ASSERT(ot_radio_frame_max_size_exceeds_miu_lib_psdu_max,
+                 OT_RADIO_FRAME_MAX_SIZE <= MIU_RADIO_PSDU_MAX);
 
 #ifndef CONFIG_OPENTHREAD_TASK_SIZE
 #define CONFIG_OPENTHREAD_TASK_SIZE 4096
@@ -104,6 +122,26 @@ typedef enum _ot_system_event {
 
 extern ot_system_event_t ot_system_event_var;
 extern volatile uint8_t ot_EvtCount[32];
+extern volatile bool ot_evtcount_dump_pending;
+
+// [Rafael] Diagnostic: dump all 32 ot_EvtCount[] slots once a counter reaches
+// this level, so we can see whether otrStackTask is backlogged on just one
+// event source or globally stalled. Called from otrStackTask (task context),
+// never from inside OT_NOTIFY's critical section.
+#define OT_EVTCOUNT_DUMP_THRESHOLD 200
+void ot_evt_count_dump(void);
+
+// [Rafael] Diagnostic: dump the radio TX-path state (pTxFrame / tstx age /
+// pending RADIO_TX event bits) to classify a wedged Leader as low-level-no-callback
+// vs task-not-draining. Invoked from the CLI ("app radio").
+void ot_radio_dbg_dump(void);
+
+// [Rafael] Diagnostic: how long the OpenThread TX path has had a frame submitted
+// with no tx done back, in ms (0 = nothing outstanding). Safe from any task and
+// while the OT task itself is wedged: no otrLock, no OT API. Provided so a
+// supervisor outside the OT task can decide a recovery policy; this layer has no
+// way to abort the frame.
+uint32_t ot_radio_tx_stall_ms(void);
 
 /****************************************************************************/ /**
  * @brief  Init openthread tack.
@@ -322,12 +360,25 @@ void otrUnlock(void);
         ot_system_event_var |= __b;                                            \
         for (int i = 0; i < 32; i++) {                                         \
             if ((__b >> i) & 1) {                                              \
-                ot_EvtCount[i]++;                                              \
+                if (ot_EvtCount[i] < 255) {                                    \
+                    ot_EvtCount[i]++;                                          \
+                    if (ot_EvtCount[i] == OT_EVTCOUNT_DUMP_THRESHOLD) {        \
+                        ot_evtcount_dump_pending = true;                       \
+                    }                                                          \
+                }                                                              \
             }                                                                  \
         }                                                                      \
         otSysEventSignalPending();                                             \
     } while (0)
 
+// [Rafael] Saturating instead of asserting: a burst that outpaces otrStackTask's
+// drain rate (e.g. RX buffer pool exhaustion during a mass-reattach storm) must
+// not crash the device. Once a counter hits 255 it just stops counting further;
+// otrStackTask still drains/logs the event, it just under-counts how many times
+// it fired. ot_evtcount_dump_pending lets otrStackTask log a full snapshot of all
+// 32 counters (task context, outside this critical section) the first time any
+// one of them crosses OT_EVTCOUNT_DUMP_THRESHOLD, for diagnosing which event(s)
+// backed up.
 #define OT_NOTIFY(ebit)                                                        \
     do {                                                                       \
         OT_ENTER_CRITICAL();                                                   \
@@ -335,8 +386,12 @@ void otrUnlock(void);
         ot_system_event_var |= __b;                                            \
         for (int i = 0; i < 32; i++) {                                         \
             if ((__b >> i) & 1) {                                              \
-                assert(ot_EvtCount[i] < 255);                                  \
-                ot_EvtCount[i]++;                                              \
+                if (ot_EvtCount[i] < 255) {                                    \
+                    ot_EvtCount[i]++;                                          \
+                    if (ot_EvtCount[i] == OT_EVTCOUNT_DUMP_THRESHOLD) {        \
+                        ot_evtcount_dump_pending = true;                       \
+                    }                                                          \
+                }                                                              \
             }                                                                  \
         }                                                                      \
         OT_EXIT_CRITICAL();                                                    \

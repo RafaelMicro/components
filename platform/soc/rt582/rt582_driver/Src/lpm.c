@@ -28,7 +28,7 @@ static volatile uint32_t low_power_wakeup_update;
 static volatile uint32_t low_power_wakeup_uart;
 static volatile uint32_t low_power_wakeup_gpio;
 
-#define LPM_SRAM0_RETAIN 0x1E
+#define LPM_SRAM0_RETAIN (0x1E)
 
 /**
  * \brief            low power mode intinal

@@ -5,10 +5,10 @@
  *
  */
 
-#include <FreeRTOS.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "mcu.h"
 #include "sysctrl.h"
 #include "sysfun.h"
 #include "uart_stdio.h"
@@ -42,7 +42,7 @@ void _dump_boot_info(void) {
     puts(RAFAEL_SDK_VER);
     puts("\r\n");
     puts("Build Project: ");
-    puts(CONFIG_BUILD_PORJECT);
+    puts(CONFIG_BUILD_PROJECT);
     puts("\r\n");
     puts("Build Date: ");
     puts(__DATE__);

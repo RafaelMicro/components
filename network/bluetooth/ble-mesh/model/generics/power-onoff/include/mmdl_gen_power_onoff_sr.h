@@ -15,10 +15,15 @@ extern "C" {
 
 
 
+/** @brief Dispatch an incoming Generic Power OnOff model message to the matching opcode handler. */
 extern void mmdl_generic_onpowerup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast);
+/** @brief Callback invoked by an extending child model (e.g. OnOff) to update the tracked on/off state. */
 extern void mmdl_generic_power_onoff_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p);
+/** @brief Update the OnPowerUp state from an extended (parent) model and publish the change. */
 extern void mmdl_generic_power_onoff_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t onopowerup_state);
+/** @brief Publish the current Generic Power OnOff state to the model's configured publish address. */
 extern void mmdl_generic_power_onoff_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+/** @brief Apply the current on/off state to the sibling Generic OnOff model when a scene is recalled. */
 void mmdl_generic_power_onoff_scene_set(ble_mesh_element_param_t *p_current_element);
 
 #ifdef __cplusplus

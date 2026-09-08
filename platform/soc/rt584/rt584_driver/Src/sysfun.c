@@ -37,8 +37,7 @@ static int critical_counter = 0;
 static txpower_default_cfg_t   tx_pwr_level;
 static uint8_t critical_before_start = 0;
 
-void early_init_before_use(void)
-{
+void early_init_before_use(void) {
     critical_counter = 0;
     critical_before_start = 1;
 }
@@ -173,7 +172,12 @@ chip_model_t getotpversion() {
      CHIP_ID(TYPE,VER)                   ((TYPE << 8) | VER)
      CHIP_MODEL                           CHIP_ID(CHIP_TYPE,CHIP_VERSION)
     */
-    chip_model.type = (chip_type_t)otp_version.buf[5];
+    /* RT584 => 4, but RF1301 => 0, will error*/
+    if( (otp_version.buf[1] == 0x52) && (otp_version.buf[2] == 0x46)){
+        chip_model.type = 4;
+    } else {
+        chip_model.type = (chip_type_t)otp_version.buf[5];
+    }
 
     chip_model.version = (chip_version_t)otp_version.buf[6];
     return chip_model;

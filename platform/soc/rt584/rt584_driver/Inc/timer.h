@@ -34,63 +34,63 @@ extern "C" {
 /**
  * \brief           Timer counting mode definitions.
  */
-#define TIMER_DOWN_COUNTING                     0
-#define TIMER_UP_COUNTING                       1
+#define TIMER_DOWN_COUNTING                     (0)
+#define TIMER_UP_COUNTING                       (1)
 
 /**
  * \brief           Timer one-shot mode definitions.
  */
-#define TIMER_ONE_SHOT_DISABLE                  0
-#define TIMER_ONE_SHOT_ENABLE                   1
+#define TIMER_ONE_SHOT_DISABLE                  (0)
+#define TIMER_ONE_SHOT_ENABLE                   (1)
 
 /**
  * \brief           Timer mode definitions.
  */
-#define TIMER_FREERUN_MODE                      0
-#define TIMER_PERIODIC_MODE                     1
+#define TIMER_FREERUN_MODE                      (0)
+#define TIMER_PERIODIC_MODE                     (1)
 
 /**
  * \brief           Timer interrupt definitions.
  */
-#define TIMER_INT_DISABLE                       0
-#define TIMER_INT_ENABLE                        1
+#define TIMER_INT_DISABLE                       (0)
+#define TIMER_INT_ENABLE                        (1)
 
 /**
  * \brief           Timer prescale definitions.
  */
-#define TIMER_PRESCALE_1                        0
-#define TIMER_PRESCALE_2                        3
-#define TIMER_PRESCALE_8                        4
-#define TIMER_PRESCALE_16                       1
-#define TIMER_PRESCALE_32                       5
-#define TIMER_PRESCALE_128                      6
-#define TIMER_PRESCALE_256                      2
-#define TIMER_PRESCALE_1024                     7
+#define TIMER_PRESCALE_1                        (0)
+#define TIMER_PRESCALE_2                        (3)
+#define TIMER_PRESCALE_8                        (4)
+#define TIMER_PRESCALE_16                       (1)
+#define TIMER_PRESCALE_32                       (5)
+#define TIMER_PRESCALE_128                      (6)
+#define TIMER_PRESCALE_256                      (2)
+#define TIMER_PRESCALE_1024                     (7)
 
 /**
  * \brief           Timer capture edge definitions.
  */
-#define TIMER_CAPTURE_POS_EDGE                  0
-#define TIMER_CAPTURE_NEG_EDGE                  1
+#define TIMER_CAPTURE_POS_EDGE                  (0)
+#define TIMER_CAPTURE_NEG_EDGE                  (1)
 
 /**
  * \brief           Timer capture deglich definitions.
  */
-#define TIMER_CAPTURE_DEGLICH_DISABLE           0
-#define TIMER_CAPTURE_DEGLICH_ENABLE            1
+#define TIMER_CAPTURE_DEGLICH_DISABLE           (0)
+#define TIMER_CAPTURE_DEGLICH_ENABLE            (1)
 
 /**
  * \brief           Timer capture interrupt definitions.
  */
-#define TIMER_CAPTURE_INT_DISABLE               0
-#define TIMER_CAPTURE_INT_ENABLE                1
+#define TIMER_CAPTURE_INT_DISABLE               (0)
+#define TIMER_CAPTURE_INT_ENABLE                (1)
 
 /**
  * \brief           Timer clock source definitions.
  */
-#define TIMER_CLOCK_SOURCEC_PERI                0
-#define TIMER_CLOCK_SOURCEC_RCO1M               2
-#define TIMER_CLOCK_SOURCEC_PMU                 3
+#define TIMER_CLOCK_SOURCEC_PERI                (0)
+#define TIMER_CLOCK_SOURCEC_RCO1M               (2)
+#define TIMER_CLOCK_SOURCEC_PMU                 (3)
 
 
 

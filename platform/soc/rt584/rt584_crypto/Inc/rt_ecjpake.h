@@ -25,8 +25,8 @@ extern "C"
  * @{
  */
 
-#define server_role                   1
-#define client_role                   0
+#define server_role                   (1)
+#define client_role                   (0)
 
 /**
  * \brief           In IETF document, this is ECSchnorrZKP struct

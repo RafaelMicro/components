@@ -59,7 +59,11 @@ extern const uint8_t firmware_program_multi[];
 #endif
 #if (RF_CAL_TYPE & RF_CAL_PWR_ON_MODE)
 extern const uint32_t firmware_size_rfk;
+#if (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S)
+extern const uint8_t *firmware_program_rfk;
+#else
 extern const uint8_t firmware_program_rfk[];
+#endif
 #endif
 #endif
 #if (CONFIG_RF_FW_INCLUDE_MAC_ACC == TRUE)
@@ -564,7 +568,8 @@ bool rf_common_cal_init(COMM_SUBSYSTEM_ISR_t isr_func)
             // Bypass mode
             continue;
         }
-        else if ((p_rf_cal_info->mode != RF_CAL_MP) && (p_rf_cal_info->mode != RF_CAL_STARTUP) && (p_rf_cal_info->mode != RF_CAL_AON))
+        // else if ((p_rf_cal_info->mode != RF_CAL_MP) && (p_rf_cal_info->mode != RF_CAL_STARTUP) && (p_rf_cal_info->mode != RF_CAL_AON))
+        else // / temp for workaround
         {
             // Force to AON mode if flag or calibration mode is out of range
             p_rf_cal_info->mode = RF_CAL_AON;
@@ -606,8 +611,13 @@ bool rf_common_cal_init(COMM_SUBSYSTEM_ISR_t isr_func)
         /* RF calibration */
         if (rf_common_cal_enable(mpIdIdx, p_rf_cal_info) == false)
         {
+            printf("Calibration Fail!");
             retStatus = false;
             break;
+        }
+        else
+        {
+            printf("Calibration Pass! FiltK:0x%02x\r\n", p_rf_cal_info->rx_filter_cap);
         }
 
         /* Store calibration results if RF calibration is in STARTUP mode */
@@ -1328,9 +1338,9 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
     rf_common_update_band_info();
 
     /* RF calibration */
-    //if (rf_common_cal_init() == false)
+    if (rf_common_cal_init(isr_func) == false)
     {
-        //return false;
+        return false;
     }
 #endif
 
@@ -1428,6 +1438,7 @@ bool rf_common_init_by_fw(RF_FW_LOAD_SELECT fw_select, COMM_SUBSYSTEM_ISR_t isr_
     sadc_disable();
 
     NVIC_EnableIRQ((IRQn_Type)(Sadc_IRQn));
+    NVIC_SetPriority((IRQn_Type)(Sadc_IRQn), 0x5);
 
     // Sadc_Compensation_Init(13);
     Tx_Power_Compensation_Init(CONFIG_TEMP_VOL_COMP_PERIOD);
@@ -1533,6 +1544,11 @@ void rf_common_radio_reg_dump (void)
     }
 }
 
+uint32_t rf_common_radio_get_version(void)
+{
+    return RfMcu_RegGet(0x4000);
+}
+
 bool rf_common_restart_vco_bank_search(void)
 {
 #if (0) // Workaround for UART bridge and DTM project issue
@@ -1578,3 +1594,17 @@ bool rf_common_restart_vco_bank_search(void)
 #endif
     return true;
 }
+
+uint32_t rf_common_radio_get_rtc_from_radio(void)
+{
+    RfMcu_RegSet(RF_MCU_PMU_CTRL_REG_ADDR, BIT9);
+
+    return RfMcu_RegGet(RF_MCU_RTC_CURRENT_CNT_REG_ADDR);
+}
+
+uint32_t rf_common_radio_get_rtc_from_host(void)
+{
+    RfMcu_SetRtcSlowAon(true);
+    return RfMcu_GetRtcFromHost();
+}
+

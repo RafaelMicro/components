@@ -124,7 +124,7 @@ const uint32_t firmware_size_it = 0;
 const uint8_t firmware_const_it[] = {0};
 const uint32_t const_size_it = 0;
 #endif
-#endif /* (RF_FW_INCLUDE_INTERNAL_TEST == TRUE) */
+#endif /* (CONFIG_RF_FW_INCLUDE_INTERNAL_TEST == TRUE) */
 
 #endif /* (RF_MCU_CHIP_MODEL == RF_MCU_CHIP_569S) */
 

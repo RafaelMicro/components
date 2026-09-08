@@ -30,8 +30,8 @@ extern "C" {
  */
 
 
-#define OTP_IC_VERSION_OFFSET 0x00
-#define OTP_FT_VERSION_OFFSET 0x04
+#define OTP_IC_VERSION_OFFSET (0x00)
+#define OTP_FT_VERSION_OFFSET (0x04)
 
 /**
  * \brief           Chip model version definitions.

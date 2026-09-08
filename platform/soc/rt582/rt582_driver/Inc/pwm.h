@@ -164,24 +164,24 @@ typedef enum {
 /**
  * \brief           Defein PWM MAX number and ducy max value
  */
-#define PWM_MAX_NUMBER       5
-#define PWM_DUTY_MAX_PERCENT 100
+#define PWM_MAX_NUMBER       (5)
+#define PWM_DUTY_MAX_PERCENT (100)
 
 /**
  * \brief           PWM default Paramater 
  */
-#define PWM_DEFAULT_CNT_END_VAL      0                        /*!< default Count end Value using format0 >*/
-#define PWM_DEFAULT_ELEMENT_NUM      1                        /*!< default element number>*/
-#define PWM_FMT0_DEFAULT_ELEMENT_NUM 2                        /*!< default forma0 defeault element number>*/
-#define PWM_DEFAULT_REPEAT_NUM       0                        /*!< defaultpwm Repeat number>*/
-#define PWM_DEFAULT_DLY_NUM          0                        /*!< defaultpwm delay number>*/
-#define PWM_DEFAULT_PLAY_CNT         0                        /*!< defaultpwm play counter 0:is infinite>*/
+#define PWM_DEFAULT_CNT_END_VAL      (0)                        /*!< default Count end Value using format0 >*/
+#define PWM_DEFAULT_ELEMENT_NUM      (1)                        /*!< default element number>*/
+#define PWM_FMT0_DEFAULT_ELEMENT_NUM (2)                        /*!< default forma0 defeault element number>*/
+#define PWM_DEFAULT_REPEAT_NUM       (0)                        /*!< defaultpwm Repeat number>*/
+#define PWM_DEFAULT_DLY_NUM          (0)                        /*!< defaultpwm delay number>*/
+#define PWM_DEFAULT_PLAY_CNT         (0)                        /*!< defaultpwm play counter 0:is infinite>*/
 
-#define PWM_RDMA0_SET_DEFAULT 0                               /*!< defaultCount end Value using format0>*/
-#define PWM_RDMA1_SET_DEFAULT 0                               /*!< defaultCount end Value using format0>*/
+#define PWM_RDMA0_SET_DEFAULT (0)                               /*!< defaultCount end Value using format0>*/
+#define PWM_RDMA1_SET_DEFAULT (0)                               /*!< defaultCount end Value using format0>*/
 
-#define PWM_COUNT_END_VALUE_MAX 32767                         /*!< defaultCount end Value max value>*/
-#define PWM_COUNT_END_VALUE_MIN 3                             /*!< defaultCount end Value min value>*/
+#define PWM_COUNT_END_VALUE_MAX (32767)                         /*!< defaultCount end Value max value>*/
+#define PWM_COUNT_END_VALUE_MIN (3)                             /*!< defaultCount end Value min value>*/
 
 /**
  *\brief            Pwm set0 control register struct

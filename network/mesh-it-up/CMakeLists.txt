@@ -106,8 +106,36 @@ add_compile_options(
 # === OT config ===
 add_compile_options(-DOPENTHREAD_CONFIG_PLATFORM_INFO="${CONFIG_BOARD}")
 
+# netdiag vendor info. Must precede miu_openthread below, or it won't see these.
+# Vendor Model = OTA bin_type (keep BIN_TYPE_ARR in app_task.c in sync).
+set(MIU_BIN_ROLE "")
+if(CONFIG_MIU_DEVICE_TYPE_FTD)
+    set(MIU_BIN_ROLE "ftd")
+elseif(CONFIG_MIU_DEVICE_TYPE_MTD)
+    set(MIU_BIN_ROLE "mtd")
+endif()
+
+set(MIU_BIN_IC "")
+if(CONFIG_RF1301)
+    set(MIU_BIN_IC "1301")
+elseif(CONFIG_RT581 OR CONFIG_RT582)
+    set(MIU_BIN_IC "r581")
+endif()
+
+if(MIU_BIN_ROLE AND MIU_BIN_IC)
+    set(MIU_BIN_TYPE "miu-${MIU_BIN_ROLE}-${MIU_BIN_IC}")
+    message(STATUS "[miu] bin_type: ${MIU_BIN_TYPE}")
+    add_compile_options(
+        -DMIU_BIN_TYPE_STR="${MIU_BIN_TYPE}"
+        -DOPENTHREAD_CONFIG_NET_DIAG_VENDOR_MODEL="${MIU_BIN_TYPE}"
+    )
+endif()
+
+# The TLV caps at 16 chars, so OT_PACKAGE_VERSION (17) will not fit here.
+add_compile_options(-DOPENTHREAD_CONFIG_NET_DIAG_VENDOR_SW_VERSION="${BUILD_TIME_4BYTE}")
+
 if(CONFIG_USER_PROJECT)
-    set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/user_project/${CONFIG_BUILD_PORJECT}/include")
+    set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/user_project/${CONFIG_BUILD_PROJECT}/include")
 elseif(CONFIG_MIU_DEVICE_TYPE_FTD)
     set(APP_CONFIG_ROOT_DIR "${CMAKE_SOURCE_DIR}/examples/sub-g/mesh-it-up/miu-ftd/include")
 elseif(CONFIG_MIU_DEVICE_TYPE_MTD)

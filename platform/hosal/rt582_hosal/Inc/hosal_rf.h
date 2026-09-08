@@ -96,10 +96,12 @@ typedef enum {
     HOSAL_RF_IOCTL_15P4_CSL_ACCURACY_GET,
     HOSAL_RF_IOCTL_15P4_CSL_SAMPLE_TIME_UPDATE_SET,
     HOSAL_RF_IOCTL_15P4_CSL_RECEIVER_CTRL_SET,
+    HOSAL_RF_IOCTL_15P4_CSL_RECEIVE_AT_SET,
 
     HOSAL_RF_IOCTL_15P4_OPERATION_PAN_IDX_SET,
     HOSAL_RF_IOCTL_15P4_2CH_SCAN_FREQUENCY_SET,
     HOSAL_RF_IOCTL_15P4_RX_DATA_CHANNEL_GET,
+    HOSAL_RF_IOCTL_15P4_CCA_ENERGY_READ,
 
     HOSAL_RF_IOCTL_SUBG_OQPSK_DATA_RATE_SET,
     HOSAL_RF_IOCTL_SUBG_OQPSK_MAC_SET,
@@ -160,6 +162,12 @@ typedef enum {
     HOSAL_RF_CB_CMD_COMPLETE = 1,
     HOSAL_RF_CB_DATA_COMPETE = 2,
 } hosal_rf_cb_result_t;
+
+typedef enum
+{
+    HOSAL_MOD_INDEX_0P5 = 0,
+    HOSAL_MOD_INDEX_1   = 1,
+} hosal_rf_mod_idx_t;
 
 typedef struct {
     uint8_t modem;
@@ -222,6 +230,11 @@ typedef struct {
 } hosal_rf_15p4_csl_receiver_ctrl_t;
 
 typedef struct {
+    uint32_t rx_start_time;
+    uint32_t rx_on_time;
+} hosal_rf_15p4_csl_receive_at_t;
+
+typedef struct {
 
     uint16_t data_len;
     uint8_t control;
@@ -282,11 +295,11 @@ typedef struct {
     uint32_t sleep_time; //ms
 } hosal_rf_wake_on_radio_t;
 
-#define HOSAL_RF_BLE_EVENT_CALLBACK 1
-#define HOSAL_RF_BLE_RX_CALLBACK    2
-#define HOSAL_RF_PCI_EVENT_CALLBACK 3
-#define HOSAL_RF_PCI_RX_CALLBACK    4
-#define HOSAL_RF_PCI_TX_CALLBACK    5
+#define HOSAL_RF_BLE_EVENT_CALLBACK (1)
+#define HOSAL_RF_BLE_RX_CALLBACK    (2)
+#define HOSAL_RF_PCI_EVENT_CALLBACK (3)
+#define HOSAL_RF_PCI_RX_CALLBACK    (4)
+#define HOSAL_RF_PCI_TX_CALLBACK    (5)
 
 int hosal_rf_write_command(uint8_t* command_ptr, uint32_t command_len);
 int hosal_rf_write_tx_data(uint8_t* tx_data_ptr, uint32_t tx_data_len);

@@ -32,23 +32,23 @@ extern "C" {
 /**
  * \brief           Sadc channel default setting value 
  */
-#define SADC_PNSEL_CH_REG_DEFAULT 0x240000FF
-#define SADC_SET_CH_REG_DEFAULT   0x80000000
-#define SADC_THD_CH_REG_DEFAULT   0x3FFF0000
+#define SADC_PNSEL_CH_REG_DEFAULT (0x240000FF)
+#define SADC_SET_CH_REG_DEFAULT   (0x80000000)
+#define SADC_THD_CH_REG_DEFAULT   (0x3FFF0000)
 
-#define SADC_CH_REG_OFFSET 4                    /*unit: 4-bytes*/
+#define SADC_CH_REG_OFFSET (4)                    /*unit: 4-bytes*/
 
 /**
  * \brief           Sadc threshold default value interrupt enable 
  */
-#define SADC_MONITOR_LOW_THD_DEFAULT  0
-#define SADC_MONITOR_HIGH_THD_DEFAULT 0x3FFF
+#define SADC_MONITOR_LOW_THD_DEFAULT  (0)
+#define SADC_MONITOR_HIGH_THD_DEFAULT (0x3FFF)
 
 /**
  * \brief           Sadc interrupt interrupt related value
  */
-#define SADC_INT_DISABLE_ALL 0xFFFFFFFF
-#define SADC_INT_CLEAR_ALL   0xFFFFFFFF
+#define SADC_INT_DISABLE_ALL (0xFFFFFFFF)
+#define SADC_INT_CLEAR_ALL   (0xFFFFFFFF)
 
 /**
  * \brief           Sadc value

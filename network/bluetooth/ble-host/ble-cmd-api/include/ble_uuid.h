@@ -219,7 +219,7 @@ extern "C" {
 #define GATT_UNIT_LUMINOUS_INTENSITY__CANDELA                               0x2707    /**< Luminous Intensity (candela) UUID.*/
 #define GATT_UNIT_AREA__SQUARE_METRES                                       0x2710    /**< Area (square metres) UUID.*/
 #define GATT_UNIT_VOLUME__CUBIC_METRES                                      0x2711    /**< Volume (cubic metres) UUID.*/
-#define GATT_UNIT_VELOCITY__METRES_PER_SECOND                               0x2712    /**< Velocity (meres oer second) UUID.*/
+#define GATT_UNIT_VELOCITY__METRES_PER_SECOND                               0x2712    /**< Velocity (metres per second) UUID.*/
 #define GATT_UNIT_ACCELERATION__METRES_PER_SECOND_SQUARED                   0x2713    /**< Acceleration (metres per second squared) UUID.*/
 #define GATT_UNIT_WAVENUMBER__RECIPROCAL_METRE                              0x2714    /**< Wavenumber (reciprocal metre) UUID.*/
 #define GATT_UNIT_DENSITY__KILOGRAM_PER_CUBIC_METRE                         0x2715    /**< Density (kilogram per cubic metre) UUID.*/
@@ -227,12 +227,12 @@ extern "C" {
 #define GATT_UNIT_SPECIFIC_VOLUME__CUBIC_METRE_PER_KILOGRAM                 0x2717    /**< Specific Volume (cubic metre per kilogram) UUID.*/
 #define GATT_UNIT_CURRENT_DENSITY__AMPERE_PER_SQUARE_METRE                  0x2718    /**< Current Density (ampere per square metre) UUID.*/
 #define GATT_UNIT_MAGNETIC_FIELD_STRENGTH__AMPERE_PER_METRE                 0x2719    /**< Magnetic Field Strength (ampere per metre) UUID.*/
-#define GATT_UNIT_AMOUNT_CONCENTRATION__MOLE_PER_CUBIC_METRE                0x271A    /**< Aount Concentration (molde per cubic metre) UUID.*/
+#define GATT_UNIT_AMOUNT_CONCENTRATION__MOLE_PER_CUBIC_METRE                0x271A    /**< Amount Concentration (mole per cubic metre) UUID.*/
 #define GATT_UNIT_MASS_CONCENTRATION__KILOGRAM_PER_CUBIC_METRE              0x271B    /**< Mass Concentration (kilogram per cubic meter) UUID.*/
 #define GATT_UNIT_LUMINANCE__CANDELA_PER_SQUARE_METRE                       0x271C    /**< Luminance (candela per square metre) UUID.*/
 #define GATT_UNIT_REFRACTIVE_INDEX                                          0x271D    /**< Refractive (index) UUID.*/
 #define GATT_UNIT_RELATIVE_PERMEABILITY                                     0x271E    /**< Relative (permeability) UUID.*/
-#define GATT_UNIT_PLANE_ANGLE__RADIAN                                       0x2720    /**< PlaneAngle (radian) UUID.*/
+#define GATT_UNIT_PLANE_ANGLE__RADIAN                                       0x2720    /**< Plane Angle (radian) UUID.*/
 #define GATT_UNIT_SOLID_ANGLE__STERADIAN                                    0x2721    /**< Solid Angle (steradian) UUID.*/
 #define GATT_UNIT_FREQUENCY__HERTZ                                          0x2722    /**< Frequency (hertz) UUID.*/
 #define GATT_UNIT_FORCE__NEWTON                                             0x2723    /**< Force (newton) UUID.*/
@@ -244,8 +244,8 @@ extern "C" {
 #define GATT_UNIT_CAPACITANCE__FARAD                                        0x2729    /**< Capacitance (farad) UUID.*/
 #define GATT_UNIT_ELECTRIC_RESISTANCE__OHM                                  0x272A    /**< Electric Resistance (ohm) UUID.*/
 #define GATT_UNIT_ELECTRIC_CONDUCTANCE__SIEMENS                             0x272B    /**< Electric Conductance (siemens) UUID.*/
-#define GATT_UNIT_MAGNETIC_FLEX__WEBER                                      0x272C    /**< Magnetic Flex (weber) UUID.*/
-#define GATT_UNIT_MAGNETIC_FLEX_DENSITY__TESLA                              0x272D    /**< Magnetic Flex Density (tesla) UUID.*/
+#define GATT_UNIT_MAGNETIC_FLUX__WEBER                                      0x272C    /**< Magnetic Flux (weber) UUID.*/
+#define GATT_UNIT_MAGNETIC_FLUX_DENSITY__TESLA                              0x272D    /**< Magnetic Flux Density (tesla) UUID.*/
 #define GATT_UNIT_INDUCTANCE__HENRY                                         0x272E    /**< Inductance (henry) UUID.*/
 #define GATT_UNIT_CELSIUS_TEMPERATURE__DEGREE_CELSIUS                       0x272F    /**< Celsius Temperature (degree celsius) UUID.*/
 #define GATT_UNIT_LUMINOUS_FLUX__LUMEN                                      0x2730    /**< Luminous Flux (lumen) UUID.*/
@@ -276,7 +276,7 @@ extern "C" {
 #define GATT_UNIT_EXPOSURE__COULOMB_PER_KILOGRAM                            0x2753    /**< Exposure (coulomb per kilogram) UUID.*/
 #define GATT_UNIT_ABSORBED_DOSE_RATE__GRAY_PER_SECOND                       0x2754    /**< Absorbed Dose Rate (gray per second) UUID.*/
 #define GATT_UNIT_RADIANT_INTENSITY__WATT_PER_STERADIAN                     0x2755    /**< Radiant Intensity (watt per steradian) UUID.*/
-#define GATT_UNIT_RADIANCE__WATT_PER_SQUARE_METER_STERADIAN                 0x2756    /**< Radiance (watt per square metre sterdian) UUID.*/
+#define GATT_UNIT_RADIANCE__WATT_PER_SQUARE_METER_STERADIAN                 0x2756    /**< Radiance (watt per square metre steradian) UUID.*/
 #define GATT_UNIT_CATALYTIC_ACTIVITY_CONCENTRATION__KATAL_PER_CUBIC_METRE   0x2757    /**< Catalytic Activity Concentration (katal per cubic metre) UUID.*/
 #define GATT_UNIT_TIME__MINUTE                                              0x2760    /**< Time (minute) UUID.*/
 #define GATT_UNIT_TIME__HOUR                                                0x2761    /**< Time (hour) UUID.*/
@@ -309,11 +309,11 @@ extern "C" {
 #define GATT_UNIT_ENERGY__KILOWATT_HOUR                                     0x27AB    /**< Energy (kilowatt hour) UUID.*/
 #define GATT_UNIT_THERMODYNAMIC_TEMPERATURE__DEGREE_FAHRENHEIT              0x27AC    /**< Thermodynamic Temperature (degree fahrenheit) UUID.*/
 #define GATT_UNIT_PERCENTAGE                                                0x27AD    /**< Percentage UUID.*/
-#define GATT_UNIT_PER_MILLE                                                 0x27AE    /**< Per Mile UUID.*/
+#define GATT_UNIT_PER_MILLE                                                 0x27AE    /**< Per Mille UUID.*/
 #define GATT_UNIT_PERIOD__BEATS_PER_MINUTE                                  0x27AF    /**< Period (beats per minute) UUID.*/
 #define GATT_UNIT_ELECTRIC_CHARGE__AMPERE_HOURS                             0x27B0    /**< Electric Charge (ampere hour) UUID.*/
 #define GATT_UNIT_MASS_DENSITY__MILLIGRAM_PER_DECILITRE                     0x27B1    /**< Mass Density (milligram per decilitre) UUID.*/
-#define GATT_UNIT_MASS_DENSITY__MILLIMOLE_PER_LITRE                         0x27B2    /**< Mass Density (milligram per litre) UUID.*/
+#define GATT_UNIT_MASS_DENSITY__MILLIMOLE_PER_LITRE                         0x27B2    /**< Mass Density (millimole per litre) UUID.*/
 #define GATT_UNIT_TIME__YEAR                                                0x27B3    /**< Time (year) UUID.*/
 #define GATT_UNIT_TIME__MONTH                                               0x27B4    /**< Time (month) UUID.*/
 /** @} */

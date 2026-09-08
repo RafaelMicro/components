@@ -32,7 +32,7 @@ extern "C" {
 /**
  * \brief           Hosal Timer none use parameter definitions.
  */
-#define HOSAL_TIMER_NONE_USE_PAR 0
+#define HOSAL_TIMER_NONE_USE_PAR (0)
 
 /**
  * \brief           Hosal Timer counting mode definitions.
@@ -55,8 +55,8 @@ extern "C" {
 /**
  * \brief           Hosal Timer interrupt definitions.
  */
-#define HOSAL_TIMER_INT_DISABLE 0
-#define HOSAL_TIMER_INT_ENABLE  1
+#define HOSAL_TIMER_INT_DISABLE (0)
+#define HOSAL_TIMER_INT_ENABLE  (1)
 
 /**
  * \brief           Hosal Timer prescale definitions.

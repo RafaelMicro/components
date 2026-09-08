@@ -33,32 +33,32 @@ extern "C" {
 /**
  * \brief           hosal pwm iocontrl const defind
  */
-#define HOSAL_PWM_SET_COUNT_MODE            1
-#define HOSAL_PWM_SET_FRQUENCY              2
-#define HOSAL_PWM_SET_DELAY_NUMBER          3
-#define HOSAL_PWM_SET_REPEAT_NUMBER         4
-#define HOSAL_PWM_SET_PLAY_NUMBER           5
-#define HOSAL_PWM_SET_TSEQ_ADDRESS          6
-#define HOSAL_PWM_SET_RSEQ_ADDRESS          7
-#define HOSAL_PWM_GET_COUNT_MODE            8
-#define HOSAL_PWM_GET_FRQUENCY              9
-#define HOSAL_PWM_GET_DUTY                  10
-#define HOSAL_PWM_GET_COUNT                 11
-#define HOSAL_PWM_GET_DELAY_NUMBER          12
-#define HOSAL_PWM_GET_REPEAT_NUMBER         13
-#define HOSAL_PWM_GET_PLAY_NUMBER           14
-#define HOSAL_PWM_GET_TSEQ_ADDRESS          15
-#define HOSAL_PWM_GET_RSEQ_ADDRESS          16
-#define HOSAL_PWM_SET_CLOCK_DIVIDER         17
-#define HOSAL_PWM_GET_PHASE                 18
-#define HOSAL_PWM_SET_PHASE                 19
-#define HOSAL_PWM_SET_COUNT_END_VALUE       20
-#define HOSAL_PWM_SET_DMA_FORMAT            21
-#define HOSAL_PWM_GET_INVERT         		22
-#define HOSAL_PWM_SET_INVERT          		23
-#define HOSAL_PWM_DISABLE_INTERRUPT         24
-#define HOSAL_PWM_ENABLE_INTERRUPT          25
-#define HOSAL_PWM_REGISTER_CALLBACK         26
+#define HOSAL_PWM_SET_COUNT_MODE            (1)
+#define HOSAL_PWM_SET_FRQUENCY              (2)
+#define HOSAL_PWM_SET_DELAY_NUMBER          (3)
+#define HOSAL_PWM_SET_REPEAT_NUMBER         (4)
+#define HOSAL_PWM_SET_PLAY_NUMBER           (5)
+#define HOSAL_PWM_SET_TSEQ_ADDRESS          (6)
+#define HOSAL_PWM_SET_RSEQ_ADDRESS          (7)
+#define HOSAL_PWM_GET_COUNT_MODE            (8)
+#define HOSAL_PWM_GET_FRQUENCY              (9)
+#define HOSAL_PWM_GET_DUTY                  (10)
+#define HOSAL_PWM_GET_COUNT                 (11)
+#define HOSAL_PWM_GET_DELAY_NUMBER          (12)
+#define HOSAL_PWM_GET_REPEAT_NUMBER         (13)
+#define HOSAL_PWM_GET_PLAY_NUMBER           (14)
+#define HOSAL_PWM_GET_TSEQ_ADDRESS          (15)
+#define HOSAL_PWM_GET_RSEQ_ADDRESS          (16)
+#define HOSAL_PWM_SET_CLOCK_DIVIDER         (17)
+#define HOSAL_PWM_GET_PHASE                 (18)
+#define HOSAL_PWM_SET_PHASE                 (19)
+#define HOSAL_PWM_SET_COUNT_END_VALUE       (20)
+#define HOSAL_PWM_SET_DMA_FORMAT            (21)
+#define HOSAL_PWM_GET_INVERT         		(22)
+#define HOSAL_PWM_SET_INVERT          		(23)
+#define HOSAL_PWM_DISABLE_INTERRUPT         (24)
+#define HOSAL_PWM_ENABLE_INTERRUPT          (25)
+#define HOSAL_PWM_REGISTER_CALLBACK         (26)
 
 /**
  * \brief           hosal pwm config struce defined

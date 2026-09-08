@@ -62,7 +62,7 @@ const uint8_t firmware_program_rfk[] = {0};
 const uint32_t firmware_size_rfk = 0;
 #endif
 
-#elif (CHIP_VERSION == RT58X_MPB)
+#elif (CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || (CHIP_VERSION == RT58X_MPD)
 #if (CONFIG_RF_FW_INCLUDE_PCI == TRUE)
 #include "prg_pci_mpb_asic_fw.h"
 const uint32_t firmware_size_ruci = sizeof(firmware_program_ruci);

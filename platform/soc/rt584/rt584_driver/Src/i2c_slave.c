@@ -18,12 +18,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define I2C_SLAVE_STATE_CLOSE            0
-#define I2C_STATE_STATE_OPEN             1
+#define I2C_SLAVE_STATE_CLOSE            (0)
+#define I2C_STATE_STATE_OPEN             (1)
 
-#define I2C_SLAVE_STATE_IDLE             2
-#define I2C_SLAVE_STATE_READ             3
-#define I2C_SLAVE_STATE_WRITE            4
+#define I2C_SLAVE_STATE_IDLE             (2)
+#define I2C_SLAVE_STATE_READ             (3)
+#define I2C_SLAVE_STATE_WRITE            (4)
 
 static i2c_slave_cb_fn user_slave_cb = NULL;
 static uint8_t i2c_slave_state = I2C_SLAVE_STATE_CLOSE;

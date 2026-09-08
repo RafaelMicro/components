@@ -37,14 +37,14 @@ extern "C" {
 /**
 * \brief            Status Register definitions
 */
-#define FLASH_UNLOCK_PATTER   0x52414254
+#define FLASH_UNLOCK_PATTER   (0x52414254)
 
 /**
  * \brief           Status Register definitions
  */
-#define  FLASH_STATUS_RW1     1                 /*!< Status Register 1  */
-#define  FLASH_STATUS_RW2     2                 /*!< Status Register 2  */
-#define  FLASH_STATUS_RW3     4                 /*!< Status Register 3  */
+#define  FLASH_STATUS_RW1     (1)                 /*!< Status Register 1  */
+#define  FLASH_STATUS_RW2     (2)                 /*!< Status Register 2  */
+#define  FLASH_STATUS_RW3     (4)                 /*!< Status Register 3  */
 
 /**
  * \brief           Status Register Byte 1 and Byte 2, this define for writing status Bytes2
@@ -76,71 +76,71 @@ extern "C" {
 #define FLASH_SECREG_R3_P3   ((3<<12) | 0x300)    /*!< Secure Page three, page3 256 bytes.*/
 
 
-#define FLASH_IDLE 0                            /*!< flash idle  status*/
-#define FLASH_BUSY 1                            /*!<  flash busy status*/
+#define FLASH_IDLE (0)                            /*!< flash idle  status*/
+#define FLASH_BUSY (1)                            /*!<  flash busy status*/
 
-#define FLASH_SUSPEND_STATUS    0x80            /*!< flash suspend status  */
-#define FLASH_BUSY_CHECK_COUNT  10000           /*!< flash busy check count*/
+#define FLASH_SUSPEND_STATUS    (0x80)            /*!< flash suspend status  */
+#define FLASH_BUSY_CHECK_COUNT  (10000)           /*!< flash busy check count*/
 
-#define FLASH_TYPE_ID_MAKS      0xFFFF          /*!< flash id mask  */
+#define FLASH_TYPE_ID_MAKS      (0xFFFF)          /*!< flash id mask  */
 
-#define FLASH_SIZE_ID_SHIFT     16              /*!< flash id shift  */
+#define FLASH_SIZE_ID_SHIFT     (16)              /*!< flash id shift  */
 
 /**
  * \brief           Limit customer to use
  */
 #if defined(CONFIG_FLASHCTRL_SECURE_EN) // rt584 only
-#define FLASH_SECURE_MODE_BASE_ADDR         0x10000000
+#define FLASH_SECURE_MODE_BASE_ADDR         (0x10000000)
 #else
-#define FLASH_SECURE_MODE_BASE_ADDR         0
+#define FLASH_SECURE_MODE_BASE_ADDR         (0)
 #endif 
 
 #define BOOT_LOADER_END_PROTECT_ADDR        (FLASH_SECURE_MODE_BASE_ADDR+0xF000)
 
-#define FLASH_SIZE_ID_SHIFT     16              /*!< flash idle  */
+#define FLASH_SIZE_ID_SHIFT     (16)              /*!< flash idle  */
 
 /**
  * \brief           Flash sector size length
  */
-#define FLASH_SIZE_SECTOR_4KB   0x0C
+#define FLASH_SIZE_SECTOR_4KB   (0x0C)
 
 /**
  * \brief           Flash size
  */
-#define FLASH_SIZE_ID_512KB     0x13            /*!< 512KB flash id  */
-#define FLASH_SIZE_ID_1MB       0x14            /*!< 1MB flash id  */
-#define FLASH_SIZE_ID_2MB       0x15            /*!< 2MB flash id  */
-#define FLASH_SIZE_ID_4MB       0x16            /*!< 4MB flash id  */
+#define FLASH_SIZE_ID_512KB     (0x13)            /*!< 512KB flash id  */
+#define FLASH_SIZE_ID_1MB       (0x14)            /*!< 1MB flash id  */
+#define FLASH_SIZE_ID_2MB       (0x15)            /*!< 2MB flash id  */
+#define FLASH_SIZE_ID_4MB       (0x16)            /*!< 4MB flash id  */
 /**
  * \brief           Length definied
  */
-#define LENGTH_BYTE     1
-#define LENGTH_PAGE     256
+#define LENGTH_BYTE     (1)
+#define LENGTH_PAGE     (256)
 #define LENGTH_4KB      (4*1024)
 #define LENGTH_32KB     (32*1024)
 #define LENGTH_64KB     (64*1024)
 
-#define FLASH_END_PROTECT_SIZE    0x1000
+#define FLASH_END_PROTECT_SIZE    (0x1000)
 
-#define GDWQ_ID         0x65C8                  /*!< GD SPI Flash identifier id */
-#define GDLQ_ID         0x60C8                  /*!< GD SPI Flash identifier id */
-#define PUYA_ID         0x6085                  /*!< PUYA SPI Flash identifier id */
+#define GDWQ_ID         (0x65C8)                  /*!< GD SPI Flash identifier id */
+#define GDLQ_ID         (0x60C8)                  /*!< GD SPI Flash identifier id */
+#define PUYA_ID         (0x6085)                  /*!< PUYA SPI Flash identifier id */
 
 /**
  * \brief           Flash manufactory
  */
-#define GD_MANU_ID      0xC8                    /*!< GD SPI Flash identifier id  */
-#define PUYA_MANU_ID    0x85                    /*!< PUYA SPI Flash identifier id  */
+#define GD_MANU_ID      (0xC8)                    /*!< GD SPI Flash identifier id  */
+#define PUYA_MANU_ID    (0x85)                    /*!< PUYA SPI Flash identifier id  */
 
-#define  RT581_FLASH_TYPE       0x1460C8            /*!< GD SPI Flash identifier id  */
-#define  RT582_FLASH_TYPE       0x1465C8            /*!< GD SPI Flash identifier id  */
+#define  RT581_FLASH_TYPE       (0x1460C8)            /*!< GD SPI Flash identifier id  */
+#define  RT582_FLASH_TYPE       (0x1465C8)            /*!< GD SPI Flash identifier id  */
 #define  RT584_FLASH_TYPE       RT582_FLASH_TYPE    /*!< GD SPI Flash identifier id  */
-#define  RT582P512_FLASH_TYPE   0x136085            /*!< GD SPI Flash identifier id  */
-#define  RT583_FLASH_TYPE       0x1565C8            /*!< GD SPI Flash identifier id  */
+#define  RT582P512_FLASH_TYPE   (0x136085)            /*!< GD SPI Flash identifier id  */
+#define  RT583_FLASH_TYPE       (0x1565C8)            /*!< GD SPI Flash identifier id  */
 #define  FLASH_1MB_TYPE         RT582_FLASH_TYPE
 #define  FLASH_2MB_TYPE         RT583_FLASH_TYPE
 #define  FLASH_512K_TYPE        RT582P512_FLASH_TYPE
-#define  FLASH_4MB_TYPE         0x1665C8
+#define  FLASH_4MB_TYPE         (0x1665C8)
 
 #define FLASH_END_ADDR(x)                                                   \
     ( (x) == FLASH_SIZE_ID_512KB ?                                          \
@@ -161,20 +161,20 @@ extern "C" {
  * NOTICE:          Different flash has different timing. We should set correct flash timing according to flash type.
  */
 
-#define GDLQ_FLASH_TDP            3       /*!< LQ type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
-#define GDLQ_FLASH_TRES1         20       /*!< LQ type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
-#define GDLQ_FLASH_TSUS          20       /*!< LQ type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
-#define GDLQ_FLASH_TRS          100       /*!< LQ type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
+#define GDLQ_FLASH_TDP            (3)       /*!< LQ type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
+#define GDLQ_FLASH_TRES1         (20)       /*!< LQ type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
+#define GDLQ_FLASH_TSUS          (20)       /*!< LQ type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
+#define GDLQ_FLASH_TRS          (100)       /*!< LQ type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
 
-#define GDWQ_FLASH_TDP            3       /*!< WQ type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
-#define GDWQ_FLASH_TRES1         30       /*!< WQ type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
-#define GDWQ_FLASH_TSUS          40       /*!< WQ type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
-#define GDWQ_FLASH_TRS          100       /*!< WQ type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
+#define GDWQ_FLASH_TDP            (3)       /*!< WQ type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
+#define GDWQ_FLASH_TRES1         (30)       /*!< WQ type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
+#define GDWQ_FLASH_TSUS          (40)       /*!< WQ type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
+#define GDWQ_FLASH_TRS          (100)       /*!< WQ type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
 
-#define PUYA_FLASH_TDP            3       /*!< PUYA type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
-#define PUYA_FLASH_TRES1         30       /*!< PUYA type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
-#define PUYA_FLASH_TSUS          40       /*!< PUYA type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
-#define PUYA_FLASH_TRS          100       /*!< PUYA type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
+#define PUYA_FLASH_TDP            (3)       /*!< PUYA type flash deep power down (CS# High To Deep Power-Down Mode) and the unit is us */
+#define PUYA_FLASH_TRES1         (30)       /*!< PUYA type flash release deep power down (CS# High To Standby Mode Without Electronic Signature) and the unit is us */
+#define PUYA_FLASH_TSUS          (40)       /*!< PUYA type flash suspend time (CS# High To Next Command After Suspend) and the unit is us */
+#define PUYA_FLASH_TRS          (100)       /*!< PUYA type flash resume time (Latency Between Resume And Next Suspend) and the unit is us */
 
 
 

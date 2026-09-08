@@ -25,8 +25,8 @@ extern "C" {
 /**
  * \brief           qspi tx/rx fifo offset
  */
-#define QSPI_TX_FIFO_OFFSET 0
-#define QSPI_RX_FIFO_OFFSET 4
+#define QSPI_TX_FIFO_OFFSET (0)
+#define QSPI_RX_FIFO_OFFSET (4)
 
 #define QSPI_CNTL_NODMA_MASK (0xFF)
 /**

@@ -29,7 +29,7 @@ uint32_t i2s_init(i2s_para_set_t *i2s_para) {
     i2s_mclk_isel_t cfg_imck = I2S_MCLK_ISEL_MAX;
     uint8_t blk_osr = 0;
 
-    if ((i2s_para->fmt >= I2S_FMT_MAX) |
+    if ((i2s_para->fmt >= I2S_FMT_MAX) ||
             (i2s_para->sr >= I2S_SR_MAX)) {
         //Fail Cases
         return STATUS_INVALID_PARAM;

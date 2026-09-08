@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+/** @brief Runtime state of the Generic Battery Server model. */
 typedef struct gen_battery_state_s
 {
     uint32_t  battery_level: 8;
@@ -20,6 +21,7 @@ typedef struct gen_battery_state_s
     uint32_t  battery_flag: 8;
 } gen_battery_state_t;
 
+/** @brief Payload layout of the Generic Battery Status message. */
 typedef struct __attribute__((packed)) gen_battery_status_msg_s
 {
     uint32_t  level: 8;

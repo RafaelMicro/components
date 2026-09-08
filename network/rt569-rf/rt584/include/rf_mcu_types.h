@@ -74,6 +74,9 @@ extern "C"
 #define RF_MCU_M0_PROGRAM_START_ADDR        (0x1000)
 #define RF_MCU_M0_CONST_START_ADDR          (0x7000)
 
+#define RF_MCU_PMU_CTRL_REG_ADDR            (0x0400)
+#define RF_MCU_RTC_CURRENT_CNT_REG_ADDR     (0x0414)
+
 #if (defined(RT584_SHUTTLE_IC) && (RT584_SHUTTLE_IC == 1))
 #define RF_MCU_PM_SEL_REG_ADDR              (0x0448)
 #else

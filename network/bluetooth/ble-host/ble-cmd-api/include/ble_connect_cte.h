@@ -7,12 +7,12 @@
 
 /** @file ble_connect_cte.h
  *
- *  * @brief BLE CONN CTE header file.
+ * @brief BLE CONN CTE header file.
  *
  */
 
 /**
- * @defgroup ble_cte Generic access profile
+ * @defgroup ble_cte BLE Constant Tone Extension (CTE)
  * @ingroup BLE_group
  * @{
  * @brief Define BLE CONN CTE definitions, structures, and functions.
@@ -48,8 +48,8 @@ extern "C" {
 typedef struct ble_connection_cte_rx_param_s
 {
     uint8_t                 host_id;          /**< Host id. */
-    uint8_t                 sampling_enable;  /**< Connection IQ sampling is enable or not setting. */
-    uint8_t                 slot_durations;   /**< Switching and sampling slots. */
+    uint8_t                 sampling_enable;  /**< Enable (0x01) or disable (0x00) connection IQ sampling for CTEs received from the peer device. */
+    uint8_t                 slot_durations;   /**< Switching and sampling slot durations: 0x01 = 1 us slots, 0x02 = 2 us slots. */
     uint8_t                 sw_pattern_length;/**< The number of Antenna IDs in the pattern. */
     uint8_t                 antenna_ids[];    /**< List of Antenna IDs in the pattern. */
 } ble_connection_cte_rx_param_t;
@@ -61,7 +61,7 @@ typedef struct ble_connection_cte_rx_param_s
 typedef struct ble_connection_cte_tx_param_s
 {
     uint8_t                 host_id;          /**< Host id. */
-    uint8_t                 cte_types;        /**< type of Constant Tone Extension. */
+    uint8_t                 cte_types;        /**< Bitmask of permitted CTE response types: bit 0 = AoA, bit 1 = AoD with 1 us slots, bit 2 = AoD with 2 us slots. */
     uint8_t                 sw_pattern_length;/**< The number of Antenna IDs in the pattern. */
     uint8_t                 antenna_ids[];    /**< List of Antenna IDs in the pattern. */
 } ble_connection_cte_tx_param_t;
@@ -73,9 +73,9 @@ typedef struct ble_connection_cte_tx_param_s
 typedef struct ble_connection_cte_req_enable_s
 {
     uint8_t                 host_id;          /**< Host id. */
-    uint8_t                 enable;           /**< CTE request setting. */
-    uint16_t                cte_req_interval; /**< The Constant Tone Extension Request procedure is initiated only once or periodically.. */
-    uint8_t                 req_cte_length;   /**< The minimum length of the Constant Tone Extension. */
+    uint8_t                 enable;           /**< Enable (0x01) or disable (0x00) the CTE Request procedure for this connection. */
+    uint16_t                cte_req_interval; /**< Interval, in number of connection events, between successive initiations of the CTE Request procedure; 0x0000 initiates the procedure only once. */
+    uint8_t                 req_cte_length;   /**< Minimum length of the requested Constant Tone Extension, in units of 8 us (range 0x02 to 0x14, i.e. 16 us to 160 us). */
     uint8_t                 req_cte_type;     /**< The type of Constant Tone Extension that the Controller shall request from the remote device. */
 } ble_connection_cte_req_enable_t;
 
@@ -86,7 +86,7 @@ typedef struct ble_connection_cte_req_enable_s
 typedef struct ble_connection_cte_rsp_enable_s
 {
     uint8_t                 host_id;          /**< Host id. */
-    uint8_t                 enable;           /**< CTE response setting. */
+    uint8_t                 enable;           /**< Enable (0x01) or disable (0x00) the CTE Response procedure for this connection. */
 } ble_connection_cte_rsp_enable_t;
 
 
@@ -102,7 +102,7 @@ typedef struct __attribute__((packed)) ble_evt_conn_cte_rx_param_s
 
 
 /**
- * @brief Set CTE TX Map Event Parameters.
+ * @brief Set CTE TX Event Parameters.
  * @ingroup ble_cte
 */
 typedef struct __attribute__((packed)) ble_evt_conn_cte_tx_param_s
@@ -135,7 +135,7 @@ typedef struct __attribute__((packed)) ble_evt_conn_cte_rsp_s
 
 
 /**
- * @brief Set CTE RSP Event Parameters.
+ * @brief BLE CTE IQ report event parameters.
  * @ingroup ble_cte
 */
 typedef struct __attribute__((packed)) ble_evt_conn_iq_report_s
@@ -143,14 +143,14 @@ typedef struct __attribute__((packed)) ble_evt_conn_iq_report_s
     uint8_t                 host_id;        /**< Host id. */
     uint8_t                 rx_phy;         /**< Receiver PHY. */
     uint8_t                 data_ch_idx;    /**< The index of the data channel. */
-    int16_t                 rssi;           /**< RSSI of packet. */
-    uint8_t                 rssi_antenna_id;    /**< ID of the antenna on which the rssi. */
-    uint8_t                 cte_type;       /**< CTE Type. */
-    uint8_t                 slot_durations; /**< Switching and sampling slots. */
-    uint8_t                 packet_status;  /**< Packet status. */
-    uint16_t                conn_evt_cnt;   /**< the value of connection event counter. */
-    uint8_t                 sample_cnt;     /**< Sample counter. */
-    uint8_t                 sample_iq[];    /**< pointer of iq value. */
+    int16_t                 rssi;           /**< RSSI of the received packet, in dBm. */
+    uint8_t                 rssi_antenna_id;    /**< ID of the antenna on which the RSSI was measured. */
+    uint8_t                 cte_type;       /**< CTE type of the received packet: 0x00 = AoA, 0x01 = AoD with 1 us slots, 0x02 = AoD with 2 us slots. */
+    uint8_t                 slot_durations; /**< Switching and sampling slot durations: 0x01 = 1 us slots, 0x02 = 2 us slots. */
+    uint8_t                 packet_status;  /**< Validity of the IQ samples: 0x00 = CRC correct, 0x01 = CRC incorrect but length/CTEInfo valid, 0x02 = insufficient resources to sample, 0xFF = CTE present but samples not collected. */
+    uint16_t                conn_evt_cnt;   /**< The value of the connection event counter. */
+    uint8_t                 sample_cnt;     /**< Number of IQ samples in sample_iq (0 if no valid samples were collected). */
+    uint8_t                 sample_iq[];    /**< Array of reported I/Q samples, alternating I and Q values. */
 } ble_evt_conn_iq_report_t;
 
 

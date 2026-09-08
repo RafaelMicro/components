@@ -80,9 +80,9 @@ int hosal_sysctrl_ioctrl(hosal_sys_tmo_t* sys_tmo, int ctl, void* para) {
 
             uint32_t ms = *(uint32_t*)para;
 
-            ret = timeout_start(&sys_tmo->tmo, ms, sys_tmo->cb, /* ���T�Ϊk */
+            ret = timeout_start(&sys_tmo->tmo, ms, sys_tmo->cb,
                                 sys_tmo->arg,
-                                sys_tmo->period); /* �άO�z�w�q�� callback_arg */
+                                sys_tmo->period);
             break;
         }
         case HOSAL_SYSCTRL_TIMEOUT_CHECK: ret = istimeout(&sys_tmo->tmo); break;

@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_default_trans_time_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Power Level model (Power Level/Last/Default/Range states).
  * @version 0.1
  * @date 2022-06-09
  *
@@ -57,6 +57,7 @@ static void mmdl_generic_power_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, 
 static void mmdl_generic_power_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_generic_power_range_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code);
 
+/** @brief Dispatch an incoming Generic Power Level model message to the matching opcode handler. */
 void mmdl_generic_power_level_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -109,6 +110,7 @@ void mmdl_generic_power_level_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, 
 
 }
 
+/** @brief Apply the current Power Level state to sibling OnOff/Level models when a scene is recalled. */
 void mmdl_generic_power_level_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     gen_power_level_state_t  *p_power_level_state;
@@ -139,12 +141,14 @@ void mmdl_generic_power_level_scene_set(ble_mesh_element_param_t *p_current_elem
     }
 }
 
+/** @brief Handle a Generic Power Level Get request by replying with the current power level status. */
 static void mmdl_generic_power_level_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_power_level_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Power Level Set request and optionally acknowledge the change. */
 static void mmdl_generic_power_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_power_level_set_msg_t  *p_gen_power_level_set_msg = (gen_power_level_set_msg_t *)p_evt_msg->parameter;
@@ -171,6 +175,7 @@ static void mmdl_generic_power_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg
 
 }
 
+/** @brief Build and send a Generic Power Level Status message back to the requester. */
 static void mmdl_generic_power_level_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t    *pt_req;
@@ -218,6 +223,7 @@ static void mmdl_generic_power_level_send_status(mesh_app_mdl_evt_msg_idc_t *p_e
 }
 
 
+/** @brief Publish the current Generic Power Level state to the model's configured publish address. */
 void mmdl_generic_power_level_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -272,6 +278,7 @@ void mmdl_generic_power_level_publish_state(ble_mesh_element_param_t *p_element,
     }
 }
 
+/** @brief Propagate the current Power Level state to the other extended sibling models (OnOff/Level), excluding the model that triggered the change. */
 static void mmdl_generic_power_level_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *current_p_child_model)
 {
     gen_power_level_state_t  *p_power_level_state = (gen_power_level_state_t *)p_parent_model->p_state_var;
@@ -298,6 +305,7 @@ static void mmdl_generic_power_level_update_extend(ble_mesh_element_param_t *p_c
 
 }
 
+/** @brief Callback invoked by an extending child model (OnOff/Level/Power OnOff) to update the Power Level state accordingly. */
 void mmdl_generic_power_level_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t   *p_parent_model;
@@ -419,6 +427,7 @@ void mmdl_generic_power_level_ex_cb(ble_mesh_element_param_t *p_current_element,
 }
 
 
+/** @brief Update the Power OnOff sub-state from an extended (parent) model and publish the change. */
 void mmdl_generic_power_level_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t onopowerup_state)
 {
     gen_onpowerup_state_t  *p_gen_power_on_off_state = (gen_onpowerup_state_t *)p_model->p_state_var;
@@ -441,11 +450,13 @@ void mmdl_generic_power_level_extend_set(ble_mesh_element_param_t *p_element, bl
 
 }
 
+/** @brief Handle a Generic Power Last Get request by replying with the last known power status. */
 static void mmdl_generic_power_last_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_power_last_send_status(p_evt_msg, p_element, p_model);
 }
 
+/** @brief Build and send a Generic Power Last Status message back to the requester. */
 static void mmdl_generic_power_last_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t   *pt_req;
@@ -490,12 +501,14 @@ static void mmdl_generic_power_last_send_status(mesh_app_mdl_evt_msg_idc_t *p_ev
     }
 }
 
+/** @brief Handle a Generic Power Default Get request by replying with the current default power status. */
 static void mmdl_generic_power_default_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_power_default_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Apply a Generic Power Default Set request (0 means "use Power Last") and optionally acknowledge. */
 static void mmdl_generic_power_default_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_power_default_set_msg_t  *p_gen_power_default_set_msg = (gen_power_default_set_msg_t *)p_evt_msg->parameter;
@@ -530,6 +543,7 @@ static void mmdl_generic_power_default_set(uint32_t ack_flag, mesh_app_mdl_evt_m
 
 }
 
+/** @brief Build and send a Generic Power Default Status message back to the requester. */
 static void mmdl_generic_power_default_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_tlv_t   *pt_tlv;
@@ -574,12 +588,14 @@ static void mmdl_generic_power_default_send_status(mesh_app_mdl_evt_msg_idc_t *p
     }
 }
 
+/** @brief Handle a Generic Power Range Get request by replying with the current power range status. */
 static void mmdl_generic_power_range_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_power_range_send_status(p_evt_msg, p_element, p_model, 0x00);
 }
 
 
+/** @brief Validate and apply a Generic Power Range Set request, then optionally acknowledge with a status code. */
 static void mmdl_generic_power_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_power_range_set_msg_t  *p_gen_power_range_set_msg = (gen_power_range_set_msg_t *)p_evt_msg->parameter;
@@ -614,6 +630,7 @@ static void mmdl_generic_power_range_set(uint32_t ack_flag, mesh_app_mdl_evt_msg
 
 }
 
+/** @brief Build and send a Generic Power Range Status message (with the given status code) back to the requester. */
 static void mmdl_generic_power_range_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code)
 {
     mesh_tlv_t                    *pt_tlv;

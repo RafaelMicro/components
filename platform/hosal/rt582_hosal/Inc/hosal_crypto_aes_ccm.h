@@ -42,7 +42,7 @@ extern "C" {
 #define HOSAL_AES_KEY192BIT        AES_KEY192           /*!< AES 192 bit const define   */
 #define HOSAL_AES_KEY256BIT        AES_KEY256           /*!< AES 256 bit const define   */
 #define HOSAL_AES_BLOCKLEN         AES_BLOCKLEN         /*!< Block length in bytes, AES is 128bits per block  */
-#define HOSAL_NUMBER_OF_GENERATES  2
+#define HOSAL_NUMBER_OF_GENERATES  (2)
 /**
  * \brief           Crypto AES ccm decrypt and encrypt enum defined.
  */

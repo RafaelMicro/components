@@ -287,13 +287,13 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime_ms) {
     }
     if (xExpectedIdleTime_ms > 0) {
         hosal_get_lpm_ioctrl(HOSAL_LPM_GET_MASK, &para);
-        if (lpm_get_low_power_mask_status() != LOW_POWER_NO_MASK) {
+        if (para != HOSAL_LOW_POWER_NO_MASK) {
             __enable_irq();
             return;
         } else {
             RTOS_PreSleepProcessing(xExpectedIdleTime_ms);
 
-            lpm_enter_low_power_mode();
+            hosal_lpm_ioctrl(HOSAL_LPM_ENTER_LOW_POWER, HOSAL_LPM_PARAM_NONE);
 
             RTOS_PostSleepProcessing(&now_v);
 

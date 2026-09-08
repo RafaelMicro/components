@@ -33,13 +33,13 @@ extern "C" {
  * @{
  */
 
-#define FLASH_UNLOCK_PATTER 0x52414254
+#define FLASH_UNLOCK_PATTER (0x52414254)
 /**
  * \brief          flash control read writes status efinitions
  */
-#define FLASH_STATUS_RW1 1                      /*!< Status Register 1  */
-#define FLASH_STATUS_RW2 2                      /*!< Status Register 2  */
-#define FLASH_STATUS_RW3 4                      /*!< Status Register 3  */
+#define FLASH_STATUS_RW1 (1)                      /*!< Status Register 1  */
+#define FLASH_STATUS_RW2 (2)                      /*!< Status Register 2  */
+#define FLASH_STATUS_RW3 (4)                      /*!< Status Register 3  */
 
 #define FLASH_STATUS_RW1_2 (FLASH_STATUS_RW1                                    \
                           | FLASH_STATUS_RW2)   /*!< Status Register Byte 1 and Byte 2,
@@ -62,44 +62,44 @@ extern "C" {
 #define FLASH_SECREG_R3_P0 ((3 << 12))          /*!< Secure Page three, low 256 bytes. */
 #define FLASH_SECREG_R3_P1 ((3 << 12) | 0x100)  /*!< Secure Page three, high 256 bytes.*/
 
-#define FLASH_IDLE 0                            /*!< flash idle const define*/
-#define FLASH_BUSY 1                            /*!< flash busy const define*/
+#define FLASH_IDLE (0)                            /*!< flash idle const define*/
+#define FLASH_BUSY (1)                            /*!< flash busy const define*/
 
-#define FLASH_SUSPEND_STATUS   0x80             /*!<  flash suspend status const define*/
-#define FLASH_BUSY_CHECK_COUNT 10000            /*!<  flash busy check const define*/
+#define FLASH_SUSPEND_STATUS   (0x80)             /*!<  flash suspend status const define*/
+#define FLASH_BUSY_CHECK_COUNT (10000)            /*!<  flash busy check const define*/
 
-#define FLASH_TYPE_ID_MAKS 0xFFFF               /*!<  flash id mask const define*/
+#define FLASH_TYPE_ID_MAKS (0xFFFF)               /*!<  flash id mask const define*/
 
-#define FLASH_SIZE_ID_SHIFT 16                  /*!<  flash size id const define*/
+#define FLASH_SIZE_ID_SHIFT (16)                  /*!<  flash size id const define*/
 
 //limit customer to use
-#define BOOT_LOADER_END_PROTECT_ADDR 0x7000     /*!<  Bootloader protect address const define*/
+#define BOOT_LOADER_END_PROTECT_ADDR (0x7000)     /*!<  Bootloader protect address const define*/
 
-#define FLASH_SIZE_SECTOR_4KB 0x0C              /*!<  flash sector size 4kb const define*/
-#define FLASH_SIZE_ID_512KB   0x13              /*!<  flash 512k size const define*/
-#define FLASH_SIZE_ID_1MB     0x14              /*!<  flash 1mb size const define */
-#define FLASH_SIZE_ID_2MB     0x15              /*!<  flash 2mb size const define */
-#define FLASH_SIZE_ID_4MB     0x16              /*!<  flash 2mb size const define */
+#define FLASH_SIZE_SECTOR_4KB (0x0C)              /*!<  flash sector size 4kb const define*/
+#define FLASH_SIZE_ID_512KB   (0x13)              /*!<  flash 512k size const define*/
+#define FLASH_SIZE_ID_1MB     (0x14)              /*!<  flash 1mb size const define */
+#define FLASH_SIZE_ID_2MB     (0x15)              /*!<  flash 2mb size const define */
+#define FLASH_SIZE_ID_4MB     (0x16)              /*!<  flash 2mb size const define */
 
-#define LENGTH_BYTE 1                           /*!<  length byte const define */
-#define LENGTH_PAGE 256                         /*!<  length page const define */
+#define LENGTH_BYTE (1)                           /*!<  length byte const define */
+#define LENGTH_PAGE (256)                         /*!<  length page const define */
 #define LENGTH_4KB  (4 * 1024)                  /*!<  length 4kb const define */
 #define LENGTH_32KB (32 * 1024)                 /*!<  length 32kb const define */
 #define LENGTH_64KB (64 * 1024)                 /*!<  length 64kb const define */
 
-#define FLASH_END_PROTECT_SIZE 0x2000           /*!<  flash end protect size const define*/
+#define FLASH_END_PROTECT_SIZE (0x2000)           /*!<  flash end protect size const define*/
 
-#define GDWQ_ID 0x65C8                          /*!<  GDWQ flash id const define*/
-#define GDLQ_ID 0x60C8                          /*!<  GDLQ flash id const define*/
-#define PUYA_ID 0x6085                          /*!<  PUYA flash id const define*/
+#define GDWQ_ID (0x65C8)                          /*!<  GDWQ flash id const define*/
+#define GDLQ_ID (0x60C8)                          /*!<  GDLQ flash id const define*/
+#define PUYA_ID (0x6085)                          /*!<  PUYA flash id const define*/
 
-#define GD_MANU_ID   0xC8                       /*!<  GD flash id const define*/
-#define PUYA_MANU_ID 0x85                       /*!<  PUYA flash id const define*/
+#define GD_MANU_ID   (0xC8)                       /*!<  GD flash id const define*/
+#define PUYA_MANU_ID (0x85)                       /*!<  PUYA flash id const define*/
 
-#define RT581_FLASH_TYPE     0x1460C8           /*!<  RT581 1m flash type const define*/
-#define RT582_FLASH_TYPE     0x1465C8           /*!<  RT582 1m flash type const define*/
-#define RT582P512_FLASH_TYPE 0x136085           /*!<  RT582 512k flash type const define*/
-#define RT582_2M_FLASH_TYPE  0x1565C8           /*!<  RT582 1m flash type const define*/
+#define RT581_FLASH_TYPE     (0x1460C8)           /*!<  RT581 1m flash type const define*/
+#define RT582_FLASH_TYPE     (0x1465C8)           /*!<  RT582 1m flash type const define*/
+#define RT582P512_FLASH_TYPE (0x136085)           /*!<  RT582 512k flash type const define*/
+#define RT582_2M_FLASH_TYPE  (0x1565C8)           /*!<  RT582 1m flash type const define*/
 
 #define FLASH_END_ADDR(x)                                                      \
     (x == FLASH_SIZE_ID_512KB                                                  \

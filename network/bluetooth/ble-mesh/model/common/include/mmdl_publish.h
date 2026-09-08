@@ -8,7 +8,7 @@
 /**
  * @file mmdl_publish.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Periodic publication timer service for model states (publish period/retransmit handling).
  * @version 0.1
  * @date 2022-07-25
  *
@@ -25,10 +25,14 @@ extern "C"
 
 #define MMLDL_PUBLISH_UINT  50     //define the resolution of the publish timer
 
+/** @brief Callback signature invoked to build and send the current state message for a model being published. */
 typedef void (*publish_state_fp)(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
+/** @brief Queue carrying pending publish requests (as encoded publication_info_t pointers) to the publish task. */
 extern xQueueHandle mmdl_publish_msg_q;
+/** @brief Initialize the publish message queue and start the periodic publication timer. */
 extern void mmdl_publish_init(void);
+/** @brief Process a queued publish request by invoking the associated model's publish-state callback. */
 extern void mmdl_publish_state_by_msg(uint32_t value);
 
 

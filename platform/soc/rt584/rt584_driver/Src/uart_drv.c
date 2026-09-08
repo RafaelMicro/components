@@ -17,9 +17,9 @@
 #include "uart_drv.h"
 #include "mcu.h"
 
-#define MAX_NUMBER_OF_UART        3
+#define MAX_NUMBER_OF_UART        (3)
 
-#define UART0_BASE_CLK            16
+#define UART0_BASE_CLK            (16)
 
 
 // UART flags
@@ -94,7 +94,7 @@ static uart_info_t uart0_info = {0};
 static uart_info_t uart1_info = {0};
 static uart_info_t uart2_info = {0};
 
-#define USE_DMA     1
+#define USE_DMA     (1)
 
 static const uart_handle_t  m_uart_handle[3] = {
     {   /*UART0 instatnce*/
@@ -276,7 +276,7 @@ uint32_t uart_init(uint32_t uart_id,
 
     }
 
-    if ((uart_id == 1 || uart_id == 2) && (p_config->hwfc)) {
+    if (((uart_id == 1) || (uart_id == 2)) && (p_config->hwfc)) {
         /*only uart1 support HW flow control pin*/
         uart->mcr = MCR_HW_AUTOFLOW_EN;    /*Enable hardware CTS to block transmit data*/
         fcr_value |= FCR_RTS_LEVEL_14;     /*14 bytes will set pin RTSn=1*/
@@ -894,7 +894,7 @@ uint32_t uart_set_modem_status(uint32_t uart_id, uint32_t state)
     UART_T               *uart;
 
 
-    if ( (uart_id == 0) ||  (uart_id > 2) )
+    if ( (uart_id == 0) || (uart_id > 2) )
     {
         return STATUS_INVALID_PARAM;    /*Only UART1 support modem RTS*/
     }
@@ -1124,7 +1124,7 @@ static void Uart_IrqHandler(const uart_handle_t  *uart_dev)
     }
 
     // Modem interrupt (UART1 only), and only CTS changed
-    if ((uart_dev->uart_id == 1 || uart_dev->uart_id == 2) && (isr_status & ISR_MSR_INTR))
+    if (((uart_dev->uart_id == 1) || (uart_dev->uart_id == 2)) && (isr_status & ISR_MSR_INTR))
     {
         // Save modem status register
         val = uart->msr;

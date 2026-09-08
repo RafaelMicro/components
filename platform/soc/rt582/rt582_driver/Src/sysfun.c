@@ -88,6 +88,18 @@ uint32_t version_check(void) {
         return 0; /*hardware is different from software setting*/
     }
 
+#elif (CHIP_VERSION == RT58X_MPC)
+
+    if ((chip_id != IC_RT58X) || (chip_rev != IC_CHIP_REVISION_MPC)) {
+        return 0; /*hardware is different from software setting*/
+    }
+
+#elif (CHIP_VERSION == RT58X_MPD)
+
+    if ((chip_id != IC_RT58X) || (chip_rev != IC_CHIP_REVISION_MPD)) {
+        return 0; /*hardware is different from software setting*/
+    }
+
 #elif (CHIP_VERSION == RT58X_SHUTTLE)
 
 #error "SHUTTLE IC has been *** OBSOLETED!! ***"

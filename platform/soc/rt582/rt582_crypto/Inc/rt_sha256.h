@@ -33,12 +33,12 @@ extern "C"
 /**************************************************************************************************
 *    CONSTANTS AND DEFINES
 *************************************************************************************************/
-#define  SHA256_DIGEST_SIZE                32
-#define  SHA256_BLOCK_SIZE                 64
+#define  SHA256_DIGEST_SIZE                (32)
+#define  SHA256_BLOCK_SIZE                 (64)
 
-#define  ROM_START_FUN_ADDR        0x10000024
-#define  ROM_UPDATE_FUN_ADDR       0x10000020
-#define  ROM_FINISH_FUN_ADDR       0x1000001C
+#define  ROM_START_FUN_ADDR        (0x10000024)
+#define  ROM_UPDATE_FUN_ADDR       (0x10000020)
+#define  ROM_FINISH_FUN_ADDR       (0x1000001C)
 
 /**************************************************************************************************
  *    TYPEDEFS

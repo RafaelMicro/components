@@ -30,28 +30,28 @@ extern "C" {
 /**
  * \brief           hosal qspi const defined
  */
-#define MAX_NUMBER_OF_QSPI 2
-#define QSPI0_BASE_CLK     20
+#define MAX_NUMBER_OF_QSPI (2)
+#define QSPI0_BASE_CLK     (20)
 
 /**
  * \brief           hosal qspi0 pin defined
  */
-#define QSPI0_DATA2 14
-#define QSPI0_DATA3 15
-#define QSPI0_SCLK  6
-#define QSPI0_CS0   7
-#define QSPI0_DATA0 8
-#define QSPI0_DATA1 9
+#define QSPI0_DATA2 (14)
+#define QSPI0_DATA3 (15)
+#define QSPI0_SCLK  (6)
+#define QSPI0_CS0   (7)
+#define QSPI0_DATA0 (8)
+#define QSPI0_DATA1 (9)
 
 /**
  * \brief           hosal qspi1 pin defined
  */
-#define QSPI1_DATA2 14
-#define QSPI1_DATA3 15
-#define QSPI1_SCLK  28
-#define QSPI1_CS0   29
-#define QSPI1_DATA0 30
-#define QSPI1_DATA1 31
+#define QSPI1_DATA2 (14)
+#define QSPI1_DATA3 (15)
+#define QSPI1_SCLK  (28)
+#define QSPI1_CS0   (29)
+#define QSPI1_DATA0 (30)
+#define QSPI1_DATA1 (31)
 
 /**
  * \brief           hosal qspi callback function defined

@@ -36,7 +36,7 @@ extern "C" {
 /**
  * \brief           Crypto generates number const defined
  */
-#define HOSAL_NUMBER_OF_GENERATES	2
+#define HOSAL_NUMBER_OF_GENERATES	(2)
 
 /**
  * \brief           hosal hamc drbg operation enum define

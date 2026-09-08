@@ -266,7 +266,8 @@ uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode)
         SYSCTRL->sys_clk_ctrl = (SYSCTRL->sys_clk_ctrl & ~BASEBAND_PLL_FREQ_MASK) | BASEBAND_PLL_48M;
 
 
-#if (CHIP_VERSION == RT58X_MPB)
+#if ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+     (CHIP_VERSION == RT58X_MPD))
         PMU->pmu_bbpll.bit.bbpll_bank1_man =  0; /*change BBPLL setting 2022/03/25 for MPB */
 #endif
 
@@ -320,7 +321,8 @@ uint32_t change_ahb_system_clk(sys_clk_sel_t sys_clk_mode)
         PMU->pmu_bbpll.bit.bbpll_manubank = 0;
         SYSCTRL->sys_clk_ctrl = (SYSCTRL->sys_clk_ctrl & ~BASEBAND_PLL_FREQ_MASK) | BASEBAND_PLL_64M;
 
-#if (CHIP_VERSION == RT58X_MPB)
+#if ((CHIP_VERSION == RT58X_MPB) || (CHIP_VERSION == RT58X_MPC) || \
+     (CHIP_VERSION == RT58X_MPD))
         PMU->pmu_bbpll.bit.bbpll_bank1_man =  1; /*change BBPLL setting 2022/03/25 for MPB */
 #endif
 

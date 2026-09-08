@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+/** @brief Runtime state of the Generic Power OnOff Server model (behavior on power-up plus tracked on/off state). */
 typedef struct gen_onpowerup_state_s
 {
     /* public variables */
@@ -20,11 +21,13 @@ typedef struct gen_onpowerup_state_s
     uint8_t     on_off_state;
 } gen_onpowerup_state_t;
 
+/** @brief Payload layout of the Generic OnPowerUp Set message. */
 typedef struct __attribute__((packed)) gen_onpowerup_set_msg_s
 {
     uint8_t     on_power_up;
 } gen_onpowerup_set_msg_t;
 
+/** @brief Payload layout of the Generic OnPowerUp Status message. */
 typedef struct __attribute__((packed)) gen_onpowerup_status_msg_s
 {
     uint8_t     on_power_up;

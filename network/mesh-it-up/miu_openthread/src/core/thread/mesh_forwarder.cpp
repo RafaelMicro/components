@@ -473,6 +473,18 @@ void MeshForwarder::ApplyDirectTxQueueLimit(Message &aMessage)
 #endif
 
     LogMessage(kMessageFullQueueDrop, aMessage);
+    {
+        // [Rafael][DEBUG] Passive capture of the stuck-child buffer state at the moment the
+        // direct-tx queue overflows. Sampled (1/32) so a drop burst does not flood the log.
+        // free>0 here => frames not draining (radio/MAC not sending), not a buffer-pool leak.
+        static uint16_t sFullQueueDropSample = 0;
+        if ((sFullQueueDropSample++ & 0x1F) == 0)
+        {
+            LogNote("[BUFDBG] dir-queue overflow: buf free=%u/%u maxused=%u",
+                    Get<MessagePool>().GetFreeBufferCount(), Get<MessagePool>().GetTotalBufferCount(),
+                    Get<MessagePool>().GetMaxUsedBufferCount());
+        }
+    }
     FinalizeMessageDirectTx(aMessage, kErrorDrop);
     RemoveMessageIfNoPendingTx(aMessage);
 

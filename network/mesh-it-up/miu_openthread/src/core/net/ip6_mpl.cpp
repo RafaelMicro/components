@@ -38,6 +38,8 @@
 namespace ot {
 namespace Ip6 {
 
+RegisterLogModule("Mpl"); // [Rafael] required for LogInfo/LogDebg macros
+
 Mpl::Mpl(Instance &aInstance)
     : InstanceLocator(aInstance)
     , mSequence(0)
@@ -46,6 +48,9 @@ Mpl::Mpl(Instance &aInstance)
 #endif
 {
     ClearAllBytes(mSeedSet);
+#if OPENTHREAD_FTD
+    ClearAllBytes(mHeardTable);
+#endif
 }
 
 void MplOption::Init(SeedIdLength aSeedIdLength)
@@ -124,6 +129,18 @@ Error Mpl::ProcessOption(Message &aMessage, const OffsetRange &aOffsetRange, con
         // In case MPL Data Message is generated locally, ignore potential error of the MPL Seed Set
         // to allow subsequent retransmissions with the same sequence number.
         ExitNow(error = kErrorNone);
+    }
+    else
+    {
+        // [Rafael] Trickle suppression (k=kSuppressionK, RSS >= kSuppressionRssThreshold):
+        // Duplicate received from Thread netif. If the sender's signal is strong enough,
+        // increment the heard count. When count reaches K, cancel our pending retransmission.
+#if OPENTHREAD_FTD
+        if (aMessage.GetAverageRss() >= kSuppressionRssThreshold)
+        {
+            IncrementHeardCount(option.GetSeedId(), option.GetSequence());
+        }
+#endif
     }
 
 exit:
@@ -374,6 +391,91 @@ exit:
     FreeMessageOnError(messageCopy, error);
 }
 
+// [Rafael] Trickle suppression: called when a strong-signal duplicate is received.
+// Uses a parallel HeardEntry table (not Metadata) to avoid growing FooterData size.
+void Mpl::IncrementHeardCount(uint16_t aSeedId, uint8_t aSequence)
+{
+    HeardEntry *entry = nullptr;
+    HeardEntry *free  = nullptr;
+    HeardEntry *evict = nullptr; // suppressed entry eligible for eviction
+
+    for (uint8_t i = 0; i < kMaxHeardEntries; i++)
+    {
+        if (mHeardTable[i].mActive &&
+            mHeardTable[i].mSeedId == aSeedId &&
+            mHeardTable[i].mSequence == aSequence)
+        {
+            entry = &mHeardTable[i];
+            break;
+        }
+        if (!mHeardTable[i].mActive && free == nullptr)
+            free = &mHeardTable[i];
+        // Track an already-suppressed slot as a fallback eviction target
+        if (mHeardTable[i].mActive && mHeardTable[i].mCount >= kSuppressionK && evict == nullptr)
+            evict = &mHeardTable[i];
+    }
+
+    // Entry already suppressed — ignore further duplicates to prevent re-registration.
+    if (entry != nullptr && entry->mCount >= kSuppressionK)
+        return;
+
+    if (entry == nullptr)
+    {
+        if (free == nullptr)
+        {
+            // Table full: evict an already-suppressed entry so new seq can be tracked.
+            // If none available, skip (suppression misses this message).
+            if (evict == nullptr) return;
+            evict->mActive = false;
+            free = evict;
+        }
+        free->mSeedId   = aSeedId;
+        free->mSequence = aSequence;
+        free->mCount    = 0;
+        free->mActive   = true;
+        entry = free;
+    }
+
+    entry->mCount++;
+    LogDebg("MPL : seedId=0x%04x seq=0x%02x (heard %u/%u)",
+                        aSeedId, aSequence, entry->mCount, kSuppressionK);
+
+    if (entry->mCount >= kSuppressionK)
+    {
+        // Keep entry active (mActive=true, mCount=kSuppressionK) as a "suppressed"
+        // marker so future arrivals of the same seq are ignored (see early-return
+        // above).  Do NOT free the slot here — it will be evicted lazily when the
+        // table fills up with newer sequences, or freed by ClearHeardEntry on the
+        // last natural retransmission.
+        for (Message &message : mBufferedMessageSet)
+        {
+            Metadata metadata;
+            metadata.ReadFrom(message);
+            if (metadata.mSeedId == aSeedId && metadata.mSequence == aSequence)
+            {
+                LogDebg("MPL suppress: seedId=0x%04x seq=0x%02x (heard %u/%u)",
+                        aSeedId, aSequence, entry->mCount, kSuppressionK);
+                mBufferedMessageSet.DequeueAndFree(message);
+                break;
+            }
+        }
+    }
+}
+
+void Mpl::ClearHeardEntry(uint16_t aSeedId, uint8_t aSequence)
+{
+    for (uint8_t i = 0; i < kMaxHeardEntries; i++)
+    {
+        if (mHeardTable[i].mActive &&
+            mHeardTable[i].mSeedId == aSeedId &&
+            mHeardTable[i].mSequence == aSequence)
+        {
+            mHeardTable[i].mActive = false;
+            break;
+        }
+    }
+}
+
 void Mpl::HandleRetransmissionTimer(void)
 {
     NextFireTime nextTime;
@@ -403,6 +505,7 @@ void Mpl::HandleRetransmissionTimer(void)
             // a device role change, which then updates the max MPL
             // retx.
 
+            ClearHeardEntry(metadata.mSeedId, metadata.mSequence);
             mBufferedMessageSet.DequeueAndFree(message);
             continue;
         }
@@ -421,6 +524,7 @@ void Mpl::HandleRetransmissionTimer(void)
             // This is the last retx of message, we can use the
             // `message` directly.
 
+            ClearHeardEntry(metadata.mSeedId, metadata.mSequence);
             mBufferedMessageSet.Dequeue(message);
             messageCopy = &message;
         }

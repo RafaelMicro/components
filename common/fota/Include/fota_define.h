@@ -24,17 +24,17 @@
 /**
  * @brief Defined supported flash sector erase  size.
  */
-#define SIZE_OF_FLASH_SECTOR_ERASE                    4096          /**< Size of Flash erase Type.*/
+#define SIZE_OF_FLASH_SECTOR_ERASE                    (4096)          /**< Size of Flash erase Type.*/
 /** @} */
 
 
 /**
  * @brief Defined supported flash programming size.
  */
-#define FLASH_PROGRAM_SIZE_1BYTE                      1     /**< Programming 1 byte at once  */
-#define FLASH_PROGRAM_SIZE_2BYTE                      2     /**< Programming 2 bytes at once */
-#define FLASH_PROGRAM_SIZE_4BYTE                      4     /**< Programming 4 bytes at once */
-#define FLASH_PROGRAM_SIZE_PAGE                     256     /**< Programming 256 bytes at once */
+#define FLASH_PROGRAM_SIZE_1BYTE                      (1)     /**< Programming 1 byte at once  */
+#define FLASH_PROGRAM_SIZE_2BYTE                      (2)     /**< Programming 2 bytes at once */
+#define FLASH_PROGRAM_SIZE_4BYTE                      (4)     /**< Programming 4 bytes at once */
+#define FLASH_PROGRAM_SIZE_PAGE                     (256)     /**< Programming 256 bytes at once */
 /** @} */
 
 
@@ -47,121 +47,121 @@
 
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
-#define BOOTLOADER_SIZE                               0x8000              /**< Total Size for bootloader area.*/
+#define BOOTLOADER_SIZE                               (0x8000)              /**< Total Size for bootloader area.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
-#define BOOTLOADER_SIZE                               0x10000              /**< Total Size for bootloader area.*/
+#define BOOTLOADER_SIZE                               (0x10000)              /**< Total Size for bootloader area.*/
 #endif
 
-#define MP_SECTOR_SIZE                                0x10000             /**< Total Size for MP sector area.*/
+#define MP_SECTOR_SIZE                                (0x10000)             /**< Total Size for MP sector area.*/
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
-#define BOOTLOADER_START_ADDRESS                      0x00000000          /**< Start address of bootloader code.*/
+#define BOOTLOADER_START_ADDRESS                      (0x00000000)          /**< Start address of bootloader code.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
-#define BOOTLOADER_START_ADDRESS                      0x10000000          /**< Start address of bootloader code.*/
+#define BOOTLOADER_START_ADDRESS                      (0x10000000)          /**< Start address of bootloader code.*/
 #endif
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT583) || defined(CONFIG_RT582_NONE_OS) || defined(CONFIG_RT583_NONE_OS)
-#define FOTA_UPDATE_BANK_INFO_ADDRESS                 0x00007000          /**< Address of FOTA update information*/
-#define APP_START_ADDRESS                             0x00008000          /**< Start address of application code.*/
+#define FOTA_UPDATE_BANK_INFO_ADDRESS                 (0x00007000)          /**< Address of FOTA update information*/
+#define APP_START_ADDRESS                             (0x00008000)          /**< Start address of application code.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RT584H) || defined(CONFIG_RT584HA4) || defined(CONFIG_RT584L) \
    || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS) || defined(CONFIG_RF1301_NONE_OS) || defined(CONFIG_RT584HA4_NONE_OS)
-#define FOTA_UPDATE_BANK_INFO_ADDRESS                 0x1000F000          /**< Address of FOTA update information*/
-#define APP_START_ADDRESS                             0x10010000          /**< Start address of application code.*/
+#define FOTA_UPDATE_BANK_INFO_ADDRESS                 (0x1000F000)          /**< Address of FOTA update information*/
+#define APP_START_ADDRESS                             (0x10010000)          /**< Start address of application code.*/
 #endif
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT582_NONE_OS)
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB             0x00099000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_1MB                         0x00057000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB             (0x00099000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_1MB                         (0x00057000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_1MB          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RF1301_NONE_OS) 
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB             0x1009C000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_1MB                         0x00054000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB             (0x1009C000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_1MB                         (0x00054000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_1MB          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
 //64K MP + 64K matter data + 32K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB             0x0012F000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_2MB                         0x000B1000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB             (0x0012F000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_2MB                         (0x000B1000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_2MB          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB             0x10132000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_2MB                         0x000AE000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB             (0x10132000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_2MB                         (0x000AE000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_2MB          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT584HA4) || defined(CONFIG_RT584HA4_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB             0x10200000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_4MB                         0x001D0000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB             (0x10200000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_4MB                         (0x001D0000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_4MB          /**< Total Size for saving FOTA update data.*/
 #else
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_512K            0x0004F000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_512K                        0x0002B000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_512K            (0x0004F000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_512K                        (0x0002B000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS                 FOTA_UPDATE_BUFFER_FW_ADDRESS_512K          /**< Address of FOTA update data.*/
 #define SIZE_OF_FOTA_BANK                             SIZE_OF_FOTA_BANK_512K          /**< Total Size for saving FOTA update data.*/
 #endif
 
 #if defined(CONFIG_RT581) || defined(CONFIG_RT582) || defined(CONFIG_RT582_NONE_OS)
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS  0x0007C000          /**< Address of uncompressed FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS              0x00074000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS  (0x0007C000)          /**< Address of uncompressed FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS              (0x00074000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS      FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                  SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RF1301) || defined(CONFIG_RF1301_NONE_OS)
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS  0x10080000          /**< Address of uncompressed FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS              0x00070000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS  (0x10080000)          /**< Address of uncompressed FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS              (0x00070000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS      FOTA_UPDATE_BUFFER_FW_ADDRESS_1MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                  SIZE_OF_FOTA_BANK_1MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT583) || defined(CONFIG_RT583_NONE_OS)
 //64K MP + 64K matter data + 32K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS   0x000F4000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS               0x000EC000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS   (0x000F4000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS               (0x000EC000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS       FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                   SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584H_NONE_OS) || defined(CONFIG_RT584L_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS    0x100F8000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS                0x000E8000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS    (0x100F8000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS                (0x000E8000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS        FOTA_UPDATE_BUFFER_FW_ADDRESS_2MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                    SIZE_OF_FOTA_BANK_2MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #elif defined(CONFIG_RT584HA4) || defined(CONFIG_RT584HA4_NONE_OS)
 //64K MP + 64K matter data + 64K bootloader
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB_UNCOMPRESS    0x10200000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS                0x001D0000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB_UNCOMPRESS    (0x10200000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS                (0x001D0000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS        FOTA_UPDATE_BUFFER_FW_ADDRESS_4MB_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                    SIZE_OF_FOTA_BANK_4MB_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #else
-#define FOTA_UPDATE_BUFFER_FW_ADDRESS_512K_UNCOMPRESS   0x00041000          /**< Address of FOTA update data.*/
-#define SIZE_OF_FOTA_BANK_512K_UNCOMPRESS               0x00039000          /**< Total Size for saving FOTA update data.*/
+#define FOTA_UPDATE_BUFFER_FW_ADDRESS_512K_UNCOMPRESS   (0x00041000)          /**< Address of FOTA update data.*/
+#define SIZE_OF_FOTA_BANK_512K_UNCOMPRESS               (0x00039000)          /**< Total Size for saving FOTA update data.*/
 #define FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS        FOTA_UPDATE_BUFFER_FW_ADDRESS_512K_UNCOMPRESS          /**< Address of uncompressed FOTA update data.*/
 #define SIZE_OF_FOTA_BANK_UNCOMPRESS                    SIZE_OF_FOTA_BANK_512K_UNCOMPRESS          /**< Total Size for saving FOTA update data.*/
 #endif
 
 
-#define FOTA_IMAGE_READY                              0xA55A6543          /**< Specific string for notify bootloader that bank1 exist image ready to update.*/
+#define FOTA_IMAGE_READY                              (0xA55A6543)          /**< Specific string for notify bootloader that bank1 exist image ready to update.*/
 
 #ifndef __ASSEMBLER__
 typedef uint32_t fotabank_status;
-#define FOTABANK_STATUS_FLASH_PROGRAMMING             0x00000000
-#define FOTABANK_STATUS_FLASH_ERASE_FAIL              0x00000001
+#define FOTABANK_STATUS_FLASH_PROGRAMMING             (0x00000000)
+#define FOTABANK_STATUS_FLASH_ERASE_FAIL              (0x00000001)
 
 typedef uint8_t fotaimage_info;
-#define FOTA_IMAGE_INFO_COMPRESSED                          0x01
-#define FOTA_IMAGE_INFO_SIGNATURE                           0x02
+#define FOTA_IMAGE_INFO_COMPRESSED                          (0x01)
+#define FOTA_IMAGE_INFO_SIGNATURE                           (0x02)
 
-#define FOTA_RESULT_SUCCESS                                 0x00
-#define FOTA_RESULT_ERR_VERIFY_SIZE_NOT_FOUND               0x01
-#define FOTA_RESULT_ERR_IMAGE_SIZE                          0x02
-#define FOTA_RESULT_ERR_SECURE_MAGIC_PATTERN_MISMATCH       0x03
-#define FOTA_RESULT_ERR_SECURE_VERIFY_SIZE_MISMATCH         0x04
-#define FOTA_RESULT_ERR_IMAGE_ECDSA_VERIFY_FAIL             0x05
-#define FOTA_RESULT_ERR_CHECK_IMAGE_CRC_FAIL                0x06
-#define FOTA_RESULT_ERR_TARGET_ADDR_IS_ILLEGAL              0x07
-#define FOTA_RESULT_ERR_COMPRESS_DECODE_FAIL                0x08
+#define FOTA_RESULT_SUCCESS                                 (0x00)
+#define FOTA_RESULT_ERR_VERIFY_SIZE_NOT_FOUND               (0x01)
+#define FOTA_RESULT_ERR_IMAGE_SIZE                          (0x02)
+#define FOTA_RESULT_ERR_SECURE_MAGIC_PATTERN_MISMATCH       (0x03)
+#define FOTA_RESULT_ERR_SECURE_VERIFY_SIZE_MISMATCH         (0x04)
+#define FOTA_RESULT_ERR_IMAGE_ECDSA_VERIFY_FAIL             (0x05)
+#define FOTA_RESULT_ERR_CHECK_IMAGE_CRC_FAIL                (0x06)
+#define FOTA_RESULT_ERR_TARGET_ADDR_IS_ILLEGAL              (0x07)
+#define FOTA_RESULT_ERR_COMPRESS_DECODE_FAIL                (0x08)
 
 
 typedef struct

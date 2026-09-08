@@ -24,10 +24,10 @@
 
 //static crypto_isr_handler_t   user_crypto_isr = NULL;
 
-#define   SB_MASK                                0x1F
-#define   SB_MASK_SHIFT                             8
+#define   SB_MASK                                (0x1F)
+#define   SB_MASK_SHIFT                             (8)
 
-#define   START_SHIFT                              16
+#define   START_SHIFT                              (16)
 
 #define   REG_STATUS_MASK                   ~(0x1FFF)
 
@@ -41,7 +41,7 @@ static TaskHandle_t    wait_notify_task;
 
 void wait_crypto_operation_finish(uint8_t op_num, uint8_t sb_num);
 
-#define CRYPTO_ISR_FINISH            1
+#define CRYPTO_ISR_FINISH            (1)
 
 #endif
 
@@ -63,28 +63,29 @@ void crypto_start(uint8_t op_num, uint8_t sb_num)
 
 /* ------ Point operations ------ */
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
-/*If system support multi-tasking, we should protect hardware for only one context.*/
+#if defined(CONFIG_FREERTOS)
+#include "FreeRTOS.h"
+#include "semphr.h"
+
+static SemaphoreHandle_t s_crypto_mutex = NULL;
 
 void crypto_mutex_lock(void)
 {
-    /* TODO:  This is OS-depended code
-     * if device is busy, the task should wait here to get resource.
-     */
+    taskENTER_CRITICAL();
+    if (s_crypto_mutex == NULL)
+    {
+        s_crypto_mutex = xSemaphoreCreateMutex();
+        configASSERT(s_crypto_mutex != NULL);
+    }
+    taskEXIT_CRITICAL();
 
-    return ;
+    xSemaphoreTake(s_crypto_mutex, portMAX_DELAY);
 }
 
 void crypto_mutex_unlock(void)
 {
-    /* TODO: This is OS-depended code
-     * If there is another device wait resource, it could be wakeup the
-     * task depends on priority.
-     */
-
-    return ;
+    xSemaphoreGive(s_crypto_mutex);
 }
-
 
 #else
 /*

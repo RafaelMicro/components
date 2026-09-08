@@ -8,7 +8,7 @@
 /**
  * @file mmdl_time_sr_main.c
  * @author Jeffrey (jeffrey.lin@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Time Server and Time Setup Server models, including TAI/UTC conversion via RTC.
  * @version 0.1
  * @date 2022-08-01
  *
@@ -67,6 +67,7 @@ static void mmdl_timerole_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
 static void mmdl_timerole_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 
+/** @brief Dispatch an incoming Time model message (Get/Status/Timezone Get/Timedelta Get) to the appropriate opcode handler. */
 void mmdl_time_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
     /* store the data in private variables */
@@ -97,6 +98,7 @@ void mmdl_time_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_elemen
 }
 
 
+/** @brief Dispatch an incoming Time Setup model message (Set/Timezone Set/Timedelta Set/Timerole Get/Set) to the appropriate opcode handler. */
 void mmdl_time_setup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -131,6 +133,7 @@ void mmdl_time_setup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_
     }
 }
 
+/** @brief Handle a Time Get request by refreshing TAI from the RTC and replying with the current Time Status. */
 static void mmdl_time_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_time_UTC_to_TAI_update(p_element, p_model);
@@ -138,6 +141,7 @@ static void mmdl_time_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_elemen
 }
 
 
+/** @brief Handle a received Time Status message: adopt the time if acting as Time Relay/Client, and relay it further if acting as Time Relay. */
 static void mmdl_time_status(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t       *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -174,6 +178,7 @@ static void mmdl_time_status(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_ev
 }
 
 
+/** @brief Handle a Time Set request: apply the incoming TAI/time-zone/uncertainty values and optionally reply with status. */
 static void mmdl_time_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t       *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -196,6 +201,7 @@ static void mmdl_time_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_m
     }
 }
 
+/** @brief Build and send a Time Status message with the current TAI time, uncertainty, authority and zone/delta. */
 static void mmdl_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -246,12 +252,14 @@ static void mmdl_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mes
 }
 
 
+/** @brief Handle a Time Zone Get request by replying with the current Time Zone Status. */
 static void mmdl_timezone_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_timezone_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Handle a Time Zone Set request: store the upcoming time-zone offset and its change time, and optionally reply with status. */
 static void mmdl_timezone_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t        *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -271,6 +279,7 @@ static void mmdl_timezone_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
     }
 }
 
+/** @brief Build and send a Time Zone Status message with the current and upcoming zone offset. */
 static void mmdl_timezone_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -318,12 +327,14 @@ static void mmdl_timezone_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 }
 
 
+/** @brief Handle a TAI-UTC Delta Get request by replying with the current TAI-UTC Delta Status. */
 static void mmdl_timedelta_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_timedelta_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Handle a TAI-UTC Delta Set request: store the upcoming TAI-UTC delta and its change time, and optionally reply with status. */
 static void mmdl_timedelta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t         *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -344,6 +355,7 @@ static void mmdl_timedelta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_
 }
 
 
+/** @brief Build and send a TAI-UTC Delta Status message with the current and upcoming delta. */
 static void mmdl_timedelta_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -390,12 +402,14 @@ static void mmdl_timedelta_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
     }
 }
 
+/** @brief Handle a Time Role Get request by replying with the current Time Role Status. */
 static void mmdl_timerole_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_timerole_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Handle a Time Role Set request: store the new Time Role and optionally reply with status. */
 static void mmdl_timerole_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t        *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -412,6 +426,7 @@ static void mmdl_timerole_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
     }
 }
 
+/** @brief Build and send a Time Role Status message with the current Time Role. */
 static void mmdl_timerole_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -457,6 +472,7 @@ static void mmdl_timerole_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble
 }
 
 
+/** @brief Convert a broken-down UTC time (year/month/day/h/m/s) into TAI seconds, accumulating into p_time_state->tai_seconds. */
 void time_UTC_to_TAI(rtc_time_t *utc_time, time_state_t *p_time_state)
 {
     //time_state_t            *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -634,6 +650,7 @@ void rtc_arm_isr(uint32_t rtc_status)
 }
 
 
+/** @brief Initialize the Time Server model state for an element, start the RTC clock, and seed the time from the RTC. */
 void mmdl_time_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -656,6 +673,7 @@ void mmdl_time_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param
     }
 }
 
+/** @brief Set the Time model's current time from a user-supplied UTC time and time zone (hours offset), and program the RTC. */
 void mmdl_time_UTC_set_user(rtc_time_t current_time, int8_t time_zone, ble_mesh_model_param_t *p_model)   //time_zone is from -12 to 12, by hours.
 {
     time_state_t  *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -668,6 +686,7 @@ void mmdl_time_UTC_set_user(rtc_time_t current_time, int8_t time_zone, ble_mesh_
     rtc_set_time(&current_time);
 }
 
+/** @brief Recompute the TAI seconds state from the current RTC UTC time (handling year rollover). */
 void mmdl_time_UTC_to_TAI_update(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t  *p_time_state = (time_state_t *)p_model->p_state_var;
@@ -682,6 +701,7 @@ void mmdl_time_UTC_to_TAI_update(ble_mesh_element_param_t *p_element, ble_mesh_m
     time_UTC_to_TAI(&current_time, p_time_state);
 }
 
+/** @brief Recompute the broken-down UTC time from the current TAI seconds state and apply it to the RTC. */
 void mmdl_time_TAI_to_UTC_update(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t  *p_time_state = (time_state_t *)p_model->p_state_var;

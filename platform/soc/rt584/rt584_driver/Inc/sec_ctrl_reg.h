@@ -136,8 +136,8 @@ typedef struct {
 } sec_ctrl_t;
 
 
-#define ENABLE_IDAU_SEC_CTRL               1
-#define DISABLE_IDAU_SEC_CTRL              0
+#define ENABLE_IDAU_SEC_CTRL               (1)
+#define DISABLE_IDAU_SEC_CTRL              (0)
 
 
 #define SEC_ROM_ERR_INT                 (1<<0)
@@ -199,7 +199,7 @@ typedef struct {
 #define SEC_IDAU_SADC                       BIT16           /*  (1UL << 15)   */
 #define SEC_IDAU_SW_IRQ0                    BIT16           /*  (1UL << 16)   */
 #define SEC_IDAU_SW_IRQ1                    BIT17           /*  (1UL << 17)   */
-#define SEC_PERI_ATTRI1                                     0
+#define SEC_PERI_ATTRI1                                     (0)
 /*For REG SEC_PERI_ATTR2*/
 #define SEC_IDAU_CRYPTO                     BIT0            /*  (1UL << 0)    */
 #define SEC_IDAU_OTP                        BIT1            /*  (1UL << 1)    */

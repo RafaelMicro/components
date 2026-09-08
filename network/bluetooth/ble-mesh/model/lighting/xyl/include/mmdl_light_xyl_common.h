@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_xyl_sr.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Shared state and message structures for the BLE Mesh Light xyL server/setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -48,6 +48,7 @@ typedef struct light_xyl_state_s
     uint8_t     remaining_time;
 } light_xyl_state_t;
 
+/** @brief Wire format for the Light xyL Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_xyL_set_msg_s
 {
     uint16_t    xyL_lightness;
@@ -58,6 +59,7 @@ typedef struct __attribute__((packed)) light_xyL_set_msg_s
     uint8_t     delay;
 } light_xyL_set_msg_t;
 
+/** @brief Wire format for the Light xyL Default Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_xyL_default_set_msg_s
 {
     uint16_t    lightness;
@@ -65,6 +67,7 @@ typedef struct __attribute__((packed)) light_xyL_default_set_msg_s
     uint16_t    xyL_y;
 } light_xyL_default_set_msg_t;
 
+/** @brief Wire format for the Light xyL Range Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_xyL_range_set_msg_s
 {
     uint16_t    xyL_x_range_min;
@@ -73,6 +76,7 @@ typedef struct __attribute__((packed)) light_xyL_range_set_msg_s
     uint16_t    xyL_y_range_max;
 } light_xyL_range_set_msg_t;
 
+/** @brief Wire format for the Light xyL Status reply message. */
 typedef struct __attribute__((packed)) light_xyL_status_msg_s
 {
     uint16_t    xyL_lightness;
@@ -81,6 +85,7 @@ typedef struct __attribute__((packed)) light_xyL_status_msg_s
     uint8_t     remaining_time;
 } light_xyL_status_msg_t;
 
+/** @brief Wire format for the Light xyL Target Status reply message. */
 typedef struct __attribute__((packed)) light_xyL_target_status_msg_s
 {
     uint16_t    target_xyL_lightness;
@@ -89,6 +94,7 @@ typedef struct __attribute__((packed)) light_xyL_target_status_msg_s
     uint8_t     remaining_time;
 } light_xyL_target_status_msg_t;
 
+/** @brief Wire format for the Light xyL Default Status reply message. */
 typedef struct __attribute__((packed)) light_xyL_default_status_msg_s
 {
     uint16_t    lightness;
@@ -96,6 +102,7 @@ typedef struct __attribute__((packed)) light_xyL_default_status_msg_s
     uint16_t    xyL_y;
 } light_xyL_default_status_msg_t;
 
+/** @brief Wire format for the Light xyL Range Status reply message. */
 typedef struct __attribute__((packed)) light_xyL_range_status_msg_s
 {
     uint8_t     status_code;

@@ -34,9 +34,9 @@ extern "C" {
 /**
  *  \brief          SPI/QSPI Constant Definitions
  */
-#define QSPI_NORMAL_SPI 0                       /*!< SPI normal mode */
-#define QSPI_DUAL_SPI   2                       /*!< QSPI 2bits mode */
-#define QSPI_QUAD_SPI   3                       /*!< QSPI 4bits mode */
+#define QSPI_NORMAL_SPI (0)                       /*!< SPI normal mode */
+#define QSPI_DUAL_SPI   (2)                       /*!< QSPI 2bits mode */
+#define QSPI_QUAD_SPI   (3)                       /*!< QSPI 4bits mode */
 
 #define QSPI_CLK_32M (0)                        /*!< SPI running 32MHz */
 #define QSPI_CLK_16M                                                           \
@@ -74,10 +74,10 @@ extern "C" {
 /**
  *  \brief          SPI operation state return Constant Definitions
  */
-#define QSPI_STATE_UNINIT   0 /*!< SPI controller in uninitial state.   */
-#define QSPI_STATE_IDLE     1 /*!< SPI controller in idle state.        */
-#define QSPI_STATE_TRANSFER 2 /*!< SPI controller in CPU transfer state.  */
-#define QSPI_STATE_SETUP    4 /*!< SPI controller in setting controller state.   */
+#define QSPI_STATE_UNINIT   (0) /*!< SPI controller in uninitial state.   */
+#define QSPI_STATE_IDLE     (1) /*!< SPI controller in idle state.        */
+#define QSPI_STATE_TRANSFER (2) /*!< SPI controller in CPU transfer state.  */
+#define QSPI_STATE_SETUP    (4) /*!< SPI controller in setting controller state.   */
 #define QSPI_STATE_WRITE_DMA                                                   \
     8 /*!< SPI controller in DMA write (TX only) transfer state.   */
 #define QSPI_STATE_READ_DMA                                                    \

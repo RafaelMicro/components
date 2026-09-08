@@ -15,8 +15,8 @@
 #include <string.h>
 #include "mcu.h"
 #include "rt_crypto.h"
-#define  INNER_PAD          0x36                    /*FIPS 198-1 Inner pad*/
-#define  OUTER_PAD          0x5C                    /*FIPS 198-1 Inner pad*/
+#define  INNER_PAD          (0x36)                    /*FIPS 198-1 Inner pad*/
+#define  OUTER_PAD          (0x5C)                    /*FIPS 198-1 Inner pad*/
 
 sha256_starts_rom_t    sha256_init = NULL;
 sha256_update_rom_t    sha256_update = NULL;

@@ -36,13 +36,13 @@ extern "C" {
  /**
  * \brief           Cause of the reset
  */
-#define RESET_BY_POWER_ON                           0x00
-#define RESET_BY_EXT_RESET                          0x00
-#define RESET_BY_DEEP_POWER_DOWN                    0x00
-#define RESET_BY_DEEP_SLEEP                         0x00
-#define RESET_BY_WATCH_DOG                          0x10
-#define RESET_BY_SOFT_RESET                         0x00
-#define RESET_BY_MCU_LOCKUP                         0x00
+#define RESET_BY_POWER_ON                           (0x00)
+#define RESET_BY_EXT_RESET                          (0x00)
+#define RESET_BY_DEEP_POWER_DOWN                    (0x00)
+#define RESET_BY_DEEP_SLEEP                         (0x00)
+#define RESET_BY_WATCH_DOG                          (0x10)
+#define RESET_BY_SOFT_RESET                         (0x00)
+#define RESET_BY_MCU_LOCKUP                         (0x00)
 
 
 /**

@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_power_onoff_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Power OnOff model (OnPowerUp state).
  * @version 0.1
  * @date 2022-06-09
  *
@@ -47,6 +47,7 @@ static void mmdl_generic_onpowerup_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_i
 static void mmdl_generic_onpowerup_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 
+/** @brief Dispatch an incoming Generic Power OnOff model message to the matching opcode handler. */
 void mmdl_generic_onpowerup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -71,12 +72,14 @@ void mmdl_generic_onpowerup_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
 
 }
 
+/** @brief Handle a Generic OnPowerUp Get request by replying with the current OnPowerUp status. */
 static void mmdl_generic_onpowerup_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_onpowerup_send_status(p_evt_msg, p_element, p_model);
 }
 
 
+/** @brief Validate and apply a Generic OnPowerUp Set request, publish/forward the change, and optionally acknowledge. */
 static void mmdl_generic_onpowerup_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_onpowerup_set_msg_t  *p_gen_onpowerup_set_msg = (gen_onpowerup_set_msg_t *)p_evt_msg->parameter;
@@ -121,6 +124,7 @@ static void mmdl_generic_onpowerup_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_i
 
 }
 
+/** @brief Build and send a Generic OnPowerUp Status message back to the requester. */
 static void mmdl_generic_onpowerup_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -166,6 +170,7 @@ static void mmdl_generic_onpowerup_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt
 }
 
 
+/** @brief Publish the current Generic Power OnOff (OnPowerUp) state to the model's configured publish address. */
 void mmdl_generic_power_onoff_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -218,6 +223,7 @@ void mmdl_generic_power_onoff_publish_state(ble_mesh_element_param_t *p_element,
     }
 }
 
+/** @brief Propagate the tracked on/off state to the sibling Generic OnOff model, excluding the model that triggered the change. */
 void mmdl_generic_power_onoff_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     gen_onpowerup_state_t   *p_onpowerup_state = (gen_onpowerup_state_t *)p_parent_model->p_state_var;
@@ -232,6 +238,7 @@ void mmdl_generic_power_onoff_update_extend(ble_mesh_element_param_t *p_current_
     }
 }
 
+/** @brief Callback invoked by an extending child model (Generic OnOff) to update the tracked on/off state and publish/forward the change. */
 void mmdl_generic_power_onoff_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t  *p_parent_model;
@@ -290,6 +297,7 @@ void mmdl_generic_power_onoff_ex_cb(ble_mesh_element_param_t *p_current_element,
 }
 
 
+/** @brief Update the OnPowerUp state from an extended (parent) model and publish the change. */
 void mmdl_generic_power_onoff_extend_set(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t onopowerup_state)
 {
     gen_onpowerup_state_t  *p_gen_power_on_off_state = (gen_onpowerup_state_t *)p_model->p_state_var;
@@ -312,6 +320,7 @@ void mmdl_generic_power_onoff_extend_set(ble_mesh_element_param_t *p_element, bl
 
 }
 
+/** @brief Apply the current on/off state to the sibling Generic OnOff model when a scene is recalled. */
 void mmdl_generic_power_onoff_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     gen_onpowerup_state_t   *p_onpowerup_state;

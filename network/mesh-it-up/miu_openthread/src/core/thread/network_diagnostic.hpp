@@ -305,6 +305,8 @@ public:
     uint16_t GetLastQueryId(void) const { return mQueryId; }
 
 private:
+    static bool TypeListRequiresQuery(const uint8_t aTlvTypes[], uint8_t aCount);
+
     Error SendCommand(Uri                   aUri,
                       Message::Priority     aPriority,
                       const Ip6::Address   &aDestination,

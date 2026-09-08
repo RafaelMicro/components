@@ -39,6 +39,16 @@
 
 using namespace ot;
 
+uint32_t otMeshDiagGetResponseTimeout(otInstance *aInstance)
+{
+    return AsCoreType(aInstance).Get<Utils::MeshDiag>().GetResponseTimeout();
+}
+
+void otMeshDiagSetResponseTimeout(otInstance *aInstance, uint32_t aTimeout)
+{
+    AsCoreType(aInstance).Get<Utils::MeshDiag>().SetResponseTimeout(aTimeout);
+}
+
 otError otMeshDiagDiscoverTopology(otInstance                     *aInstance,
                                    const otMeshDiagDiscoverConfig *aConfig,
                                    otMeshDiagDiscoverCallback      aCallback,

@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_hsl_sr.h
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Shared state and message structures for the BLE Mesh Light HSL server/setup server models.
  * @version 0.1
  * @date 2022-07-13
  *
@@ -46,6 +46,7 @@ typedef struct light_hsl_state_s
     uint8_t     remaining_time;
 } light_hsl_state_t;
 
+/** @brief Wire format for the Light HSL Hue Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_hsl_hue_set_msg_s
 {
     uint16_t    hue;
@@ -55,6 +56,7 @@ typedef struct __attribute__((packed)) light_hsl_hue_set_msg_s
 } light_hsl_hue_set_msg_t;
 
 
+/** @brief Wire format for the Light HSL Hue Status reply message. */
 typedef struct __attribute__((packed)) light_hsl_hue_status_msg_s
 {
     uint16_t    present_hue;
@@ -62,6 +64,7 @@ typedef struct __attribute__((packed)) light_hsl_hue_status_msg_s
     uint8_t     remaining_time;
 } light_hsl_hue_status_msg_t;
 
+/** @brief Wire format for the Light HSL Saturation Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_hsl_sat_set_msg_s
 {
     uint16_t    saturation;
@@ -71,6 +74,7 @@ typedef struct __attribute__((packed)) light_hsl_sat_set_msg_s
 } light_hsl_sat_set_msg_t;
 
 
+/** @brief Wire format for the Light HSL Saturation Status reply message. */
 typedef struct __attribute__((packed)) light_hsl_sat_status_msg_s
 {
     uint16_t    present_saturation;
@@ -78,6 +82,7 @@ typedef struct __attribute__((packed)) light_hsl_sat_status_msg_s
     uint8_t     remaining_time;
 } light_hsl_sat_status_msg_t;
 
+/** @brief Wire format for the Light HSL Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_hsl_set_msg_s
 {
     uint16_t    hsl_lightness;
@@ -88,6 +93,7 @@ typedef struct __attribute__((packed)) light_hsl_set_msg_s
     uint8_t     delay;
 } light_hsl_set_msg_t;
 
+/** @brief Wire format for the Light HSL Default Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_hsl_default_set_msg_s
 {
     uint16_t    hsl_lightness;
@@ -95,6 +101,7 @@ typedef struct __attribute__((packed)) light_hsl_default_set_msg_s
     uint16_t    hsl_saturation;
 } light_hsl_default_set_msg_t;
 
+/** @brief Wire format for the Light HSL Range Set / Set Unacknowledged message. */
 typedef struct __attribute__((packed)) light_hsl_range_set_msg_s
 {
     uint16_t    hue_range_min;
@@ -103,6 +110,7 @@ typedef struct __attribute__((packed)) light_hsl_range_set_msg_s
     uint16_t    saturation_range_max;
 } light_hsl_range_set_msg_t;
 
+/** @brief Wire format for the Light HSL Status / Target Status reply message. */
 typedef struct __attribute__((packed)) light_hsl_status_msg_s
 {
     uint16_t    hsl_lightness;
@@ -111,6 +119,7 @@ typedef struct __attribute__((packed)) light_hsl_status_msg_s
     uint8_t     remaining_time;
 } light_hsl_status_msg_t, light_hsl_target_status_msg_t;
 
+/** @brief Wire format for the Light HSL Default Status reply message. */
 typedef struct __attribute__((packed)) light_hsl_default_status_msg_s
 {
     uint16_t    hsl_lightness;
@@ -118,6 +127,7 @@ typedef struct __attribute__((packed)) light_hsl_default_status_msg_s
     uint16_t    hsl_saturation;
 } light_hsl_default_status_msg_t;
 
+/** @brief Wire format for the Light HSL Range Status reply message. */
 typedef struct __attribute__((packed)) light_hsl_range_status_msg_s
 {
     uint8_t     status_code;

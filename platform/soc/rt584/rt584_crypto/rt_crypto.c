@@ -24,7 +24,7 @@
 
 //static crypto_isr_handler_t   user_crypto_isr = NULL;
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 /*TODO: under construction */
 
 extern int32_t    crypto_count;
@@ -38,7 +38,7 @@ extern uint32_t   crypto_firmware;
 
 /*TODO: under construction */
 
-#define CRYPTO_ISR_FINISH            1
+#define CRYPTO_ISR_FINISH            (1)
 
 #endif
 
@@ -77,28 +77,29 @@ uint32_t crypto_status(void)
 
 /* ------ Point operations ------ */
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
-/*If system support multi-tasking, we should protect hardware for only one context.*/
+#if defined(CONFIG_FREERTOS)
+#include "FreeRTOS.h"
+#include "semphr.h"
+
+static SemaphoreHandle_t s_crypto_mutex = NULL;
 
 void crypto_mutex_lock(void)
 {
-    /* TODO:  This is OS-depended code
-     * if device is busy, the task should wait here to get resource.
-     */
+    taskENTER_CRITICAL();
+    if (s_crypto_mutex == NULL)
+    {
+        s_crypto_mutex = xSemaphoreCreateMutex();
+        configASSERT(s_crypto_mutex != NULL);
+    }
+    taskEXIT_CRITICAL();
 
-    return ;
+    xSemaphoreTake(s_crypto_mutex, portMAX_DELAY);
 }
 
 void crypto_mutex_unlock(void)
 {
-    /* TODO: This is OS-depended code
-     * If there is another device wait resource, it could be wakeup the
-     * task depends on priority.
-     */
-
-    return ;
+    xSemaphoreGive(s_crypto_mutex);
 }
-
 
 #else
 /*

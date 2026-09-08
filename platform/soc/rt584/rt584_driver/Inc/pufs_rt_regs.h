@@ -136,30 +136,30 @@ typedef struct pufs_ptm_regs
 
 
 //----------------------REGISTER BIT MASKS----------------------------------//
-#define RT_PIF_00_PUFLCK_MASK              0x000f0000
-#define RT_PIF_00_OTPLCK_MASK              0x00f00000
+#define RT_PIF_00_PUFLCK_MASK              (0x000f0000)
+#define RT_PIF_00_OTPLCK_MASK              (0x00f00000)
 
 //----------------------REGISTER POSITION BITS------------------------------//
-#define RT_RNG_FUN_ENABLE_BITS             0
-#define RT_RNG_OUT_ENABLE_BITS             2
-#define RT_RNG_STATUS_RN_READY_BITS        10
+#define RT_RNG_FUN_ENABLE_BITS             (0)
+#define RT_RNG_OUT_ENABLE_BITS             (2)
+#define RT_RNG_STATUS_RN_READY_BITS        (10)
 
-#define RT_RNG_STATUS_CTRL_BITS        0
-#define RT_RNG_STATUS_FIFO_BITS        1
-#define RT_RNG_STATUS_ENTROPY_BITS     2
-#define RT_RNG_STATUS_RNG_BITS         8
-#define RT_RNG_STATUS_HEALTH_BITS      9
-#define RT_RNG_STATUS_READY_BITS       10
-#define RT_RNG_STATUS_ERROR_BITS       11
+#define RT_RNG_STATUS_CTRL_BITS        (0)
+#define RT_RNG_STATUS_FIFO_BITS        (1)
+#define RT_RNG_STATUS_ENTROPY_BITS     (2)
+#define RT_RNG_STATUS_RNG_BITS         (8)
+#define RT_RNG_STATUS_HEALTH_BITS      (9)
+#define RT_RNG_STATUS_READY_BITS       (10)
+#define RT_RNG_STATUS_ERROR_BITS       (11)
 
-#define RT_RNG_FIFO_CLEAR_BITS              0
+#define RT_RNG_FIFO_CLEAR_BITS              (0)
 //----------------------REGISTER BIT MASKS----------------------------------//
-#define RT_CFG_REGLCK_CDEMSK_MASK          0x000f0000
-#define RT_CFG_REGLCK_KEYMSK_MASK          0x00f00000
+#define RT_CFG_REGLCK_CDEMSK_MASK          (0x000f0000)
+#define RT_CFG_REGLCK_KEYMSK_MASK          (0x00f00000)
 
 //----------------------REGISTER BIT MASKS----------------------------------//
-#define RT_PTM_STATUS_BUSY_MASK            0x00000001
-#define RT_PTM_STATUS_ABNORMAL_MASK        0x0000001e
+#define RT_PTM_STATUS_BUSY_MASK            (0x00000001)
+#define RT_PTM_STATUS_ABNORMAL_MASK        (0x0000001e)
 
 
 /** Setter bit manipulation macro */
@@ -181,12 +181,12 @@ typedef struct pufs_ptm_regs
 
 
 
-#define OTP_LCK_RW    0
-#define OTP_LCK_RO    1
-#define OTP_LCK_NA    2
+#define OTP_LCK_RW    (0)
+#define OTP_LCK_RO    (1)
+#define OTP_LCK_NA    (2)
 
-#define OTP_NOT_ZEROIZED   0
-#define OTP_ZEROIZED       1
+#define OTP_NOT_ZEROIZED   (0)
+#define OTP_ZEROIZED       (1)
 
 
 typedef enum

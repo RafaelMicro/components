@@ -160,7 +160,33 @@ typedef struct otMeshDiagChildInfo
 typedef void (*otMeshDiagDiscoverCallback)(otError aError, otMeshDiagRouterInfo *aRouterInfo, void *aContext);
 
 /**
+ * Gets how long a single router is given to answer.
+ *
+ * @param[in] aInstance   The OpenThread instance.
+ *
+ * @returns The response timeout in milliseconds.
+ */
+uint32_t otMeshDiagGetResponseTimeout(otInstance *aInstance);
+
+/**
+ * Sets how long a single router is given to answer.
+ *
+ * The default is `OPENTHREAD_CONFIG_MESH_DIAG_RESPONSE_TIMEOUT`. A large or lossy mesh needs a longer one. The value
+ * applies per router, so `otMeshDiagDiscoverTopology()` can take up to (router count x timeout) to complete.
+ *
+ * Takes effect on the next query; an ongoing one keeps the timeout it started with.
+ *
+ * @param[in] aInstance   The OpenThread instance.
+ * @param[in] aTimeout    The response timeout in milliseconds.
+ */
+void otMeshDiagSetResponseTimeout(otInstance *aInstance, uint32_t aTimeout);
+
+/**
  * Starts network topology discovery.
+ *
+ * Routers are queried one at a time: the next request is sent only after the previous router answered or its response
+ * timeout expired. Routers that never answer are absent from the reported set and make the final callback report
+ * `OT_ERROR_RESPONSE_TIMEOUT`.
  *
  * @param[in] aInstance        The OpenThread instance.
  * @param[in] aConfig          The configuration to use for discovery (e.g., which items to discover).

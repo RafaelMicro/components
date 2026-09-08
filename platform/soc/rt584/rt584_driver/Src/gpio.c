@@ -244,7 +244,7 @@ void gpio_handler(void) {
     uint32_t  i = 0, Mask = 1;
 
     irq_state = GPIO->int_status;
-    printf("handler GPIO->int_status:%.8x\r\n",GPIO->int_status);
+    
     for (i = 0; i < MAX_NUMBER_OF_PINS; i++, Mask <<= 1) {
         if (irq_state & Mask) {
             app_isr = user_isr[i].gpio_handler;

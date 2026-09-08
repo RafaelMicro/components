@@ -35,18 +35,18 @@ extern "C" {
 /**
  * \brief           Wdt prescale definitions.
  */
-#define WDT_PRESCALE_1               0
-#define WDT_PRESCALE_16              15
-#define WDT_PRESCALE_32              31
-#define WDT_PRESCALE_128             127
-#define WDT_PRESCALE_256             255
-#define WDT_PRESCALE_1024            1023
-#define WDT_PRESCALE_4096            4095
+#define WDT_PRESCALE_1               (0)
+#define WDT_PRESCALE_16              (15)
+#define WDT_PRESCALE_32              (31)
+#define WDT_PRESCALE_128             (127)
+#define WDT_PRESCALE_256             (255)
+#define WDT_PRESCALE_1024            (1023)
+#define WDT_PRESCALE_4096            (4095)
 
 /**
  * \brief           Wdt Kick value definitions.
  */
-#define WDT_KICK_VALUE         0xA5A5
+#define WDT_KICK_VALUE         (0xA5A5)
 
 /**
  * \brief           Wdt interrupt service routine callback for user application.

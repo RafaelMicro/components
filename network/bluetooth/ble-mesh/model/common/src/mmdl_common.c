@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_onoff_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Common helpers shared across models: incoming message dispatch, model lookup, and key/subscription validation.
  * @version 0.1
  * @date 2022-06-09
  *
@@ -32,6 +32,12 @@ uint8_t tid = 0;
 extern ble_mesh_element_param_t g_element_info[];
 //static ble_mesh_element_param_t *p_element_base = g_element_info;
 
+/**
+ * @brief Route an incoming mesh model event message to the correct element(s) based on its destination address.
+ *
+ * Dispatches to a single element for a unicast address match, to all elements for the
+ * broadcast group addresses, or to the primary element for other multicast destinations.
+ */
 void mmdl_evt_msg_cb(mesh_app_mdl_evt_msg_idc_t *pt_msg_idc)
 {
     ble_mesh_element_param_t  *p_element;
@@ -78,6 +84,10 @@ void mmdl_evt_msg_cb(mesh_app_mdl_evt_msg_idc_t *pt_msg_idc)
     } while (0);
 }
 
+/**
+ * @brief Find the model with the given model_id within an element.
+ * @return 1 and sets *p_model if found, 0 otherwise.
+ */
 uint32_t search_model(ble_mesh_element_param_t *p_element, uint32_t model_id, ble_mesh_model_param_t **p_model)
 {
     uint32_t i, ret = 0;
@@ -97,6 +107,7 @@ uint32_t search_model(ble_mesh_element_param_t *p_element, uint32_t model_id, bl
     return ret;
 }
 
+/** @brief Check whether appkey_index is present in the model's AppKey binding list. Returns TRUE/FALSE. */
 uint32_t mmdl_model_binding_key_validate(uint16_t appkey_index, ble_mesh_model_param_t *p_model)
 {
     uint32_t i, found = FALSE;
@@ -113,6 +124,7 @@ uint32_t mmdl_model_binding_key_validate(uint16_t appkey_index, ble_mesh_model_p
     return found;
 }
 
+/** @brief Check whether subscribe_address is a supported fixed group address or is in the model's subscription list. Returns TRUE/FALSE. */
 uint32_t mmdl_model_subscribe_address_validate(uint16_t subscribe_address, ble_mesh_model_param_t *p_model)
 {
     uint32_t i, found = FALSE;

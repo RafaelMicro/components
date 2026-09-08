@@ -19,8 +19,10 @@ extern "C"
 #include "mmdl_opcodes.h"
 #include "mmdl_defs.h"
 
+/** @brief Build and send a model client access message with the given opcode/parameters to the mesh stack. */
 void mmdl_client_send(uint16_t dst_addr, uint16_t src_addr, uint32_t opcode, uint16_t key_index, uint16_t param_len, uint8_t *p_param);
 
+/** @brief Addressing/key context (destination, source and AppKey index) used when transmitting a model message. */
 typedef struct  mmdl_transmit_info_s
 {
     uint16_t    dst_addr;

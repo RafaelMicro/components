@@ -39,7 +39,7 @@ extern "C" {
 /**
  * \brief           hosal crypto curve c25519 const defined
  */
-#define HOSAL_CURVE_C25519_INIT             1
+#define HOSAL_CURVE_C25519_INIT             (1)
 
 /**
  * \brief           ctr drbg enum defined

@@ -8,7 +8,7 @@
 /**
  * @file mmdl_light_control_sr_main.c
  * @author Joshua Jean (joshua.jean@rafaelmicro.com)
- * @brief
+ * @brief Implementation of the BLE Mesh Light HSL Saturation server model (the secondary-element HSL sub-model).
  * @version 0.1
  * @date 2022-07-13
  *
@@ -44,11 +44,13 @@ static void mmdl_light_hsl_sat_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
 static void mmdl_light_hsl_sat_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_light_hsl_sat_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model);
 
+/** @brief Initialize the Light HSL Saturation server model instance on an element. */
 void mmdl_light_hsl_sat_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
 
 }
 
+/** @brief Dispatch an incoming Light HSL Saturation message to the handler matching its opcode. */
 void mmdl_light_hsl_sat_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -73,6 +75,7 @@ void mmdl_light_hsl_sat_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
     }
 }
 
+/** @brief Handle a state update from the extended Generic Level model and map it into the saturation state. */
 void mmdl_light_hsl_sat_ex_cb(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_child_model, general_parameter_t p)
 {
     ble_mesh_model_param_t  *p_parent_model;
@@ -114,6 +117,7 @@ void mmdl_light_hsl_sat_ex_cb(ble_mesh_element_param_t *p_current_element, ble_m
     } while (0);
 }
 
+/** @brief Apply the recalled scene saturation and propagate it to the extended Generic Level model. */
 void mmdl_light_hsl_sat_scene_set(ble_mesh_element_param_t *p_current_element)
 {
     light_hsl_state_t       *p_light_hsl_state;
@@ -134,11 +138,13 @@ void mmdl_light_hsl_sat_scene_set(ble_mesh_element_param_t *p_current_element)
     }
 }
 
+/** @brief Handle the Light HSL Saturation Get message by replying with the current saturation status. */
 static void mmdl_light_hsl_sat_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_light_hsl_sat_send_status(p_evt_msg, p_element, p_model);
 }
 
+/** @brief Handle the Light HSL Saturation Set / Set Unacknowledged message, updating saturation and optionally replying with status. */
 static void mmdl_light_hsl_sat_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     light_hsl_sat_set_msg_t  *p_light_hsl_sat_set_msg = (light_hsl_sat_set_msg_t *)p_evt_msg->parameter;
@@ -176,6 +182,7 @@ static void mmdl_light_hsl_sat_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
 }
 
 
+/** @brief Build and send a Light HSL Saturation Status message to the requester. */
 static void mmdl_light_hsl_sat_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -226,6 +233,7 @@ static void mmdl_light_hsl_sat_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg
 }
 
 
+/** @brief Push the current saturation state down to the extended Generic Level model. */
 static void mmdl_light_hsl_sat_update_extend(ble_mesh_element_param_t *p_current_element, ble_mesh_model_param_t *p_parent_model, ble_mesh_model_param_t *p_current_child_model)
 {
     light_hsl_state_t       *p_light_hsl_state = (light_hsl_state_t *)p_parent_model->p_state_var;
@@ -244,6 +252,7 @@ static void mmdl_light_hsl_sat_update_extend(ble_mesh_element_param_t *p_current
 
 }
 
+/** @brief Publish the current Light HSL Saturation status to the model's configured publish address. */
 void mmdl_light_hsl_sat_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

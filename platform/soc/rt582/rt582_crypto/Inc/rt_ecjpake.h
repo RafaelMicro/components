@@ -32,8 +32,8 @@ extern "C"
 /*ECJPAKE HERE only support SECP256R1.. so each ECC key must be 64 bytes.*/
 
 
-#define server_role                   1
-#define client_role                   0
+#define server_role                   (1)
+#define client_role                   (0)
 
 
 /*in IETF document, this is ECSchnorrZKP struct*/

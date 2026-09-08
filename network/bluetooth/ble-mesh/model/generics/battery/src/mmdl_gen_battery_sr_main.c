@@ -8,7 +8,7 @@
 /**
  * @file mmdl_gen_battery_sr_main.c
  * @author Rex Huang (rex.huang@rafaelmicro.com)
- * @brief
+ * @brief Server-side implementation of the BLE Mesh Generic Battery model.
  * @version 0.1
  * @date 2022-06-09
  *
@@ -44,6 +44,7 @@ static void mmdl_generic_battery_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
 static void mmdl_generic_battery_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 
 
+/** @brief Dispatch an incoming Generic Battery model message to the matching opcode handler. */
 void mmdl_generic_battery_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t is_broadcast)
 {
 
@@ -59,11 +60,13 @@ void mmdl_generic_battery_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_
     }
 }
 
+/** @brief Handle a Generic Battery Get request by replying with the current battery status. */
 static void mmdl_generic_battery_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mmdl_generic_battery_send_status(p_evt_msg, p_element, p_model);
 }
 
+/** @brief Build and send a Generic Battery Status message back to the requester. */
 static void mmdl_generic_battery_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;
@@ -112,6 +115,7 @@ static void mmdl_generic_battery_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_m
     }
 }
 
+/** @brief Publish the current Generic Battery state to the model's configured publish address. */
 void mmdl_generic_battery_publish_state(ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     mesh_app_mdl_evt_msg_req_t  *pt_req;

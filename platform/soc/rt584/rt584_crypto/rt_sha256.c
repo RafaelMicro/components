@@ -19,7 +19,7 @@
 extern volatile uint32_t  sha_finish;
 #endif
 
-#if defined(CONFIG_SUPPORT_MULTITASKING)
+#if defined(CONFIG_FREERTOS)
 
 extern void crypto_mutex_lock(void);
 extern void crypto_mutex_unlock(void);
@@ -254,6 +254,7 @@ void sha256_starts(sha256_context *ctx, int is224)
     CRYPTO->sha_k_base  = 0x00;
     CRYPTO->sha_digest_base  = 0x100;
     CRYPTO->sha_misc_cfg  = 0x1;
+    crypto_mutex_unlock();
 }
 
 
@@ -325,6 +326,7 @@ uint32_t sha256_update(sha256_context *ctx, uint8_t *input, uint32_t length)
         return STATUS_ERROR;
     }
 
+    crypto_mutex_lock();
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
 
@@ -366,7 +368,7 @@ uint32_t sha256_update(sha256_context *ctx, uint8_t *input, uint32_t length)
     {
         memcpy((void *) (ctx->buffer + left), (void *) input, length);
     }
-
+    crypto_mutex_unlock();
     return STATUS_SUCCESS;
 }
 
@@ -381,6 +383,7 @@ uint32_t sha256_update_flash(sha256_context *ctx, uint32_t input_address, uint32
         return STATUS_ERROR;
     }
 
+    crypto_mutex_lock();
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
 
@@ -427,7 +430,7 @@ uint32_t sha256_update_flash(sha256_context *ctx, uint32_t input_address, uint32
         flash_read_n_bytes(input_address, (uint32_t)(ctx->buffer + left), length);
         //memcpy((void *) (ctx->buffer + left), (void *) input_address, length);
     }
-
+    crypto_mutex_unlock();
     return STATUS_SUCCESS;
 }
 
@@ -460,8 +463,11 @@ void sha256_finish(sha256_context *ctx, uint8_t *digest)
     last = ctx->total[0] & 0x3F;
     padn = (last < 56) ? (56 - last) : (120 - last);
 
+    
     sha256_update(ctx, (uint8_t *) sha256_padding, padn);
     sha256_update(ctx, msglen, 8);
+    
+    crypto_mutex_lock();
 
     PUT_UINT32_BE(*((uint32_t *)(CRYPTO_BASE + 0x1900)), digest, 0);
     PUT_UINT32_BE(*((uint32_t *)(CRYPTO_BASE + 0x1904)), digest, 4);

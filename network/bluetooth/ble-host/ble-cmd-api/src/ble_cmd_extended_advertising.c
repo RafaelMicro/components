@@ -57,7 +57,7 @@ typedef uint8_t ble_padv_subevent_data_state_t;
  *************************************************************************************************/
 static ble_ext_adv_state_t g_ext_adv_enable[BLE_MAX_PADV_HANDLE] = {EXTENDED_ADV_DISABLED};
 static ble_padv_state_t g_padv_enable[BLE_MAX_PADV_HANDLE] = {PERIODIC_ADV_DISABLED};
-static ble_sync_state_t g_sync_enable[BLE_MAX_PADV_HANDLE] = {BLE_SYNC_DISABLED};
+static ble_sync_state_t g_sync_enable[BLE_MAX_SYNC_HANDLE] = {BLE_SYNC_DISABLED};
 
 static ble_padv_subevent_data_state_t g_padv_subevent_data[BLE_MAX_PADV_HANDLE] = {PERIODIC_ADV_SUBEVENT_DATA_CLEAR};
 
@@ -197,6 +197,25 @@ uint8_t ble_extended_adv_processing_handle_get(void)
     {
         if ((g_ext_adv_enable[i] == EXTENDED_ADV_ENABLE_PROCESSING) || 
             (g_ext_adv_enable[i] == EXTENDED_ADV_DISABLE_PROCESSING))
+        {
+            break;
+        }
+    }
+
+    return i;
+}
+
+/** Check if BLE Extended Advertisement Sync is processing enabled.
+ *
+ */
+uint16_t ble_extended_sync_processing_handle_get(void)
+{
+    uint16_t i;
+
+    for (i = 0; i < BLE_MAX_SYNC_HANDLE; i++)
+    {
+        if ((g_sync_enable[i] == BLE_SYNC_ENABLE_PROCESSING) || 
+            (g_sync_enable[i] == BLE_SYNC_DISABLE_PROCESSING))
         {
             break;
         }
@@ -619,6 +638,7 @@ ble_err_t ble_cmd_periodic_advertising_sync_terminate(ble_periodic_advertising_s
         else
         {
             bhc_host_id_state_enhance_active_release(SYNC_ACTIVE, p_param->sync_handle);
+            synchronization_status_set(BLE_SYNC_DISABLE_PROCESSING, p_param->sync_handle);
         }
     } while(0);
 
@@ -668,7 +688,7 @@ ble_err_t ble_cmd_periodic_adv_receive_enable(uint16_t sync_handle)
 ble_err_t ble_cmd_periodic_adv_receive_disable(uint16_t sync_handle)
 {
     ble_err_t status;
-    ble_hci_cmd_periodic_adv_terminate_sync_param_t hci_param;
+    ble_hci_set_periodic_adv_receive_en_param_t hci_param;
 
     status = BLE_ERR_OK;
     do {
@@ -687,8 +707,9 @@ ble_err_t ble_cmd_periodic_adv_receive_disable(uint16_t sync_handle)
         }
 
         hci_param.sync_handle = sync_handle;
+        hci_param.enable = 0;
         // issue HCI cmd
-        if (hci_le_set_periodic_terminate_sync_cmd(&hci_param) != BLE_ERR_OK)
+        if (hci_le_set_periodic_adv_receive_enable_cmd(&hci_param) != BLE_ERR_OK)
         {
             status = BLE_ERR_HCI_TX_CMD_QUEUE_FULL;
             log_info("<PADV_RECEIVE_DISABLE> HCI TX CMD QUEUE FULL.\n");
@@ -1216,6 +1237,19 @@ ble_err_t ble_evt_periodic_adv_handler(void *p_param)
         status = g_ble_event_cb(p_evt_param);
         log_info("ADV set terminated status %d\n", p_adv_set_terminated->status);
         extended_adv_status_set(EXTENDED_ADV_DISABLED, p_adv_set_terminated->adv_handle);
+        status = g_ble_event_cb(p_evt_param);
+    }
+    break;
+
+    case BLE_PADV_EVT_PADV_SYNC_TERMINATE:
+    {
+        ble_evt_adv_set_terminated_t *p_adv_set_terminated = (ble_evt_adv_set_terminated_t *)&p_evt_param->event_param.ble_evt_padv.param.evt_adv_set_terminated;
+        uint8_t sync_handle;
+
+        sync_handle = ble_extended_sync_processing_handle_get();
+
+        log_info("PADV sync terminated status %d\n", p_adv_set_terminated->status);
+        synchronization_status_set(BLE_SYNC_DISABLED, p_adv_set_terminated->adv_handle);
         status = g_ble_event_cb(p_evt_param);
     }
     break;

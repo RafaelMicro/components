@@ -35,48 +35,48 @@ extern "C" {
 /**
  * \brief           SADC test mode enable.
  */
-#define SADC_TEST_MODE          0
+#define SADC_TEST_MODE          (0)
 
 /**
  * \brief           SADC test mode test value.
  */
 #if (SADC_TEST_MODE == 1)
-#define SADC_TEST_VALUE         0x5AF
+#define SADC_TEST_VALUE         (0x5AF)
 #endif
 
 /**
  * \brief           SADC monitor threshold default definition.
  */
-#define SADC_MONITOR_LOW_THD_DEFAULT   0
-#define SADC_MONITOR_HIGH_THD_DEFAULT  0x3FFF
+#define SADC_MONITOR_LOW_THD_DEFAULT   (0)
+#define SADC_MONITOR_HIGH_THD_DEFAULT  (0x3FFF)
 
 /**
  * \brief           SADC channel register offset definition.
  */
-#define SADC_CH_REG_OFFSET      4    /*unit: 4-bytes*/
+#define SADC_CH_REG_OFFSET      (4)    /*unit: 4-bytes*/
 
 /**
  * \brief           SADC interrupt definition.
  */
-#define SADC_INT_DISABLE_ALL    0xFFFFFFFF
-#define SADC_INT_CLEAR_ALL      0xFFFFFFFF
+#define SADC_INT_DISABLE_ALL    (0xFFFFFFFF)
+#define SADC_INT_CLEAR_ALL      (0xFFFFFFFF)
 
 /**
  * \brief           SADC register default value definition.
  */
-#define SADC_PNSEL_CH_REG_DEFAULT      0x240000FF
-#define SADC_SET_CH_REG_DEFAULT        0x80000000
-#define SADC_THD_CH_REG_DEFAULT        0x3FFF0000
+#define SADC_PNSEL_CH_REG_DEFAULT      (0x240000FF)
+#define SADC_SET_CH_REG_DEFAULT        (0x80000000)
+#define SADC_THD_CH_REG_DEFAULT        (0x3FFF0000)
 
 /**
  * \brief           SADC gain and pull value definition.
  */
-#define SADC_GAIN_AIO  0x02
-#define SADC_GAIN_TEMP 0x03
-#define SADC_GAIN_VBAT 0x07
-#define SADC_PULL_AIO  0x00
-#define SADC_PULL_TEMP 0x00
-#define SADC_PULL_VBAT 0x03
+#define SADC_GAIN_AIO  (0x02)
+#define SADC_GAIN_TEMP (0x03)
+#define SADC_GAIN_VBAT (0x07)
+#define SADC_PULL_AIO  (0x00)
+#define SADC_PULL_TEMP (0x00)
+#define SADC_PULL_VBAT (0x03)
 
 /**
  * \brief           SADC value definition.

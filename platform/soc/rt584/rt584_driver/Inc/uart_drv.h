@@ -45,23 +45,23 @@ extern "C" {
 #define PARENB             (1<<1)               /*partity enabled, hidden defined, not original linux */
 #define PARODD             (1<<0)               /*partity ODD, hidden defined, not original linux */
 
-#define  UART_BR_FRCT_SHIFT               16
+#define  UART_BR_FRCT_SHIFT               (16)
 
-#define  BR_FRCT0                         0x0
-#define  BR_FRCT1                         0x10
-#define  BR_FRCT2                         0x18
-#define  BR_FRCT3                         0x38
-#define  BR_FRCT4                         0x3C
-#define  BR_FRCT5                         0x7C
-#define  BR_FRCT6                         0x7E
-#define  BR_FRCT7                         0x7F
+#define  BR_FRCT0                         (0x0)
+#define  BR_FRCT1                         (0x10)
+#define  BR_FRCT2                         (0x18)
+#define  BR_FRCT3                         (0x38)
+#define  BR_FRCT4                         (0x3C)
+#define  BR_FRCT5                         (0x7C)
+#define  BR_FRCT6                         (0x7E)
+#define  BR_FRCT7                         (0x7F)
 
-#define  UART_LSM_SHIFT                   24
+#define  UART_LSM_SHIFT                   (24)
 
 #define  ENABLE_LSM                       (1<<UART_LSM_SHIFT)
 #define  NORMAL_LSM                       (0<<UART_LSM_SHIFT)
 
-#define  UART_LOW_CLCOK_SHIFT             25
+#define  UART_LOW_CLCOK_SHIFT             (25)
 #define  LOW_CLOCK                        (1<<UART_LOW_CLCOK_SHIFT)
 #define  NORMAL_CLOCK                     (0<<UART_LOW_CLCOK_SHIFT)
 
@@ -161,18 +161,18 @@ extern "C" {
 /**
  * \brief           UART CLOCK SOURCE
  */
-#define UART_CLOCK_SOURCE_MASK                  3
-#define UART0_CLOCK_SOURCE_SHIFT                0
+#define UART_CLOCK_SOURCE_MASK                  (3)
+#define UART0_CLOCK_SOURCE_SHIFT                (0)
 #define UART0_CLOCK_SOURCE_PERIPHERAL           (1<<UART0_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART0_CLOCK_SOURCE_RCO1M                (2<<UART0_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART0_CLOCK_SOURCE_RCO32K               (3<<UART0_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 
-#define UART1_CLOCK_SOURCE_SHIFT                2
+#define UART1_CLOCK_SOURCE_SHIFT                (2)
 #define UART1_CLOCK_SOURCE_PERIPHERAL           (1<<UART1_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART1_CLOCK_SOURCE_RCO1M                (2<<UART1_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART1_CLOCK_SOURCE_RCO32K               (3<<UART1_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 
-#define UART2_CLOCK_SOURCE_SHIFT                4
+#define UART2_CLOCK_SOURCE_SHIFT                (4)
 #define UART2_CLOCK_SOURCE_PERIPHERAL           (1<<UART2_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART2_CLOCK_SOURCE_RCO1M                (2<<UART2_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data
 #define UART2_CLOCK_SOURCE_RCO32K               (3<<UART2_CLOCK_SOURCE_SHIFT)  ///< Send completed; however UART may still transmit data

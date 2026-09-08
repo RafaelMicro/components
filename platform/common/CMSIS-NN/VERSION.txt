@@ -1,0 +1,39 @@
+CMSIS-NN (vendored)
+===================
+
+Vendored from : https://github.com/ARM-software/CMSIS-NN
+Release tag   : v7.0.0  (annotated release tag, 2024-11-28)
+Commit        : 22080c68d040c98139e6cb1549473e3149735f4d
+License       : Apache-2.0  (see LICENSE)
+Imported on   : 2026-07-06
+
+Contents imported
+-----------------
+  Include/         public headers (arm_nnfunctions.h, arm_nnsupportfunctions.h,
+                   arm_nn_math_types.h, arm_nn_types.h, arm_nn_tables.h, Internal/)
+  Source/          full kernel source tree (one function per .c, 113 files)
+  LICENSE          Apache-2.0 license text
+
+Notes
+-----
+- Self-contained: CMSIS-NN (>= v4.0) depends only on CMSIS-Core, NOT on CMSIS-DSP.
+  No source under Source/ or Include/ includes arm_math.h, so CONFIG_CMSIS_NN does
+  not need to enable CONFIG_CMSIS_DSP.
+- Reserved as the optimized backend for a future TensorFlow Lite for
+  Microcontrollers (TFLM) integration.
+- Upstream build files (top-level and per-module CMakeLists.txt, ARM.CMSIS-NN.pdsc,
+  Makefiles, gen_pack.sh, Documentation/, Examples/, Tests/) were removed; the
+  library is built by components/platform/common/CMakeLists.txt via CONFIG_CMSIS_NN
+  (all Source/*.c globbed).
+- Kernel path is auto-selected from the compiler's __ARM_FEATURE_DSP (set via -mcpu):
+  cortex-m3 -> scalar C path, cortex-m33 -> DSP-extension SIMD path. Standard
+  Cortex-M33 has no Helium/MVE, so the MVE kernels are not used. No ARM_NN_* or
+  ARM_MATH_* defines are required.
+- This v7.0.0 package ships no float16 kernels, so (unlike CMSIS-DSP) there is no
+  F16 module to exclude.
+
+To update
+---------
+  git clone --depth 1 --branch <tag> https://github.com/ARM-software/CMSIS-NN
+  then replace Include/ Source/ LICENSE, delete the upstream build files, and
+  update this file.

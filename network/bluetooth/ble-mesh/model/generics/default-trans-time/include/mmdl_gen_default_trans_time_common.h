@@ -12,17 +12,20 @@
 extern "C" {
 #endif
 
+/** @brief Runtime state of the Generic Default Transition Time Server model (step count + resolution). */
 typedef struct gen_default_trans_time_state_s
 {
     uint8_t     default_trans_num_of_step: 6;
     uint8_t     default_trans_step_resoultion: 2;
 } gen_default_trans_time_state_t;
 
+/** @brief Payload layout of the Generic Default Transition Time Set message. */
 typedef struct __attribute__((packed)) gen_default_trans_time_set_msg_s
 {
     uint8_t  transition_time;
 } gen_default_trans_time_set_msg_t;
 
+/** @brief Payload layout of the Generic Default Transition Time Status message. */
 typedef struct __attribute__((packed)) gen_default_trans_time_status_msg_s
 {
     uint8_t  transition_time;

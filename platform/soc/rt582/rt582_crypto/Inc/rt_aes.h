@@ -60,21 +60,21 @@ extern "C"
 /**
  *  @brief AES BLOCK LENGTH Constant Definitions
  */
-#define AES_BLOCKLEN              16     /*!< Block length in bytes, AES is 128bits per block  */
+#define AES_BLOCKLEN              (16)     /*!< Block length in bytes, AES is 128bits per block  */
 
 /**
  *  @brief AES_KEY SIZE Constant Definitions
  */
-#define  AES_KEY128               128    /*!< AES key size is 128bits   */
-#define  AES_KEY192               192    /*!< AES key size is 192bits   */
-#define  AES_KEY256               256    /*!< AES key size is 256bits   */
+#define  AES_KEY128               (128)    /*!< AES key size is 128bits   */
+#define  AES_KEY192               (192)    /*!< AES key size is 192bits   */
+#define  AES_KEY256               (256)    /*!< AES key size is 256bits   */
 
 
-#define  NONCE_LEN                13     /*!< AES CCM NONCE LENGTH (most used length in application)  */
+#define  NONCE_LEN                (13)     /*!< AES CCM NONCE LENGTH (most used length in application)  */
 
 
 
-#define AES_Round_Key_Size        240    /*!< for AES256, the maximum round key size is 240. */
+#define AES_Round_Key_Size        (240)    /*!< for AES256, the maximum round key size is 240. */
 
 #define AES_keyExpSize            AES_Round_Key_Size
 

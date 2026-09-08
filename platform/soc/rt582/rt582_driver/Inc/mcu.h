@@ -77,10 +77,10 @@ typedef enum IRQn_Type {
  * \brief           Processor and Core Peripheral Section
  */
 /* Configuration of the Cortex-M3 Processor and Core Peripherals */
-#define __CM3_REV 0x0201                        /*!< Core Revision r2p1 */
-#define __NVIC_PRIO_BITS 3                      /*!< Number of Bits used for Priority Levels */
-#define __Vendor_SysTickConfig 0                /*!< Set to 1 if different SysTick Config is used */
-#define __MPU_PRESENT 1                         /*!< MPU present or not */
+#define __CM3_REV (0x0201)                        /*!< Core Revision r2p1 */
+#define __NVIC_PRIO_BITS (3)                      /*!< Number of Bits used for Priority Levels */
+#define __Vendor_SysTickConfig (0)                /*!< Set to 1 if different SysTick Config is used */
+#define __MPU_PRESENT (1)                         /*!< MPU present or not */
 
 
 #include "core_cm3.h"                           /* Cortex-M3 processor and core peripherals */
@@ -379,7 +379,7 @@ typedef enum IRQn_Type {
 /**
  * \brief           Set debug port as uart0
  */
-#define DEBUGPORT 0
+#define DEBUGPORT (0)
 
 /**
  * \brief           This is a software breakpoint, which will stop the firmware 

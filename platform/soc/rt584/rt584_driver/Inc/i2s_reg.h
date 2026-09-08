@@ -220,77 +220,77 @@ typedef struct {
 /**
  * \brief           I2S rdma_ctl0 (0x40) bit definition
  */
-#define I2S_RDMA_ENABLE_SHFT          0
+#define I2S_RDMA_ENABLE_SHFT          (0)
 #define I2S_RDMA_ENABLE_MASK          (0x01UL << I2S_RDMA_ENABLE_SHFT)
 
 /**
  * \brief           I2S rdma_ctl1 (0x44) bit definition
  */
-#define I2S_RDMA_RESET_SHFT           0
+#define I2S_RDMA_RESET_SHFT           (0)
 #define I2S_RDMA_RESET_MASK           (0x01UL << I2S_CFG_I2S_TST_SHFT)
 
 /**
  * \brief           I2S rdma_set0 (0x48) bit definition
  */
-#define I2S_RDMA_SEG_SIZE_SHFT        0
+#define I2S_RDMA_SEG_SIZE_SHFT        (0)
 #define I2S_RDMA_SEG_SIZE_MASK        (0x0000FFFFUL << I2S_RDMA_SEG_SIZE_SHFT)
-#define I2S_RDMA_BLK_SIZE_SHFT        16
+#define I2S_RDMA_BLK_SIZE_SHFT        (16)
 #define I2S_RDMA_BLK_SIZE_MASK        (0x0000FFFFUL << I2S_RDMA_BLK_SIZE_SHFT)
 
 /**
  * \brief           I2S rdma_set1 (0x4C) bit definition
  */
-#define I2S_WDMA_ENABLE_SHFT          0
+#define I2S_WDMA_ENABLE_SHFT          (0)
 #define I2S_WDMA_ENABLE_MASK          (0x01UL << I2S_WDMA_ENABLE_SHFT)
 
 /**
  * \brief           I2S wdma_ctl1 (0x64) bit definition
  */
-#define I2S_WDMA_RESET_SHFT           0
+#define I2S_WDMA_RESET_SHFT           (0)
 #define I2S_WDMA_RESET_MASK           (0x01UL << I2S_WDMA_RESET_SHFT)
 
 /**
  * \brief           I2S wdma_set0 (0x68) bit definition
  */
-#define I2S_WDMA_SEG_SIZE_SHFT        0
+#define I2S_WDMA_SEG_SIZE_SHFT        (0)
 #define I2S_WDMA_SEG_SIZE_MASK        (0x0000FFFFUL << I2S_WDMA_SEG_SIZE_SHFT)
-#define I2S_WDMA_BLK_SIZE_SHFT        16
+#define I2S_WDMA_BLK_SIZE_SHFT        (16)
 #define I2S_WDMA_BLK_SIZE_MASK        (0x0000FFFFUL << I2S_WDMA_BLK_SIZE_SHFT)
 
 /**
  * \brief           I2S int_clear (0xA0) bit definition
  */
-#define I2S_RDMA_IRQ_CLR_SHFT         0
+#define I2S_RDMA_IRQ_CLR_SHFT         (0)
 #define I2S_RDMA_IRQ_CLR_MASK         (0x01UL << I2S_RDMA_IRQ_CLR_SHFT)
-#define I2S_RDMA_ERR_IRQ_CLR_SHFT     1
+#define I2S_RDMA_ERR_IRQ_CLR_SHFT     (1)
 #define I2S_RDMA_ERR_IRQ_CLR_MASK     (0x01UL << I2S_RDMA_ERR_IRQ_CLR_SHFT)
-#define I2S_WDMA_IRQ_CLR_SHFT         2
+#define I2S_WDMA_IRQ_CLR_SHFT         (2)
 #define I2S_WDMA_IRQ_CLR_MASK         (0x01UL << I2S_WDMA_IRQ_CLR_SHFT)
-#define I2S_WDMA_ERR_IRQ_CLR_SHFT     3
+#define I2S_WDMA_ERR_IRQ_CLR_SHFT     (3)
 #define I2S_WDMA_ERR_IRQ_CLR_MASK     (0x01UL << I2S_WDMA_ERR_IRQ_CLR_SHFT)
 
 /**
  * \brief           I2S int_mask (0xA4) bit definition
  */
-#define I2S_RDMA_IRQ_MASK_SHFT        0
+#define I2S_RDMA_IRQ_MASK_SHFT        (0)
 #define I2S_RDMA_IRQ_MASK_MASK        (0x01UL << I2S_RDMA_IRQ_MASK_SHFT)
-#define I2S_RDMA_ERR_IRQ_MASK_SHFT    1
+#define I2S_RDMA_ERR_IRQ_MASK_SHFT    (1)
 #define I2S_RDMA_ERR_IRQ_MASK_MASK    (0x01UL << I2S_RDMA_ERR_IRQ_MASK_SHFT)
-#define I2S_WDMA_IRQ_MASK_SHFT        2
+#define I2S_WDMA_IRQ_MASK_SHFT        (2)
 #define I2S_WDMA_IRQ_MASK_MASK        (0x01UL << I2S_WDMA_IRQ_MASK_SHFT)
-#define I2S_WDMA_ERR_IRQ_MASK_SHFT    3
+#define I2S_WDMA_ERR_IRQ_MASK_SHFT    (3)
 #define I2S_WDMA_ERR_IRQ_MASK_MASK    (0x01UL << I2S_WDMA_ERR_IRQ_MASK_SHFT)
 
 /**
  * \brief           I2S int_status (0xA8) bit definition
  */
-#define I2S_RDMA_IRQ_STATUS_SHFT      0
+#define I2S_RDMA_IRQ_STATUS_SHFT      (0)
 #define I2S_RDMA_IRQ_STATUS_MASK      (0x01UL << I2S_RDMA_IRQ_STATUS_SHFT)
-#define I2S_RDMA_ERR_IRQ_STATUS_SHFT  1
+#define I2S_RDMA_ERR_IRQ_STATUS_SHFT  (1)
 #define I2S_RDMA_ERR_IRQ_STATUS_MASK  (0x01UL << I2S_RDMA_ERR_IRQ_STATUS_SHFT)
-#define I2S_WDMA_IRQ_STATUS_SHFT      0
+#define I2S_WDMA_IRQ_STATUS_SHFT      (0)
 #define I2S_WDMA_IRQ_STATUS_MASK      (0x01UL << I2S_WDMA_IRQ_STATUS_SHFT)
-#define I2S_WDMA_ERR_IRQ_STATUS_SHFT  1
+#define I2S_WDMA_ERR_IRQ_STATUS_SHFT  (1)
 #define I2S_WDMA_ERR_IRQ_STATUS_MASK  (0x01UL << I2S_WDMA_ERR_IRQ_STATUS_SHFT)
 
 

@@ -19,7 +19,6 @@
  *        - OCF = 0x0001 : Read Local Version Information command
  *        - OCF = 0x0002 : Read Local Supported Commands command
  *        - OCF = 0x0003 : Read Local Supported Features command
- *        - OCF = 0x0005 : Read Buffer Size command
  *        - OCF = 0x0009 : Read BD_ADDR command
  *
  *        Includes LE Controller commands (OGF = 0x08):
@@ -58,7 +57,7 @@ extern "C" {
  * @ingroup hci_cmd_cntlr
  *
  */
-//bool hci_set_event_mask_cmd(void);
+//ble_err_t hci_set_event_mask_cmd(void);
 
 
 /** Reset command.
@@ -66,7 +65,7 @@ extern "C" {
  * @ingroup hci_cmd_cntlr
  *
  */
-//bool hci_reset_cmd(void);
+//ble_err_t hci_reset_cmd(void);
 
 
 /** Read Local Version Information command.
@@ -120,7 +119,8 @@ ble_err_t hci_read_bd_addr_cmd(void);
  * @param p_param : a pointer to the event mask.
  *
  * @return BLE_ERR_OK   : success.
- * @return ERR_MEM  : failed to send HCI command.
+ * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
+ * @return BLE_ERR_HCI_TX_CMD_QUEUE_FULL : failed to tx data queue full.
  */
 ble_err_t hci_le_set_event_mask_cmd(uint8_t *p_param);
 
@@ -199,7 +199,7 @@ ble_err_t hci_le_add_device_to_filter_accept_list_cmd(ble_hci_cmd_add_device_to_
  *
  * @ingroup hci_cmd_cntlr
  *
- * @param p_param : a pointer to the remove deice from filter accept list parameter.
+ * @param p_param : a pointer to the remove device from filter accept list parameter.
  *
  * @return BLE_ERR_OK   : success.
  * @return BLE_ERR_DATA_MALLOC_FAIL  : failed to malloc memory.
