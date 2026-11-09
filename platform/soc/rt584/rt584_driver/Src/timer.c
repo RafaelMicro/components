@@ -13,7 +13,6 @@
  * Author:          Kc.tseng
  */
 
-#include <stdio.h>
 #include "timer.h"
 #include "sysctrl.h"
 
@@ -84,6 +83,9 @@ uint32_t timer_open(uint32_t timer_id, timer_config_mode_t cfg,
         /* device already opened */
         return STATUS_INVALID_REQUEST;
     }
+
+    // Enable Timer Clk
+    enable_perclk((TIMER0_CLK + timer_id));
 
     timer = base[timer_id];
 
@@ -248,6 +250,9 @@ uint32_t timer_capture_open(uint32_t timer_id, timer_capture_config_mode_t cfg,
         /*device already opened*/
         return STATUS_INVALID_REQUEST;    
     }
+
+    // Enable Timer Clk
+    enable_perclk((TIMER0_CLK + timer_id));
 
     timer = base[timer_id];
 
@@ -436,6 +441,9 @@ uint32_t timer_pwm_open(uint32_t timer_id,
         return STATUS_INVALID_REQUEST;    
     }
 
+    // Enable Timer Clk
+    enable_perclk((TIMER0_CLK + timer_id));
+
     timer = base[timer_id];
 
     timer->control.reg = 0;
@@ -588,6 +596,9 @@ uint32_t slowtimer_open(uint32_t timer_id, slowtimer_config_mode_t cfg,
     if (slowtimer_cfg[timer_id].state != TIMER_STATE_CLOSED) {
         return STATUS_INVALID_REQUEST;    /*device already opened*/
     }
+
+    // Enable 32K Timer Clk
+    enable_perclk((TIMER3_32K_CLK + timer_id));
 
     timer = base[timer_id];
 

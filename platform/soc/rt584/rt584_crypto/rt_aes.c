@@ -301,6 +301,9 @@ uint32_t aes_acquire(struct aes_ctx *ctx)
     /*Not implement yet.. This function is reserved for  Multitasking used*/
     crypto_mutex_lock();
 
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     if (crypto_firmware != AES_FIRMWARE)
     {
         aes_fw_load();   /*reload AES firmware */
@@ -462,316 +465,336 @@ uint32_t aes_ctr_buffer_crypt(struct aes_ctx *ctx,
 }
 
 
-static void ccm_cbc_mac(struct aes_ccm_encryption_packet  *ccm_packet, uint8_t *mac_buf)
+#define CCM_HW_BUFFER_SIZE   1024   /* CRYPTO_BASE+0x1800 ~ CRYPTO_BASE+0x1BFF, fixed by hardware */
+
+/*
+ * Bytes ccm_cbc_mac() writes for the B0 block + AAD block before it ever starts
+ * chunking `data`:
+ *   B0 block (16 bytes)
+ * + AAD block, only when hdr_len>0: roundup16(2 + hdr_len)
+ * `data` itself is chunked to support arbitrary length, but the AAD is not, so
+ * this prefix alone must fit in CCM_HW_BUFFER_SIZE or it overwrites the AES
+ * round-key region at 0x1C00.
+ */
+static uint32_t ccm_aad_prefix_size(uint32_t hdr_len)
+{
+    uint32_t size = AES_BLOCKLEN; /* B0 */
+
+    if (hdr_len > 0)
+    {
+        size += (2 + hdr_len + (AES_BLOCKLEN - 1)) & ~(uint32_t)(AES_BLOCKLEN - 1);
+    }
+
+    return size;
+}
+
+/*
+ * 分段執行 CBC-MAC：支援任意長度的明文 data
+ */
+static void ccm_cbc_mac(struct aes_ccm_encryption_packet *ccm_packet, uint8_t *mac_buf)
 {
     uint32_t   padding_bytes, cbc_num;
     uint8_t    *aes_buffer_ptr;
     uint8_t    B0_flags;
+    uint8_t    current_iv[AES_BLOCKLEN];
+    uint32_t   prefix_len, avail_data, chunk_data, processed_data;
 
     aes_buffer_ptr = (uint8_t *) (CRYPTO_BASE + 0x1800);
 
-
     if (ccm_packet->hdr_len > 0)
     {
-        B0_flags = 0x40 | ((ccm_packet->mlen - 2) << 2) | 1;  /*there is  addition cleartext */
+        B0_flags = 0x40 | ((ccm_packet->mlen - 2) << 2) | 1;  /* there is additional cleartext */
     }
     else
     {
         B0_flags = ((ccm_packet->mlen - 2) << 2) | 1;
     }
 
-    /*create B0*/
+    /* create B0 */
     *aes_buffer_ptr++ = B0_flags;
-    memcpy( (void *)aes_buffer_ptr, (void *) (ccm_packet->nonce), NONCE_LEN);
-    aes_buffer_ptr += NONCE_LEN;            /*Notice: We fixed length field is 2 bytes, so NONCE must be 13 bytes.*/
+    memcpy((void *)aes_buffer_ptr, (void *)(ccm_packet->nonce), NONCE_LEN);
+    aes_buffer_ptr += NONCE_LEN;
 
-    *aes_buffer_ptr++ = (ccm_packet->data_len >> 8) & 0xFF;    /*B0[14]: plen high value*/
-    *aes_buffer_ptr++ = ccm_packet->data_len & 0xFF;              /*B0[15]: plen low value*/
+    *aes_buffer_ptr++ = (ccm_packet->data_len >> 8) & 0xFF;    /* B0[14]: plen high value */
+    *aes_buffer_ptr++ = ccm_packet->data_len & 0xFF;           /* B0[15]: plen low value */
 
+    /* additional authenticated data (AAD) */
     if (ccm_packet->hdr_len > 0)
     {
-
-        /*the first 2 bytes is length for additional data*/
         *aes_buffer_ptr++ = (ccm_packet->hdr_len >> 8) & 0xFF;
         *aes_buffer_ptr++ = ccm_packet->hdr_len & 0xFF;
 
         memcpy(aes_buffer_ptr, ccm_packet->hdr, ccm_packet->hdr_len);
-
         aes_buffer_ptr += ccm_packet->hdr_len;
 
-        /*add padding 0 to 16N... if hlen is 16N+14 , no extra padding 0 required*/
+        /* add padding 0 to 16N */
         if ((ccm_packet->hdr_len & (AES_BLOCKLEN - 1)) != (AES_BLOCKLEN - 2))
         {
-
             padding_bytes = AES_BLOCKLEN - ((2 + ccm_packet->hdr_len) & (AES_BLOCKLEN - 1));
-
             memset(aes_buffer_ptr, 0, padding_bytes);
-
             aes_buffer_ptr += padding_bytes;
-
         }
-        else
+    }
+
+    prefix_len = (uint32_t)aes_buffer_ptr - (CRYPTO_BASE + 0x1800);
+    avail_data = CCM_HW_BUFFER_SIZE - prefix_len;
+
+    if (ccm_packet->data_len <= avail_data)
+    {
+        /* 單一 Chunk 即可容納全部 Data */
+        chunk_data = ccm_packet->data_len;
+        if (chunk_data > 0)
         {
-            padding_bytes = 0;  /*no padding bytes*/
+            memcpy(aes_buffer_ptr, ccm_packet->data, chunk_data);
+            aes_buffer_ptr += chunk_data;
+
+            if ((chunk_data & (AES_BLOCKLEN - 1)) != 0)
+            {
+                padding_bytes = AES_BLOCKLEN - (chunk_data & (AES_BLOCKLEN - 1));
+                memset(aes_buffer_ptr, 0, padding_bytes);
+                aes_buffer_ptr += padding_bytes;
+            }
         }
 
-    }
+        cbc_num = (uint32_t)aes_buffer_ptr - (CRYPTO_BASE + 0x1800);
 
-    /*data*/
-    memcpy(aes_buffer_ptr, ccm_packet->data, ccm_packet->data_len);
+        /* set initial IV zero */
+        memset((uint8_t *)(CRYPTO_BASE + 0x1D10), 0, AES_BLOCKLEN);
 
-    aes_buffer_ptr += ccm_packet->data_len;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D50)) = 0;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D40)) = 10 - 1;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D48)) = (cbc_num >> 4) - 1;
 
-    if ((ccm_packet->data_len & (AES_BLOCKLEN - 1)) != 0)
-    {
-        padding_bytes = AES_BLOCKLEN - (ccm_packet->data_len & (AES_BLOCKLEN - 1));
-
-        memset(aes_buffer_ptr, 0, padding_bytes);
-
-        aes_buffer_ptr += padding_bytes;
-
-    }
-    else
-    {
-        padding_bytes = 0;  /*no padding bytes*/
-    }
-
-    cbc_num =  (uint32_t) aes_buffer_ptr - (CRYPTO_BASE + 0x1800);
-
-    /*set initial IV zero*/
-    memset( (uint8_t *) (CRYPTO_BASE + 0x1D10), 0, AES_BLOCKLEN);
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D50))   = 0;             /*data offset. 0*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D40))   = 10 - 1;        /*it should be 10-1*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D48) )  = (cbc_num >> 4) - 1;  /*block number*/
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CBC_Enc_inst_index;
-
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CBC_Enc_inst_index;
 
 #if defined(CONFIG_CRYPTO_INT_ENABLE)
-    //Start the acceleator engine
-    crypto_start(3, 0);
-
-    while (crypto_finish == 0)
-        ;
-
-    crypto_finish = 0;
-
+        crypto_start(3, 0);
+        while (crypto_finish == 0);
+        crypto_finish = 0;
 #else
-    //Start the acceleator engine
+        crypto_start(3, 0);
+        while (!CRYPTO->crypto_cfg.bit.crypto_done);
+        CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
+#endif
+
+        memcpy(mac_buf, (aes_buffer_ptr - AES_BLOCKLEN), ccm_packet->mlen);
+        return;
+    }
+
+    /* 多 Chunk 情況：Chunk 0 填滿至 1024 bytes (avail_data 為 16 的倍數) */
+    chunk_data = avail_data;
+    memcpy(aes_buffer_ptr, ccm_packet->data, chunk_data);
+    aes_buffer_ptr += chunk_data;
+
+    cbc_num = (uint32_t)aes_buffer_ptr - (CRYPTO_BASE + 0x1800);
+
+    memset((uint8_t *)(CRYPTO_BASE + 0x1D10), 0, AES_BLOCKLEN);
+
+    *((volatile uint32_t *)(CRYPTO_BASE + 0x1D50)) = 0;
+    *((volatile uint32_t *)(CRYPTO_BASE + 0x1D40)) = 10 - 1;
+    *((volatile uint32_t *)(CRYPTO_BASE + 0x1D48)) = (cbc_num >> 4) - 1;
+
+    *((volatile uint32_t *)(CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CBC_Enc_inst_index;
+
+#if defined(CONFIG_CRYPTO_INT_ENABLE)
     crypto_start(3, 0);
-
-    //Waiting for calculation done
+    while (crypto_finish == 0);
+    crypto_finish = 0;
+#else
+    crypto_start(3, 0);
     while (!CRYPTO->crypto_cfg.bit.crypto_done);
-
-    //clear the VLW_DEF register
     CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
 #endif
 
-    memcpy(mac_buf, (aes_buffer_ptr - AES_BLOCKLEN), ccm_packet->mlen); /*mac is in the last block*/
+    memcpy(current_iv, aes_buffer_ptr - AES_BLOCKLEN, AES_BLOCKLEN);
+    processed_data = chunk_data;
 
+    /* 逐段處理剩餘 Data */
+    while (processed_data < ccm_packet->data_len)
+    {
+        uint32_t remain = ccm_packet->data_len - processed_data;
+        chunk_data = (remain > CCM_HW_BUFFER_SIZE) ? CCM_HW_BUFFER_SIZE : remain;
+        aes_buffer_ptr = (uint8_t *)(CRYPTO_BASE + 0x1800);
+
+        memcpy((uint8_t *)(CRYPTO_BASE + 0x1D10), current_iv, AES_BLOCKLEN);
+
+        memcpy(aes_buffer_ptr, ccm_packet->data + processed_data, chunk_data);
+        aes_buffer_ptr += chunk_data;
+
+        if ((chunk_data & (AES_BLOCKLEN - 1)) != 0)
+        {
+            padding_bytes = AES_BLOCKLEN - (chunk_data & (AES_BLOCKLEN - 1));
+            memset(aes_buffer_ptr, 0, padding_bytes);
+            aes_buffer_ptr += padding_bytes;
+        }
+
+        cbc_num = (uint32_t)aes_buffer_ptr - (CRYPTO_BASE + 0x1800);
+
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D50)) = 0;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D40)) = 10 - 1;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D48)) = (cbc_num >> 4) - 1;
+
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CBC_Enc_inst_index;
+
+#if defined(CONFIG_CRYPTO_INT_ENABLE)
+        crypto_start(3, 0);
+        while (crypto_finish == 0);
+        crypto_finish = 0;
+#else
+        crypto_start(3, 0);
+        while (!CRYPTO->crypto_cfg.bit.crypto_done);
+        CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
+#endif
+
+        memcpy(current_iv, aes_buffer_ptr - AES_BLOCKLEN, AES_BLOCKLEN);
+        processed_data += chunk_data;
+    }
+
+    memcpy(mac_buf, current_iv, ccm_packet->mlen);
 }
 
-uint32_t aes_ccm_encryption(struct aes_ccm_encryption_packet  *ccm_packet)
+/*
+ * 分段執行 CTR 加密/解密：支援任意長度
+ */
+static void ccm_ctr_crypt(const uint8_t *nonce, uint32_t counter, const uint8_t *in_buf, uint8_t *out_buf, uint32_t len)
 {
-    uint8_t    mac_buffer[16];
+    uint32_t processed = 0;
 
-    uint32_t   cbc_num, output_length, mlen;
-    uint8_t    *aes_buffer_ptr, *out_buf_ptr;
+    while (processed < len)
+    {
+        uint32_t remain = len - processed;
+        uint32_t chunk_len = (remain > CCM_HW_BUFFER_SIZE) ? CCM_HW_BUFFER_SIZE : remain;
+        uint32_t num_blocks = (chunk_len + (AES_BLOCKLEN - 1)) / AES_BLOCKLEN;
 
-    /* 1. check return buffer.  output buffer should not null.
-     * 2. check input data length should be less than 1024 bytes.
-     * 3. check mlen?(valid value is 4, 6, 8, 10, 12, 14, 16)
-     *
-     */
+        /* 設定 CTR IV: 0x01 | Nonce (13B) | counter_hi | counter_lo */
+        uint8_t *iv_ptr = (uint8_t *)(CRYPTO_BASE + 0x1D10);
+        *iv_ptr++ = 1;
+        memcpy(iv_ptr, nonce, NONCE_LEN);
+        iv_ptr += NONCE_LEN;
+        *iv_ptr++ = (counter >> 8) & 0xFF;
+        *iv_ptr++ = counter & 0xFF;
+
+        memcpy((uint8_t *)(CRYPTO_BASE + 0x1800), in_buf + processed, chunk_len);
+
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D50)) = 0;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D40)) = 10 - 1;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D48)) = num_blocks - 1;
+
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D58)) = 0x01000000;
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1D5C)) = 0x00010000;
+
+        *((volatile uint32_t *)(CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CTR_inst_index;
+
+#if defined(CONFIG_CRYPTO_INT_ENABLE)
+        crypto_start(3, 0);
+        while (crypto_finish == 0);
+        crypto_finish = 0;
+#else
+        crypto_start(3, 0);
+        while (!CRYPTO->crypto_cfg.bit.crypto_done);
+        CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
+#endif
+
+        memcpy(out_buf + processed, (uint8_t *)(CRYPTO_BASE + 0x1800), chunk_len);
+
+        processed += chunk_len;
+        counter += num_blocks;
+    }
+}
+
+uint32_t aes_ccm_encryption(struct aes_ccm_encryption_packet *ccm_packet)
+{
+    uint8_t mac_buffer[16] = { 0 };
+    uint8_t encrypted_mac[16];
+    uint32_t output_length, mlen;
+    uint8_t *out_buf_ptr;
 
     output_length = ccm_packet->hdr_len + ccm_packet->data_len + ccm_packet->mlen;
-
-    /*This check can be removed for shrink code performance.*/
     mlen = (ccm_packet->mlen - 2) >> 1;
 
-    /*Here we assume ccm max packet is less than 1024 bytes*/
     if ((ccm_packet->out_buf == NULL) || (*(ccm_packet->out_buf_len) < output_length) ||
-            (output_length > 1024) || (mlen == 0) || (mlen > 7))
+        (mlen == 0) || (mlen > 7) ||
+        (ccm_aad_prefix_size(ccm_packet->hdr_len) > CCM_HW_BUFFER_SIZE))
     {
         return STATUS_INVALID_PARAM;
     }
 
+    /* 1. 分段計算 CBC-MAC */
     ccm_cbc_mac(ccm_packet, mac_buffer);
 
-    /*ctr mode --- Notice: because hardware using counter index start from 0.
-      we should re-order  mac location to the first block, then move the block to end*/
+    /* 2. 用 Counter 0 加密 MAC */
+    ccm_ctr_crypt(ccm_packet->nonce, 0, mac_buffer, encrypted_mac, 16);
 
-    /*set ctr IV ==>  0x01 NONCE (13 bytes) 00 00*/
-    aes_buffer_ptr = (uint8_t *) (CRYPTO_BASE + 0x1D10);
-
-    *aes_buffer_ptr++ = 1;
-    memcpy(aes_buffer_ptr, ccm_packet->nonce, NONCE_LEN);
-    aes_buffer_ptr += NONCE_LEN;
-
-    *aes_buffer_ptr++ = 0;
-    *aes_buffer_ptr++ = 0;
-
-    /*fill data to be */
-
-    aes_buffer_ptr = (uint8_t *) (CRYPTO_BASE + 0x1800);
-
-    memcpy(aes_buffer_ptr, mac_buffer, ccm_packet->mlen);   /*in fact, we don't care tail data of mlen ~ 16*/
-    aes_buffer_ptr += 16;
-
-    memcpy(aes_buffer_ptr, ccm_packet->data, ccm_packet->data_len); /*copy message data*/
-
-    aes_buffer_ptr += ccm_packet->data_len;
-
-    cbc_num = (uint32_t) aes_buffer_ptr - (CRYPTO_BASE + 0x1800) + (AES_BLOCKLEN - 1); /*for counter based*/
-
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D50))   = 0;             /*data offset. 0*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D40))   = 10 - 1;        /*it should be 10-1*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D48) )  = (cbc_num >> 4) - 1;
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D58) )  = 0x01000000;    /*increase byte[3] first*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D5C) )  = 0x00010000;    /*increate byte[2] if carry in*/
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CTR_inst_index;
-
-#if defined(CONFIG_CRYPTO_INT_ENABLE)
-    crypto_start(3, 0);
-
-
-    while (crypto_finish == 0)
-        ;
-
-    crypto_finish = 0;
-#else
-    crypto_start(3, 0);
-
-    //Waiting for calculation done
-    while (!CRYPTO->crypto_cfg.bit.crypto_done);
-
-    //clear the VLW_DEF register
-    CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
-#endif
-
-    /*ok now we should combine the output message*/
+    /* 3. 輸出 Header */
     out_buf_ptr = ccm_packet->out_buf;
+    if (ccm_packet->hdr_len > 0)
+    {
+        memcpy(out_buf_ptr, ccm_packet->hdr, ccm_packet->hdr_len);
+        out_buf_ptr += ccm_packet->hdr_len;
+    }
 
-    /*copy hdr*/
-    memcpy(out_buf_ptr, ccm_packet->hdr,  ccm_packet->hdr_len);
+    /* 4. 分段加密 Data (Counter 從 1 開始) */
+    if (ccm_packet->data_len > 0)
+    {
+        ccm_ctr_crypt(ccm_packet->nonce, 1, ccm_packet->data, out_buf_ptr, ccm_packet->data_len);
+        out_buf_ptr += ccm_packet->data_len;
+    }
 
-    out_buf_ptr += ccm_packet->hdr_len;
+    /* 5. 輸出加密後的 MAC Tag */
+    memcpy(out_buf_ptr, encrypted_mac, ccm_packet->mlen);
 
-    memcpy(out_buf_ptr, (uint8_t *) (CRYPTO_BASE + 0x1810),  ccm_packet->data_len);     //0xC10
-
-    out_buf_ptr += ccm_packet->data_len;
-
-    memcpy(out_buf_ptr, (uint8_t *) (CRYPTO_BASE + 0x1800),  ccm_packet->mlen);     //0xC00
-
-    *(ccm_packet->out_buf_len) =  output_length;
+    *(ccm_packet->out_buf_len) = output_length;
 
     return STATUS_SUCCESS;
-
 }
 
-uint32_t aes_ccm_decryption_verification(struct aes_ccm_decryption_packet  *ccm_packet)
+uint32_t aes_ccm_decryption_verification(struct aes_ccm_decryption_packet *ccm_packet)
 {
-    uint8_t    mac_buffer[16], payload_mac[16];
+    uint8_t mac_buffer[16], payload_mac[16], mac_in[16] = { 0 };
+    struct aes_ccm_encryption_packet ccm_cbc;
+    uint32_t mlen;
+    uint8_t *pay_mac_ptr;
 
-    struct     aes_ccm_encryption_packet  ccm_cbc;
-
-    uint32_t   cbc_num, mlen;
-    uint8_t    *aes_buffer_ptr,  *pay_mac_ptr;
-
-
-    /* 1. check return buffer.  output buffer should not null.
-     * 2. check input data length should be less than 1024 bytes.
-     * 3. check mlen?(valid value is 4, 6, 8, 10, 12, 14, 16)
-     *
-     */
-
-    /*This check can be removed for shrink code performance.*/
     mlen = (ccm_packet->mlen - 2) >> 1;
 
     if ((ccm_packet->out_buf == NULL) || (mlen == 0) || (mlen > 7) ||
-            (*(ccm_packet->out_buf_len) < ccm_packet->data_len) || (ccm_packet->payload_buf == NULL) )
+        (*(ccm_packet->out_buf_len) < ccm_packet->data_len) || (ccm_packet->payload_buf == NULL) ||
+        (ccm_aad_prefix_size(ccm_packet->hdr_len) > CCM_HW_BUFFER_SIZE))
     {
         return STATUS_INVALID_PARAM;
     }
 
-    /*ctr mode --- Notice: because hardware using counter index start from 0.
-      we should re-order  mac location to the first block, then move the block to end*/
-
-    /*set ctr IV ==>  0x01 NONCE (14 bytes) 00 00*/
-    aes_buffer_ptr = (uint8_t *) (CRYPTO_BASE + 0x1D10);
-
-    *aes_buffer_ptr++ = 1;
-    memcpy(aes_buffer_ptr, ccm_packet->nonce, NONCE_LEN);
-    aes_buffer_ptr += NONCE_LEN;
-
-    *aes_buffer_ptr++ = 0;
-    *aes_buffer_ptr++ = 0;
-
-    aes_buffer_ptr = (uint8_t *) (CRYPTO_BASE + 0x1800);
-
     pay_mac_ptr = ccm_packet->payload_buf + ccm_packet->hdr_len + ccm_packet->data_len;
 
-    memcpy(aes_buffer_ptr, pay_mac_ptr, ccm_packet->mlen);   /*in fact, we don't care tail data of mlen ~ 16*/
-    aes_buffer_ptr += 16;
+    /* 1. 用 Counter 0 解密 MAC
+     * 注意：payload_buf 只保證有 mlen bytes 的 tag，先複製 mlen bytes 到本地
+     * 16-byte 緩衝區再交給 ccm_ctr_crypt，避免其固定讀取 16 bytes 而越界讀取
+     * 呼叫端的 payload_buf。
+     */
+    memcpy(mac_in, pay_mac_ptr, ccm_packet->mlen);
+    ccm_ctr_crypt(ccm_packet->nonce, 0, mac_in, payload_mac, 16);
 
-    memcpy(aes_buffer_ptr,  (ccm_packet->payload_buf + ccm_packet->hdr_len), ccm_packet->data_len); /*copy message data*/
+    /* 2. 用 Counter 1, 2... 分段解密 Payload 密文至 out_buf */
+    if (ccm_packet->data_len > 0)
+    {
+        ccm_ctr_crypt(ccm_packet->nonce, 1,
+                      ccm_packet->payload_buf + ccm_packet->hdr_len,
+                      ccm_packet->out_buf,
+                      ccm_packet->data_len);
+    }
 
-    aes_buffer_ptr += ccm_packet->data_len;
-
-    cbc_num = (uint32_t) aes_buffer_ptr - (CRYPTO_BASE + 0x1800) + (AES_BLOCKLEN - 1); /*for counter based*/
-
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D50))   = 0;             /*data offset. 0*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D40))   = 10 - 1;        /*it should be 10-1*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D48) )  = (cbc_num >> 4) - 1;
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D58) )  = 0x01000000;    /*increase byte[3] first*/
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1D5C) )  = 0x00010000;    /*increate byte[2] if carry in*/
-
-    *((volatile uint32_t *) (CRYPTO_BASE + 0x1000)) = 0xa0000000 | AES_CTR_inst_index;
-
-#if defined(CONFIG_CRYPTO_INT_ENABLE)
-    crypto_start(3, 0);
-
-    while (crypto_finish == 0)
-        ;
-
-    crypto_finish = 0;
-#else
-
-    crypto_start(3, 0);
-
-    //Waiting for calculation done
-    while (!CRYPTO->crypto_cfg.bit.crypto_done);
-
-    //clear the VLW_DEF register
-    CRYPTO->crypto_cfg.bit.clr_crypto_int = 1;
-#endif
-
-    /*save payload caculate mac*/
-    memcpy(payload_mac, (uint8_t *) (CRYPTO_BASE + 0x1800), (ccm_packet->mlen));
-
-    /*copy ctr decryption result to out_buf*/
-    memcpy(ccm_packet->out_buf, (uint8_t *) (CRYPTO_BASE + 0x1810), ccm_packet->data_len);
-
+    /* 3. 使用解密後的明文計算 CBC-MAC */
     ccm_cbc.nonce = ccm_packet->nonce;
-
     ccm_cbc.hdr = ccm_packet->payload_buf;
     ccm_cbc.hdr_len = ccm_packet->hdr_len;
-
     ccm_cbc.data = ccm_packet->out_buf;
     ccm_cbc.data_len = ccm_packet->data_len;
-
     ccm_cbc.mlen = ccm_packet->mlen;
 
     ccm_cbc_mac(&ccm_cbc, mac_buffer);
 
-    /*compare decryption mac and cbc caculate mac*/
-    if (memcmp(mac_buffer, payload_mac, ccm_packet->mlen))
+    /* 4. 比對 MAC */
+    if (memcmp(mac_buffer, payload_mac, ccm_packet->mlen) != 0)
     {
         *(ccm_packet->out_buf_len) = 0;
         return STATUS_ERROR;
@@ -781,6 +804,7 @@ uint32_t aes_ccm_decryption_verification(struct aes_ccm_decryption_packet  *ccm_
 
     return STATUS_SUCCESS;
 }
+
 
 #endif
 

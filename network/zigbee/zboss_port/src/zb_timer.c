@@ -20,12 +20,8 @@
 #include "FreeRTOS.h"
 #include "timers.h"
 
-#include "mcu.h"
-#include "hosal_timer.h"
-#include "log.h"
 
 #include "zb_common.h"
-#include "zigbee_platform.h"
 //=============================================================================
 //                Private Definitions of const value
 //=============================================================================

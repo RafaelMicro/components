@@ -17,16 +17,11 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include <stdio.h>
-#include <string.h>
 
-#include "mcu.h"
 #include "uart_stdio.h"
 
 #include "cli.h"
-#include "shell.h"
 #ifdef CONFIG_BUILD_COMPONENT_SW_TIMER
-#include "sw_timer.h"
 #endif // CONFIG_BUILD_COMPONENT_SW_TIMER
 
 #define SYS_CLI_TASK_STACK_SIZE 2048

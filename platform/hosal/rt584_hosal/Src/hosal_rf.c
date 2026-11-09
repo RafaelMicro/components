@@ -838,14 +838,18 @@ static hosal_rf_status_t __rf_15p4_frame_counter_get(uint32_t* frame_counter) {
 }
 
 hosal_rf_status_t __rf_15p4_rtc_time_read(uint32_t* rtc_time) {
-    uint32_t rtc_time_tmp;
+#if 1
+    *rtc_time = rf_common_radio_get_rtc_from_host();
+#else
     uint32_t rtc_trigger = 0x200;
+    uint32_t rtc_time_tmp;
 
     RfMcu_MemorySet(0x400, (uint8_t*)&rtc_trigger, 4);
     do {
         RfMcu_MemoryGet(0x414, (uint8_t*)&rtc_time_tmp, 4);
         RfMcu_MemoryGet(0x414, (uint8_t*)rtc_time, 4);
     } while (rtc_time_tmp != *rtc_time);
+#endif
     return HOSAL_RF_STATUS_SUCCESS;
 }
 

@@ -14,9 +14,6 @@
  */
 #include "i2c_slave.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define I2C_SLAVE_STATE_CLOSE            (0)
 #define I2C_STATE_STATE_OPEN             (1)

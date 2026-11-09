@@ -266,6 +266,14 @@ static void mmdl_light_lightness_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc
         mmdl_light_lightness_update_extend(p_element, p_model, p_model);
     }
 
+    if (p_model->p_user_call_back != NULL)
+    {
+        ((model_lightness_user_call_back)(p_model->p_user_call_back))(p_element->element_address, p_light_lightness_state->lightness_actual);
+    }
+    else
+    {
+        printf("user call back not exist\n");
+    }
 
     if (state_changed && p_model->is_extended)
     {

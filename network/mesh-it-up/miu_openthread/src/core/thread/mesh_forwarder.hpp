@@ -340,6 +340,7 @@ public:
 #endif
 
 private:
+    // Stock 4: with LINK_REQUEST_MARGIN_MIN at -70 dBm, a link that still fails 4 frames in a row should be dropped.
     static constexpr uint8_t kFailedRouterTransmissions      = 4;
     static constexpr uint8_t kFailedCslDataPollTransmissions = 15;
 
@@ -353,7 +354,9 @@ private:
     // (requiring one hop) and one as additional guard increment.
     static constexpr uint8_t kMeshHeaderHopsLeft = Mle::kMaxRouteCost + 3;
 
+    // Floor covers one neighbor's CSMA plus one frame exchange; jitter decorrelates routers sharing the domain.
     static constexpr uint32_t kTxDelayInterval = OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_INTERVAL; // In msec
+    static constexpr uint32_t kTxDelayJitter   = OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_JITTER;   // In msec
 
 #if OPENTHREAD_CONFIG_DELAY_AWARE_QUEUE_MANAGEMENT_ENABLE
     static constexpr uint32_t kTimeInQueueMarkEcn = OPENTHREAD_CONFIG_DELAY_AWARE_QUEUE_MANAGEMENT_MARK_ECN_INTERVAL;

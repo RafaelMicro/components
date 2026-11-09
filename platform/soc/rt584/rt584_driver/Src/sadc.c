@@ -16,8 +16,8 @@
 
 #include "sadc.h"
 #include "sysctrl.h"
-#include "aux_comp.h"
 #include "mp_sector.h"
+#include "xdma.h"
 
 static sadc_proc_cb sadc_reg_handler = NULL;
 static uint32_t sadc_xdma_single_mode = DISABLE;
@@ -180,6 +180,9 @@ void sadc_aio_enable(uint8_t aio_num) {
 void sadc_xdma_config(uint32_t xdma_start_addr,
                       uint16_t xdma_seg_size,
                       uint16_t xdma_blk_size) {
+    /*Enable XDMA Clk*/
+    xdma_init();
+    
     /*Reset XDMA*/
     SADC->sadc_wdma_ctl1.bit.cfg_sadc_wdma_ctl1 = ENABLE;
 

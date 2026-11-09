@@ -14,6 +14,7 @@
  */
 
 #include "rtc.h"
+#include "sysctrl.h"
 
 static rtc_cb_fn rtc_notify_cb;
 
@@ -31,6 +32,15 @@ __STATIC_INLINE uint32_t bcd2bin_ms(uint32_t val) {
 
 __STATIC_INLINE uint32_t bin2bcd_ms(uint32_t val) {
     return (((val / 100) << 8) | (((val / 10) % 10) << 4) | (val % 10));
+}
+
+/*
+ * On RT584, the RTC clock is controlled by the RTC enable setting.
+ * The peripheral RTC 32 kHz clock gate does not control RTC operation.
+ * Therefore, rtc_32k_init() is currently unused.
+ */
+void rtc_32k_init(void) {
+    enable_perclk(RTC_32K_CLK);
 }
 
 uint32_t rtc_get_time(rtc_time_t *tm) {

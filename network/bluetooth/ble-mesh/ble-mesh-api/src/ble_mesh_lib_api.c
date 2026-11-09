@@ -16,7 +16,6 @@
 //=============================================================================
 #include <string.h>
 /* OS API */
-#include "FreeRTOS.h"
 
 /* Mesh Library api */
 #include "mesh_api.h"

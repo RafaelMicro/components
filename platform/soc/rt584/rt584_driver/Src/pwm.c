@@ -12,10 +12,8 @@
 /*
  * Author:          ives.lee
  */
-#include <stdio.h>
-#include "mcu.h"
 #include "pwm.h"
-
+#include "xdma.h"
 
 
 typedef struct {
@@ -110,6 +108,8 @@ uint32_t pwm_init_fmt1(uint32_t id, uint32_t freqency) {
         return STATUS_INVALID_PARAM;
     }
 
+    /*Enable XDMA Clk*/
+    xdma_init();
 
     PWM->pwm_int_clear = PWM_RDMA0_INT_CLR | PWM_RDMA1_INT_CLR
                          | PWM_RDMA0_ERR_INT_CLR | PWM_RDMA1_ERR_INT_CLR
@@ -185,7 +185,8 @@ uint32_t pwm_init_fmt0(uint32_t id, uint32_t freqency,
         return STATUS_INVALID_PARAM;
     }
 
-
+    /*Enable XDMA Clk*/
+    xdma_init();
 
     pwm->pwm_int_clear = PWM_RDMA0_INT_CLR | PWM_RDMA1_INT_CLR
                          | PWM_RDMA0_ERR_INT_CLR | PWM_RDMA1_ERR_INT_CLR
@@ -565,6 +566,8 @@ uint32_t pwm_multi_init(pwm_config_t pwm_cfg, uint32_t freqency) {
         return STATUS_INVALID_PARAM;
     }
 
+    /*Enable XDMA Clk*/
+    xdma_init();
    
     pwm->pwm_int_clear = PWM_RDMA0_INT_CLR | PWM_RDMA1_INT_CLR
                          | PWM_RDMA0_ERR_INT_CLR | PWM_RDMA1_ERR_INT_CLR

@@ -1,9 +1,14 @@
 sdk_generate_library(rt582_bootloader)
 sdk_set_linker_script(${CMAKE_CURRENT_LIST_DIR}/bootloader/ld/rt582.ld)
 sdk_add_include_directories(bootloader/src)
+sdk_add_private_include_directories(bootloader/src)
 sdk_ifndef(CHIP_NAME "582")
 sdk_ifndef(CONFIG_TARGET_BOARD "bootloader")
 sdk_add_compile_definitions(-D__STARTUP_CLEAR_BSS)
+
+# Continuing the library-boundary rework (docs/internal/architecture/lib-dependencies.md).
+# Pure assembly startup.S, no #include of anything -- no SDK dependencies.
+sdk_library_strict_includes()
 
 if(CONFIG_BOOTLOADER_DEBUG)
 sdk_library_add_sources(

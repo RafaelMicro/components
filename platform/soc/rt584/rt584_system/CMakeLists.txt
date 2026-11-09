@@ -17,6 +17,8 @@ sdk_set_linker_script(${CMAKE_CURRENT_LIST_DIR}/ldscripts/rt584L.ld)
 endif()
 
 sdk_add_include_directories(Include)
+sdk_library_add_public_include_directories(Include)
+sdk_add_private_include_directories(Include)
 
 if(CONFIG_BOOTLOADER)
 sdk_library_add_sources(
@@ -30,5 +32,14 @@ sdk_library_add_sources(
     Src/mp_sector.c
 )
 endif()
+
+# Continuing the library-boundary rework (docs/internal/architecture/lib-dependencies.md).
+# system_mcu.c/mp_sector.c need mcu.h/flashctl.h/gpio.h/sysctrl.h/sysfun.h,
+# owned by the sibling rt584_driver -- a genuine mutual dependency (see
+# rt584_driver's own depends_on(rt584_system) for the reverse direction).
+# CMake supports cyclic PUBLIC links between static libraries for usage-
+# requirement (include) propagation; verified empirically via real build.
+sdk_library_depends_on(rt584_driver)
+sdk_library_strict_includes()
 
 

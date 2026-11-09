@@ -20,6 +20,7 @@
 #include <FreeRTOS.h>
 #include <semphr.h>
 #include <task.h>
+#include <timers.h>
 
 #include "log.h"
 #include "zb_common.h"
@@ -93,13 +94,46 @@ uint32_t crc32(uint32_t flash_addr, uint32_t data_len) {
 uint32_t file_offset_process = 0;
 uint32_t file_version_tmp = 0x01010101;
 uint32_t file_len = 0;
+static TimerHandle_t ota_reboot_timer = NULL;
+static StaticTimer_t ota_reboot_timer_struct;
+static bool ota_waiting_for_reboot = 0;
+void ota_reboot_timer_handler(TimerHandle_t xTimer);
 static uint8_t *p_program_data = NULL;
 static fota_information_t t_bootloader_ota_info = {0};
 static uint32_t mem_idx = 0;
+static uint32_t ota_flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
 extern uint8_t ota_image_ready;
 
-#define OTA_FILE_HEADER_LEN 62
-#define OTA_FILE_TAIL_LEN   22
+/* Zigbee OTA header (56) + upgrade image sub-element tag/length (6) */
+#define OTA_FILE_HEADER_LEN 62u
+#define OTA_PROGRAM_BUF_SIZE 0x1000u
+
+/*
+ * Rafael image header, at the start of the upgrade image sub-element (OTA file
+ * offset OTA_FILE_HEADER_LEN), written by
+ * examples/zigbee/gateway-module/ota_upload_tool_src/create_image.py.
+ * All fields little endian:
+ *   magic "RFOT" (4) | version (1) | header size (1) | image info (1) |
+ *   reserved (1) | signature length (4) | image length (4)
+ * Image info and signature length are handed to the bootloader through
+ * fota_information_t; the image that follows is stored in the FOTA bank.
+ */
+#define RAFAEL_HDR_MAGIC            0x544F4652
+#define RAFAEL_HDR_VERSION          1
+#define RAFAEL_HDR_LEN              16
+#define RAFAEL_HDR_IMAGE_INFO_MASK  (FOTA_IMAGE_INFO_COMPRESSED | FOTA_IMAGE_INFO_SIGNATURE)
+
+typedef struct {
+    uint8_t  raw[RAFAEL_HDR_LEN];
+    uint8_t  valid;
+    uint8_t  header_size;
+    uint8_t  image_info;
+    uint32_t signature_len;
+    uint32_t image_len;
+    uint32_t image_stored;      /* image bytes buffered or written to the bank */
+} ota_rx_state_t;
+
+static ota_rx_state_t prv_ota_rx;
 zb_callback_t zigbee_app_device_cb = NULL;
 zb_callback_t zigbee_app_zcl_cb = NULL;
 void register_app_cb(void* cb) {
@@ -112,6 +146,167 @@ void register_zcl_cb(void* cb) {
         zigbee_app_zcl_cb = (zb_callback_t) cb;
     }
 }
+
+static uint32_t prv_get_le32(const uint8_t* p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16)
+           | ((uint32_t)p[3] << 24);
+}
+
+static void prv_ota_rx_reset(void)
+{
+    memset(&prv_ota_rx, 0, sizeof(prv_ota_rx));
+    mem_idx = 0;
+    ota_flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
+}
+
+/* Program the first len bytes of p_program_data, padding the last page with 0xFF */
+static void prv_ota_flush(uint32_t len)
+{
+    uint32_t pages = (len + 0xFF) >> 8;
+    uint32_t i;
+
+    if (len & 0xFF)
+    {
+        memset(&p_program_data[len], 0xFF, 0x100 - (len & 0xFF));
+    }
+    for (i = 0; i < pages; i++)
+    {
+        log_printk("*");
+        while (flash_check_busy());
+        taskENTER_CRITICAL();
+        flash_write_page((uint32_t)&p_program_data[i << 8], ota_flash_addr);
+        taskEXIT_CRITICAL();
+        ota_flash_addr += 0x100;
+    }
+}
+
+static int prv_ota_parse_rafael_header(void)
+{
+    const uint8_t* p = prv_ota_rx.raw;
+
+    if (prv_get_le32(p) != RAFAEL_HDR_MAGIC)
+    {
+        log_error("OTA: Rafael image header not found");
+        return -1;
+    }
+    if (p[4] != RAFAEL_HDR_VERSION || p[5] < RAFAEL_HDR_LEN)
+    {
+        log_error("OTA: unsupported Rafael header version %u size %u", p[4], p[5]);
+        return -1;
+    }
+
+    prv_ota_rx.header_size = p[5];
+    prv_ota_rx.image_info = p[6];
+    prv_ota_rx.signature_len = prv_get_le32(&p[8]);
+    prv_ota_rx.image_len = prv_get_le32(&p[12]);
+
+    if (prv_ota_rx.image_info & ~RAFAEL_HDR_IMAGE_INFO_MASK)
+    {
+        log_error("OTA: unknown image info 0x%02X", prv_ota_rx.image_info);
+        return -1;
+    }
+    if (prv_ota_rx.image_len == 0
+        || prv_ota_rx.image_len > SIZE_OF_FOTA_BANK
+        || OTA_FILE_HEADER_LEN + prv_ota_rx.header_size + prv_ota_rx.image_len > file_len)
+    {
+        log_error("OTA: invalid image length %u (file %u)", prv_ota_rx.image_len, file_len);
+        return -1;
+    }
+    /* compressed + signed: the outer signature covers signature_len bytes of the image */
+    if ((prv_ota_rx.image_info & FOTA_IMAGE_INFO_SIGNATURE)
+        && (prv_ota_rx.image_info & FOTA_IMAGE_INFO_COMPRESSED)
+        && (prv_ota_rx.signature_len == 0 || prv_ota_rx.signature_len >= prv_ota_rx.image_len))
+    {
+        log_error("OTA: invalid signature length %u", prv_ota_rx.signature_len);
+        return -1;
+    }
+
+    prv_ota_rx.valid = 1;
+    log_info("OTA image: compressed %u, signed %u, length %u, signature length %u",
+             (prv_ota_rx.image_info & FOTA_IMAGE_INFO_COMPRESSED) ? 1 : 0,
+             (prv_ota_rx.image_info & FOTA_IMAGE_INFO_SIGNATURE) ? 1 : 0,
+             prv_ota_rx.image_len, prv_ota_rx.signature_len);
+    return 0;
+}
+
+/*
+ * Handle len bytes found at file_off of the OTA file, in download order:
+ * skip the Zigbee header, parse the Rafael header, store the image into the
+ * FOTA bank and ignore what follows the image (hash sub-element).
+ */
+static int prv_ota_rx_data(uint32_t file_off, const uint8_t* data, uint32_t len)
+{
+    uint32_t n;
+
+    while (len > 0)
+    {
+        if (file_off < OTA_FILE_HEADER_LEN)
+        {
+            n = OTA_FILE_HEADER_LEN - file_off;
+        }
+        else if (!prv_ota_rx.valid)
+        {
+            uint32_t hdr_off = file_off - OTA_FILE_HEADER_LEN;
+
+            if (hdr_off >= RAFAEL_HDR_LEN)
+            {
+                return -1;
+            }
+            n = RAFAEL_HDR_LEN - hdr_off;
+            if (n > len)
+            {
+                n = len;
+            }
+            memcpy(&prv_ota_rx.raw[hdr_off], data, n);
+            if (hdr_off + n == RAFAEL_HDR_LEN && prv_ota_parse_rafael_header() != 0)
+            {
+                return -1;
+            }
+        }
+        else if (file_off < OTA_FILE_HEADER_LEN + prv_ota_rx.header_size)
+        {
+            /* header bytes of a newer header version */
+            n = OTA_FILE_HEADER_LEN + prv_ota_rx.header_size - file_off;
+        }
+        else if (prv_ota_rx.image_stored < prv_ota_rx.image_len)
+        {
+            n = prv_ota_rx.image_len - prv_ota_rx.image_stored;
+            if (n > OTA_PROGRAM_BUF_SIZE - mem_idx)
+            {
+                n = OTA_PROGRAM_BUF_SIZE - mem_idx;
+            }
+            if (n > len)
+            {
+                n = len;
+            }
+            memcpy(&p_program_data[mem_idx], data, n);
+            mem_idx += n;
+            prv_ota_rx.image_stored += n;
+
+            if (mem_idx == OTA_PROGRAM_BUF_SIZE
+                || prv_ota_rx.image_stored == prv_ota_rx.image_len)
+            {
+                prv_ota_flush(mem_idx);
+                mem_idx = 0;
+            }
+        }
+        else
+        {
+            break;      /* hash sub-element after the image */
+        }
+
+        if (n > len)
+        {
+            n = len;
+        }
+        file_off += n;
+        data += n;
+        len -= n;
+    }
+    return 0;
+}
+
 void raf_device_cb(zb_uint8_t param)
 {
     zb_zcl_device_callback_param_t *device_cb_param = ZB_BUF_GET_PARAM(param, zb_zcl_device_callback_param_t);
@@ -121,7 +316,6 @@ void raf_device_cb(zb_uint8_t param)
     zb_zcl_attr_t *attr_desc;
     zb_uint8_t imgstatus = ZB_ZCL_OTA_UPGRADE_IMAGE_STATUS_NORMAL;
     zb_uint8_t manuf = 123;
-    static uint32_t flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
 
     endpoint = get_endpoint_by_cluster(ZB_ZCL_CLUSTER_ID_OTA_UPGRADE, ZB_ZCL_CLUSTER_CLIENT_ROLE);
 
@@ -137,7 +331,11 @@ void raf_device_cb(zb_uint8_t param)
         switch (ota_upgrade_value->upgrade_status)
         {
         case ZB_ZCL_OTA_UPGRADE_STATUS_START:
-
+            if(ota_waiting_for_reboot)
+            {
+                ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_BUSY;
+                break;
+            }
             attr_desc = zb_zcl_get_attr_desc_a(endpoint,
                                                ZB_ZCL_CLUSTER_ID_OTA_UPGRADE, ZB_ZCL_CLUSTER_CLIENT_ROLE, ZB_ZCL_ATTR_OTA_UPGRADE_IMAGE_STATUS_ID);
             if (attr_desc)
@@ -166,9 +364,9 @@ void raf_device_cb(zb_uint8_t param)
                 file_version_tmp = ota_upgrade_value->upgrade.start.file_version;
                 file_len = ota_upgrade_value->upgrade.start.file_length;
 
-                flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
+                prv_ota_rx_reset();
 
-                for (i = 0; i < SIZE_OF_FOTA_BANK_UNCOMPRESS / 0x1000; i++)
+                for (i = 0; i < SIZE_OF_FOTA_BANK / 0x1000; i++)
                 {
 #ifdef CONFIG_APP_WDT_ENABLE
                     hosal_wdt_kick();
@@ -176,7 +374,7 @@ void raf_device_cb(zb_uint8_t param)
                     // Page erase (4096 bytes)
                     while (flash_check_busy());
                     taskENTER_CRITICAL();
-                    flash_erase(FLASH_ERASE_SECTOR, flash_addr + (0x1000 * i));
+                    flash_erase(FLASH_ERASE_SECTOR, FOTA_UPDATE_BUFFER_FW_ADDRESS + (0x1000 * i));
                     taskEXIT_CRITICAL();
                 }
 
@@ -201,107 +399,49 @@ void raf_device_cb(zb_uint8_t param)
                 p_program_data = pvPortMalloc(0x1060);
             }
 
+            if (!p_program_data)
+            {
+                log_error("OTA: no memory for the program buffer");
+                ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_ERROR;
+                break;
+            }
+
             /* Default accept; may adjust below on validation failure */
             ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_OK;
 
             /*
              * Offset validation and duplicate handling
-             * Expect strict in-order delivery:
-             *  - First block offset 0
-             *  - Subsequent block offset equals previously received total (excluding 62B header)
+             * Expect strict in-order delivery: each block starts where the
+             * previous one ended, the first one at offset 0.
              */
             do {
                 zb_uint32_t rx_off = ota_upgrade_value->upgrade.receive.file_offset;
                 zb_uint32_t rx_len = ota_upgrade_value->upgrade.receive.data_length;
 
-                if (rx_off == 0)
+                if (rx_off < file_offset_process)
                 {
-                    /* First packet: must be at offset 0 */
-                    mem_idx = 0;
-                    /* Skip 62B OTA header in the first block */
-                    if (rx_len <= OTA_FILE_HEADER_LEN)
-                    {
-                        /* Nothing to store yet; accept and wait for next block */
-                        file_offset_process = rx_len; /* track wire-level progress */
-                        break;
-                    }
-                    memcpy(p_program_data + mem_idx,
-                           (uint8_t *)(ota_upgrade_value->upgrade.receive.block_data + OTA_FILE_HEADER_LEN),
-                           rx_len - OTA_FILE_HEADER_LEN);
-                    mem_idx = rx_len - OTA_FILE_HEADER_LEN;
-                    file_offset_process = rx_len; /* keep original wire-size accounting */
+                    /* Duplicate/ retransmitted block: ignore payload but acknowledge OK */
+                    break;
                 }
-                else
+                if (rx_off != file_offset_process)
                 {
-                    /* Expected next offset equals what was received so far on wire */
-                    if (rx_off < file_offset_process)
-                    {
-                        /* Duplicate/ retransmitted block: ignore payload but acknowledge OK */
-                        break;
-                    }
-                    if (rx_off != file_offset_process)
-                    {
-                        /* Out-of-order or gap: signal busy to request retry */
-                        ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_BUSY;
-                        break;
-                    }
+                    /* Out-of-order or gap: signal busy to request retry */
+                    ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_BUSY;
+                    break;
+                }
 
-                    memcpy(p_program_data + mem_idx,
-                           (uint8_t *)ota_upgrade_value->upgrade.receive.block_data,
-                           rx_len);
-                    mem_idx += rx_len;
-                    file_offset_process += rx_len;
+                /* Skips the Zigbee header, parses the Rafael header and
+                 * stores the image into the FOTA bank */
+                if (prv_ota_rx_data(rx_off, ota_upgrade_value->upgrade.receive.block_data, rx_len) != 0)
+                {
+                    /* zboss sends Upgrade End with INVALID_IMAGE */
+                    ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_ERROR;
+                    break;
                 }
+                file_offset_process += rx_len;
 
                 log_printk(".");
-
-                /* Flush full 4KB chunks */
-                if (mem_idx >= 4096)
-                {
-                    for (i = 0; i < (0x1000 >> 8); i++)
-                    {
-                        log_printk("*");
-                        while (flash_check_busy());
-                        taskENTER_CRITICAL();
-                        flash_write_page((uint32_t) & ((uint8_t *)p_program_data)[i * (0x1 << 8)], flash_addr);
-                        taskEXIT_CRITICAL();
-                        flash_addr += (0x1 << 8);
-                    }
-
-                    /* Compact leftover bytes to buffer start */
-                    mem_idx -= 4096;
-                    if (mem_idx > 0)
-                    {
-                        memcpy(p_program_data, p_program_data + 4096, mem_idx);
-                    }
-                }
             } while (0);
-
-            /* Final chunk: write only remaining used pages */
-            if (ota_upgrade_value->upgrade.receive.file_offset + ota_upgrade_value->upgrade.receive.data_length >= file_len)
-            {
-                if (mem_idx > 0)
-                {
-                    zb_uint32_t pages = (mem_idx + 255) >> 8; /* ceil(mem_idx/256) */
-                    zb_uint32_t last_valid = mem_idx & 0xFF;  /* valid bytes in the last page */
-                    for (i = 0; i < pages; i++)
-                    {
-                        /* If this is the last page and it's partial, pad the rest with 0xFF */
-                        if ((i == (pages - 1)) && (last_valid != 0))
-                        {
-                            zb_uint32_t pad_off = (i << 8) + last_valid;
-                            memset(&p_program_data[pad_off], 0xFF, 256 - last_valid);
-                        }
-                        while (flash_check_busy());
-                        log_printk("*");
-                        taskENTER_CRITICAL();
-                        flash_write_page((uint32_t) & ((uint8_t *)p_program_data)[i * (0x1 << 8)], flash_addr);
-                        flash_addr += (0x1 << 8);
-                        taskEXIT_CRITICAL();
-                    }
-                    mem_idx = 0;
-                }
-            }
             break;
         case ZB_ZCL_OTA_UPGRADE_STATUS_ABORT:
 
@@ -314,7 +454,16 @@ void raf_device_cb(zb_uint8_t param)
             break;
         case ZB_ZCL_OTA_UPGRADE_STATUS_CHECK:
             /* Downloading is finished, do additional checks if needed etc before Upgrade End Request. */
-            ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_OK;
+            if (prv_ota_rx.valid && prv_ota_rx.image_stored == prv_ota_rx.image_len)
+            {
+                ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_OK;
+            }
+            else
+            {
+                log_error("OTA: image incomplete, header %u, stored %u of %u",
+                          prv_ota_rx.valid, prv_ota_rx.image_stored, prv_ota_rx.image_len);
+                ota_upgrade_value->upgrade_status = ZB_ZCL_OTA_UPGRADE_STATUS_ERROR;
+            }
             break;
         case ZB_ZCL_OTA_UPGRADE_STATUS_APPLY:
             /* Upgrade End Resp is ok, ZCL checks for manufacturer, image type etc are ok.
@@ -330,23 +479,23 @@ void raf_device_cb(zb_uint8_t param)
 
             log_info("FINISH");
 
-
-            flash_addr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
-
             memcpy(&t_bootloader_ota_info, (uint8_t *)FOTA_UPDATE_BANK_INFO_ADDRESS, sizeof(t_bootloader_ota_info));
 
+            /* image info, signature length and image length come from the Rafael header */
             t_bootloader_ota_info.fotabank_ready = FOTA_IMAGE_READY;
-            t_bootloader_ota_info.fotabank_startaddr = FOTA_UPDATE_BUFFER_FW_ADDRESS_UNCOMPRESS;
-            t_bootloader_ota_info.fota_image_info = 0;
-            t_bootloader_ota_info.signature_len = 0;
+            t_bootloader_ota_info.fotabank_startaddr = FOTA_UPDATE_BUFFER_FW_ADDRESS;
+            t_bootloader_ota_info.fota_image_info = prv_ota_rx.image_info;
+            t_bootloader_ota_info.signature_len = prv_ota_rx.signature_len;
             t_bootloader_ota_info.target_startaddr = APP_START_ADDRESS;
-            t_bootloader_ota_info.fotabank_datalen = file_len - OTA_FILE_HEADER_LEN - OTA_FILE_TAIL_LEN;
+            t_bootloader_ota_info.fotabank_datalen = prv_ota_rx.image_len;
             t_bootloader_ota_info.reserved[0] = file_version_tmp;
             t_bootloader_ota_info.fota_result = 0xFF;
             log_info("File version:0x%x", file_version_tmp);
 
-            if (t_bootloader_ota_info.fotabank_datalen == 0)
+            if (!prv_ota_rx.valid || prv_ota_rx.image_stored != prv_ota_rx.image_len
+                || t_bootloader_ota_info.fotabank_datalen == 0 || !p_program_data)
             {
+                log_error("OTA: no valid image in the FOTA bank, skip update");
                 if (p_program_data)
                 {
                     vPortFree(p_program_data);
@@ -377,8 +526,16 @@ void raf_device_cb(zb_uint8_t param)
             }
 
             log_info("Reboot device");
-            vTaskDelay(300);
-            sys_software_reset();
+            ota_waiting_for_reboot = 1;
+            if(ota_reboot_timer == NULL)
+            {
+                ota_reboot_timer = xTimerCreateStatic("Reboot", pdMS_TO_TICKS(3000), pdFALSE, NULL, ota_reboot_timer_handler, &ota_reboot_timer_struct);
+            }
+            if(ota_reboot_timer == NULL || xTimerStart(ota_reboot_timer, 0) != pdPASS)
+            {
+                vTaskDelay(300);
+                sys_software_reset();
+            }
             break;
         }
     }
@@ -393,7 +550,11 @@ void raf_device_cb(zb_uint8_t param)
 
     TRACE_MSG(TRACE_APP1, "<< test_device_cb %hd", (FMT__H, device_cb_param->status));
 }
-
+void ota_reboot_timer_handler(TimerHandle_t xTimer)
+{
+    ota_waiting_for_reboot = 0;
+    sys_software_reset();
+}
 void zigbee_app_zcl_send_command(zcl_data_req_t* pt_data_req) {
     uint16_t dstAddr = pt_data_req->dstAddr;
     zb_bufid_t buffer = 0;

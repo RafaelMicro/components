@@ -54,7 +54,7 @@ extern "C" {
 #endif
 
 // [Rafael] Build-time check under -std=gnu99: false gives a negative array size.
-#define MIU_BUILD_ASSERT(name, cond) \
+#define MIU_BUILD_ASSERT(name, cond)                                           \
     typedef char miu_build_assert_##name[(cond) ? 1 : -1]
 
 // [Rafael] Max PSDU this lib was built for (sub-G PHY); intentionally not tied
@@ -482,6 +482,8 @@ typedef struct {
 void otPlatRadioGetChannelRange(otRadioChRange_t* range);
 
 void otPlatRadioSetChannelRange(otRadioChRange_t range);
+
+void otPlatRadioSetReceiveSensitivity(uint8_t aSensitivityAbs);
 
 bool otPlatRadioIsTransmitPending(void);
 

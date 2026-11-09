@@ -15,8 +15,6 @@
  * The strntoumax() function and associated
  */
 
-#include <stddef.h>
-#include <stdint.h>
 #include <ctype.h>
 #include <inttypes.h>
 

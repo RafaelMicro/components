@@ -473,18 +473,6 @@ void MeshForwarder::ApplyDirectTxQueueLimit(Message &aMessage)
 #endif
 
     LogMessage(kMessageFullQueueDrop, aMessage);
-    {
-        // [Rafael][DEBUG] Passive capture of the stuck-child buffer state at the moment the
-        // direct-tx queue overflows. Sampled (1/32) so a drop burst does not flood the log.
-        // free>0 here => frames not draining (radio/MAC not sending), not a buffer-pool leak.
-        static uint16_t sFullQueueDropSample = 0;
-        if ((sFullQueueDropSample++ & 0x1F) == 0)
-        {
-            LogNote("[BUFDBG] dir-queue overflow: buf free=%u/%u maxused=%u",
-                    Get<MessagePool>().GetFreeBufferCount(), Get<MessagePool>().GetTotalBufferCount(),
-                    Get<MessagePool>().GetMaxUsedBufferCount());
-        }
-    }
     FinalizeMessageDirectTx(aMessage, kErrorDrop);
     RemoveMessageIfNoPendingTx(aMessage);
 
@@ -1175,7 +1163,7 @@ void MeshForwarder::UpdateNeighborLinkFailures(Neighbor &aNeighbor,
         if (aAllowNeighborRemove && (Mle::IsRouterRloc16(aNeighbor.GetRloc16())) &&
             (aNeighbor.GetLinkFailures() >= aFailLimit))
         {
-            LogInfo("[LinkFail] REMOVE NEIGHBOR 0x%04x due to No-Ack limit (%u)", 
+            LogInfo("[LinkFail] REMOVE NEIGHBOR 0x%04x due to No-Ack limit (%u)",
                       aNeighbor.GetRloc16(), aFailLimit);
 #if OPENTHREAD_FTD
             Get<Mle::MleRouter>().RemoveRouterLink(static_cast<Router &>(aNeighbor));
@@ -1225,22 +1213,31 @@ void MeshForwarder::HandleSentFrame(Mac::TxFrame &aFrame, Error aError)
     VerifyOrExit(mEnabled);
 
 #if OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_ENABLE
-    if (mDelayNextTx && (aError == kErrorNone))
+    if (mDelayNextTx)
     {
-        if (mMessageNextOffset < mSendMessage->GetLength())
+        uint32_t delay;
+
+        if (aError != kErrorNone)
         {
-            mTxDelayTimer.Start(20);
-            LogDebg("nextoffset %d Start tx delay timer for 20 msec", mMessageNextOffset);
+            // Channel access failure or a missing ack both mean the medium around us is congested. Resuming
+            // immediately (which is what clearing the flag here used to do) puts this frame straight back into the
+            // collision that just happened, so back off instead, over a wider window than the success case.
+            delay = kTxDelayInterval + Random::NonCrypto::GetUint32InRange(0, 2 * kTxDelayJitter + 1);
+        }
+        else if (mMessageNextOffset < mSendMessage->GetLength())
+        {
+            // More fragments of this message still to send. We only need to let the neighbor forward the fragment
+            // just handed over; no jitter, so the fragment burst keeps its ordering and stays short.
+            delay = kTxDelayInterval;
         }
         else
         {
-            mTxDelayTimer.Start(kTxDelayInterval);
-            LogDebg("Start tx delay timer for %lu msec", ToUlong(kTxDelayInterval));
+            delay = kTxDelayInterval + Random::NonCrypto::GetUint32InRange(0, kTxDelayJitter + 1);
         }
-    }
-    else
-    {
-        mDelayNextTx = false;
+
+        mTxDelayTimer.Start(delay);
+        LogDebg("Start tx delay timer for %lu msec (nextoffset:%d error:%s)", ToUlong(delay), mMessageNextOffset,
+                ErrorToString(aError));
     }
 #endif
 

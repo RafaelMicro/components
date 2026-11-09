@@ -339,6 +339,16 @@ public:
     void RemoveRouterLink(Router &aRouter);
 
     /**
+     * Indicates whether an aged-out neighbor router link is worth repairing with Link Requests.
+     *
+     * @param[in] aRouter  The neighbor router whose link has aged out.
+     *
+     * @retval TRUE   The link is on a forwarding path (or leads to the leader) and should be repaired.
+     * @retval FALSE  Nothing is routed through the link; it should be dropped instead of repaired.
+     */
+    bool ShouldRepairRouterLink(const Router &aRouter);
+
+    /**
      * Indicates whether or not the given Thread partition attributes are preferred.
      *
      * @param[in]  aSingletonA   Whether or not the Thread Partition A has a single router.
@@ -490,6 +500,20 @@ private:
     static constexpr uint32_t kAdvIntervalMaxUpperBound      = 32000; // Upper bound for I_MAX
     static constexpr uint32_t kReedAdvIntervalMin            = 570000;
     static constexpr uint32_t kReedAdvIntervalMax            = 630000;
+
+    // Send every router Advertisement twice, the second copy after a random
+    // delay in [kAdvRepeatDelayMin, kAdvRepeatDelayMax). The window sits
+    // above one forwarded-frame tx delay (16 + 48 msec) so a burst of
+    // relayed traffic cannot swallow both copies, and below I_MIN (5000) so
+    // it never reorders against the next interval. Widened from 250/750:
+    // that window is shorter than one channel-busy episode, so both copies
+    // hit the same CCA block and the repeat bought nothing.
+// Overridable so a control build (0) can be produced without editing this file.
+#ifndef MIU_MLE_ADV_REPEAT_ENABLE
+#define MIU_MLE_ADV_REPEAT_ENABLE 1
+#endif
+    static constexpr uint16_t kAdvRepeatDelayMin = 1000;
+    static constexpr uint16_t kAdvRepeatDelayMax = 3500;
 #if OPENTHREAD_CONFIG_MLE_LONG_ROUTES_ENABLE
     static constexpr uint32_t kAdvIntervalMaxLogRoutes = 5000;
 #endif
@@ -499,8 +523,14 @@ private:
     static constexpr uint8_t  kMinDowngradeNeighbors         = 3; //7
     static constexpr uint8_t  kNetworkIdTimeout              = 255; //120 // (in sec)
     static constexpr uint8_t  kRouterSelectionJitter         = 255; //120 // (in sec)
+    // Both left at stock so the router population matches the pre-adv-repeat baseline
+    // and MIU_MLE_ADV_REPEAT_ENABLE is the only variable between the A and B images.
+    // Keeping the stock values also keeps the permanent-demotion path live on purpose:
+    // it is the most sensitive readout of advertisement loss we have, turning adv loss
+    // into a hard countable event instead of a soft counter. Do not raise these to
+    // paper over demotion - the fix belongs in HandleTimeTick()/HandleChildStart().
     static constexpr uint8_t  kRouterDowngradeThreshold      = 28;
-    static constexpr uint8_t  kRouterUpgradeThreshold        = 4;
+    static constexpr uint8_t  kRouterUpgradeThreshold        = 16; // 4 left a demoted router no way back: 0923 bled 16->11 in 17h
     static constexpr uint16_t kDiscoveryMaxJitter            = 2000;//250; // Max jitter delay Discovery Responses (in msec).
     static constexpr uint16_t kUnsolicitedDataResponseJitter = 500; // Max delay for unsol Data Response (in msec).
     static constexpr uint8_t  kLeaderDowngradeExtraDelay     = 10;  // Extra delay to downgrade leader (in sec).

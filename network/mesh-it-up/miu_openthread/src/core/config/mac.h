@@ -142,7 +142,34 @@
  * enabled).
  */
 #ifndef OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_INTERVAL
-#define OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_INTERVAL 8
+#define OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_INTERVAL 16
+#endif
+
+/**
+ * @def OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_JITTER
+ *
+ * Specifies the random span in milliseconds added on top of
+ * `OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_INTERVAL`.
+ *
+ * The interval and the jitter answer two different questions and must be sized separately:
+ *
+ * - The interval is a floor. It only has to cover one neighbor's forward of the frame we just handed over, so it is
+ *   derived from a single frame exchange time at the slowest PHY rate in use.
+ * - The jitter decorrelates senders. Two routers that both just forwarded would otherwise resume at the same fixed
+ *   offset and keep colliding on every hop. The number of distinct slots it provides is jitter divided by one frame
+ *   exchange time, and that slot count has to be sized against how many routers share the collision domain, not
+ *   against the frame length.
+ *
+ * In a dense deployment (neighbors within a few meters, so there is effectively no spatial reuse and the whole mesh
+ * is one collision domain) the jitter needs to be several times the interval.
+ *
+ * Sized for the sub-GHz FSK 300 kbps rack setup: one frame exchange is ~4.7 ms (127 B + ack + two turnarounds), and a
+ * router there hears up to nine other routers, so ten slots are needed. 48 ms gives ten, at a cost of ~40 ms mean delay
+ * between a router's direct transmissions. Leaving this equal to the interval gave under two slots, which is why
+ * routers that had just forwarded kept colliding and ChannelAccessFailure accounted for half of all forwarding errors.
+ */
+#ifndef OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_JITTER
+#define OPENTHREAD_CONFIG_MAC_COLLISION_AVOIDANCE_DELAY_JITTER 48
 #endif
 
 /**

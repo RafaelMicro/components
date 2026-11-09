@@ -488,6 +488,11 @@ void MleRouter::HandleAdvertiseTrickleTimer(void)
 
     SendAdvertisement();
 
+#if MIU_MLE_ADV_REPEAT_ENABLE
+    mDelayedSender.ScheduleAdvertisement(
+        Random::NonCrypto::GetUint16InRange(kAdvRepeatDelayMin, kAdvRepeatDelayMax));
+#endif
+
 exit:
     return;
 }
@@ -1560,7 +1565,7 @@ void MleRouter::HandleParentRequest(RxInfo &aRxInfo)
 
     delay = Random::NonCrypto::GetUint16InRange(delayMin, delayMax);
 
-    LogNote("PR Role %u RSSI=%d → delay=[%u~%u] → %u", mRole, rssi, delayMin, delayMax, delay);
+    LogNote("PR Role %u RSSI=%d delay=[%u~%u] -> %u", mRole, rssi, delayMin, delayMax, delay);
 #else
     delay = 1 + Random::NonCrypto::GetUint16InRange(0, !ScanMaskTlv::IsEndDeviceFlagSet(scanMask)
                                                             ? kParentResponseMaxDelayRouters
@@ -1756,6 +1761,8 @@ void MleRouter::HandleTimeTick(void)
         if (router.IsStateValid() && (age >= kMaxNeighborAge))
         {
             bool sendLinkRequest = true;
+            bool isNewAdvLoss    = false;
+            bool marginTooLow    = false;
 
             // Once router age expires, we send Link Request every
             // time tick (second), up to `kMaxTxCount`. Each rx is
@@ -1765,7 +1772,63 @@ void MleRouter::HandleTimeTick(void)
 
             if (!router.IsWaitingForLinkAccept())
             {
-                LogInfo("No Adv from router 0x%04x - sending Link Request", router.GetRloc16());
+                isNewAdvLoss = true;
+
+                // Repairing costs `kMaxTxCount` Link Requests plus the Link Accepts they draw, and an aged-out link
+                // is by definition one whose advertisements we are already failing to receive - so the repair is
+                // spent on exactly the medium that is too busy to carry it. Only pay it for a link we forward
+                // through; for an unused link, let it go instead, and if it becomes useful again the next
+                // advertisement we do receive rebuilds it through `HandleAdvertisement()` for free.
+
+                // [MiuMargin] Stock OT applies `kLinkRequestMinMargin` in exactly one place that establishes a
+                // link - `HandleAdvertisementOnFtd()` - and never when an aged-out one is resurrected here.
+                // (`HandleLinkRequest()` has no margin check at all, so a peer running the old threshold can
+                // still rebuild this link unilaterally: the constant only holds if every FTD carries it.)
+                // Advertisements time out ~29 times per 12 h per router on this mesh, so a link the margin rule
+                // would have refused is rebuilt through this path within minutes and the constant never binds.
+                //
+                // The test belongs inside the repair decision rather than beside it: refusing the repair on its own
+                // would leave the entry aged-out but present, so this block would re-fire every tick forever. Routed
+                // through the same branch as an unused link, it drops the link now and removes the entry one
+                // max-neighbor-age later, and a strong enough advertisement can still restore it for free.
+
+                marginTooLow = (router.GetLinkInfo().GetLinkMargin() < kLinkRequestMinMargin);
+
+                if (marginTooLow || !ShouldRepairRouterLink(router))
+                {
+                    if (router.GetLinkQualityOut() != kLinkQuality0)
+                    {
+                        // First expiry: drop the link but keep the entry, so one advertisement can restore it.
+                        // `RouterTable::RemoveRouterLink()` refreshes "last heard" on this transition only, so the
+                        // age restarts here and the next decision is one max-neighbor-age away.
+
+                        LogInfo("No Adv from router 0x%04x - not forwarding through it, dropping link without repair",
+                                router.GetRloc16());
+                        RemoveRouterLink(router);
+
+                        // Skipping the rest of the body must not skip the parent-search bookkeeping below: an
+                        // aged-out router is not a usable parent whether or not we repaired its link.
+
+#if OPENTHREAD_CONFIG_PARENT_SEARCH_ENABLE
+                        router.DecrementParentReselectTimeout();
+                        router.SetSelectableAsParent(false);
+#endif
+                    }
+                    else
+                    {
+                        // Still silent a whole max-neighbor-age after the link went down. Let the entry go, which
+                        // is where the repair path ended up anyway, just without having spent the Link Requests.
+                        // Without this the age would keep growing - a second `RemoveRouterLink()` does not refresh
+                        // "last heard" - and this branch would re-fire every tick, resetting the advertisement
+                        // trickle interval and flushing the address cache once a second.
+
+                        LogInfo("No Adv from router 0x%04x - link already down and still silent, removing",
+                                router.GetRloc16());
+                        RemoveNeighbor(router);
+                    }
+
+                    continue;
+                }
             }
             else
             {
@@ -1774,8 +1837,18 @@ void MleRouter::HandleTimeTick(void)
 
             if (sendLinkRequest)
             {
-                IgnoreError(mDelayedSender.ScheduleLinkRequest(
-                    router, Random::NonCrypto::GetUint32InRange(0, kMaxLinkRequestDelayOnRouter)));
+                // `ScheduleLinkRequest()` de-duplicates per destination and returns `kErrorAlready` while an earlier
+                // request is still waiting out its random delay, so one aged-out neighbor lands here up to ten
+                // times. Log only the tick that actually queues a request.
+
+                if (mDelayedSender.ScheduleLinkRequest(
+                        router, Random::NonCrypto::GetUint32InRange(0, kMaxLinkRequestDelayOnRouter)) == kErrorNone)
+                {
+                    if (isNewAdvLoss)
+                    {
+                        LogInfo("No Adv from router 0x%04x - sending Link Request", router.GetRloc16());
+                    }
+                }
             }
         }
 
@@ -3265,6 +3338,43 @@ void MleRouter::SendDataResponse(const Ip6::Address &aDestination,
 exit:
     FreeMessageOnError(message, error);
     LogSendError(kTypeDataResponse, error);
+}
+
+bool MleRouter::ShouldRepairRouterLink(const Router &aRouter)
+{
+    bool shouldRepair = true;
+
+    // Only a router or leader has next hops of its own to reason about. A child's router links are governed by
+    // `mChildRouterLinks` on the advertisement path, and its parent must never be dropped here.
+
+    VerifyOrExit(IsRouterOrLeader());
+
+    // The route towards the leader carries every device's keep-alive traffic; repair it regardless of the table.
+
+    VerifyOrExit(Get<RouterTable>().GetNextHop(GetLeaderRloc16()) != aRouter.GetRloc16());
+
+    // Anything reached *through* this router justifies the repair. Its own entry is excluded on purpose: a neighbor
+    // that is only the next hop to itself is a leaf we never forward to, and those are the links that dominate the
+    // repair traffic in a dense deployment.
+
+    shouldRepair = false;
+
+    for (const Router &router : Get<RouterTable>())
+    {
+        if (&router == &aRouter)
+        {
+            continue;
+        }
+
+        if (router.GetNextHop() == aRouter.GetRouterId())
+        {
+            shouldRepair = true;
+            break;
+        }
+    }
+
+exit:
+    return shouldRepair;
 }
 
 void MleRouter::RemoveRouterLink(Router &aRouter)

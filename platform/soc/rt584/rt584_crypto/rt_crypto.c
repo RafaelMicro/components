@@ -15,8 +15,8 @@
 #include "mcu.h"
 
 #include "rt_crypto.h"
-
 #include "rt_aes.h"
+#include "sysctrl.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -41,6 +41,12 @@ extern uint32_t   crypto_firmware;
 #define CRYPTO_ISR_FINISH            (1)
 
 #endif
+
+/*Init crypto function*/
+void crypto_init(void)
+{
+    enable_perclk(CRYPTO_CLK);
+}
 
 /*start crypto function*/
 void crypto_start(uint8_t op_num, uint8_t sb_num)
@@ -262,6 +268,9 @@ uint32_t gf2m_ecc_curve_b163_init(void)
 {
     //curve B163
     uint32_t polynomial[] = { 0x000000c9, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008 };
+
+    /*Enable Crypto Clock*/
+    crypto_init();
 
     crypto_mutex_lock();
 
@@ -655,6 +664,9 @@ static void gfp_xyczaddc_p192(void)
 
 uint32_t gfp_ecc_curve_p192_init(void)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     //curve secp192r1
     crypto_mutex_lock();
 
@@ -947,8 +959,10 @@ static void gfp_double_jacobian_sm2p192(void)
 
 uint32_t gfp_ecc_curve_sm2p192_init(void)
 {
-    //sm2 p192
+    /*Enable Crypto Clock*/
+    crypto_init();
 
+    //sm2 p192
     crypto_mutex_lock();
 
     crypto_firmware = SM2_FIRMWARE;
@@ -1356,6 +1370,9 @@ static void gfp_applyz_p256(void)
 
 uint32_t gfp_ecc_curve_p256_init(void)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     //curve secp256r1
     crypto_mutex_lock();
 
@@ -1618,6 +1635,8 @@ uint32_t gfp_ecdsa_p256_verify(Signature_P256 *p_signature, uint32_t *h, ECPoint
 
 void gfp_ecdsa_p256_verify_init(void)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
 
     crypto_mutex_lock();
 
@@ -1734,6 +1753,9 @@ uint32_t gfp_valid_point_p256_verify(ECPoint_P256 *p_point)
 {
     uint32_t ret;
 
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     crypto_mutex_lock();
 
     crypto_firmware = ECC_FIRMWARE_VER;
@@ -1789,6 +1811,9 @@ uint32_t gfp_point_p256_add(ECPoint_P256 *p_point_result,
                             ECPoint_P256 *p_point_x1, ECPoint_P256 *p_point_x2)
 {
     uint32_t  ret;
+
+    /*Enable Crypto Clock*/
+    crypto_init();
 
     /*Here we load required function again..*/
     crypto_mutex_lock();
@@ -1857,6 +1882,9 @@ static const uint32_t gfp_scalar_vxh_bin[] =
 
 void gfp_scalar_vxh_p256(uint32_t *p_result, uint32_t *p_x, uint32_t *p_hash, uint32_t *p_v)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     /*Here we load required function again..*/
     crypto_mutex_lock();
 
@@ -1907,6 +1935,9 @@ static const uint32_t gfp_scalar_modmult_bin[] =
 
 void gfp_scalar_modmult_p256(uint32_t *p_result, uint32_t *p_x, uint32_t *p_y)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     /*Here we load required function again..*/
     crypto_mutex_lock();
 
@@ -2066,6 +2097,9 @@ static void gfp_modMultFast_sm2p256(void)
 
 uint32_t gfp_ecc_curve_sm2p256_init(void)
 {
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     //curve secp256r1
     crypto_mutex_lock();
 
@@ -2491,7 +2525,9 @@ void curve_c25519_init(void)
                               0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x7FFFFFFF
                             };
 
-
+    /*Enable Crypto Clock*/
+    crypto_init();
+                            
     crypto_mutex_lock();
 
     crypto_firmware = ECC_FIRMWARE_C25519;

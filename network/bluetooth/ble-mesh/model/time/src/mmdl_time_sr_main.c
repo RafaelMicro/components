@@ -21,6 +21,7 @@
 #include "mmdl_common.h"
 #include "mmdl_time_common.h"
 #include "mmdl_time_sr.h"
+#include "hosal_rtc.h"
 
 //=============================================================================
 //                Private Definitions of const value
@@ -145,8 +146,21 @@ static void mmdl_time_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_elemen
 static void mmdl_time_status(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t       *p_time_state = (time_state_t *)p_model->p_state_var;
-    time_status_msg_t  *p_time_status_msg = (time_status_msg_t *)p_evt_msg->parameter - 1;   //1: sizeof(time_status_msg_sec0_t.dummy)
+    /* The wire message carries the real 10 bytes only (no dummy padding
+       bytes); copy them into a local, correctly-sized scratch buffer at
+       offset 1 so the struct's leading dummy:8 lines up, instead of doing
+       pointer arithmetic on p_evt_msg->parameter itself -- (time_status_msg_t*)ptr - 1
+       subtracts sizeof(time_status_msg_t) (12) bytes, not 1, which read
+       out of bounds of the received buffer. */
+    uint8_t            local_buf[sizeof(time_status_msg_t)];
+    time_status_msg_t  *p_time_status_msg = (time_status_msg_t *)local_buf;
     bool               send_status = false;
+
+    if (p_evt_msg->parameter_len < (sizeof(time_status_msg_t) - 2))
+    {
+        return;
+    }
+    memcpy(local_buf + 1, p_evt_msg->parameter, sizeof(time_status_msg_t) - 2);
 
     do
     {
@@ -182,7 +196,16 @@ static void mmdl_time_status(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_ev
 static void mmdl_time_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     time_state_t       *p_time_state = (time_state_t *)p_model->p_state_var;
-    time_status_msg_t  *p_time_status_msg = (time_status_msg_t *)p_evt_msg->parameter - 1;   //1: sizeof(time_status_msg_sec0_t.dummy)
+    /* see mmdl_time_status() above for why this can't be pointer arithmetic
+       on p_evt_msg->parameter directly. */
+    uint8_t            local_buf[sizeof(time_status_msg_t)];
+    time_status_msg_t  *p_time_status_msg = (time_status_msg_t *)local_buf;
+
+    if (p_evt_msg->parameter_len < (sizeof(time_status_msg_t) - 2))
+    {
+        return;
+    }
+    memcpy(local_buf + 1, p_evt_msg->parameter, sizeof(time_status_msg_t) - 2);
 
     do
     {
@@ -207,7 +230,6 @@ static void mmdl_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mes
     mesh_app_mdl_evt_msg_req_t  *pt_req;
     mesh_tlv_t                  *pt_tlv;
     time_state_t                *p_time_state = (time_state_t *)p_model->p_state_var;
-    time_status_msg_t           *p_time_status_msg;
 
     do
     {
@@ -218,7 +240,12 @@ static void mmdl_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mes
         }
 
         pt_tlv->type = TYPE_MESH_APP_MDL_EVT_MSG_REQ;
-        pt_tlv->length = sizeof(mesh_app_mdl_evt_msg_req_t) + sizeof(time_status_msg_t) - 2 * 8;    //2: 2*dummy
+        /* Real wire size is sizeof(time_status_msg_t) minus the 2 one-byte
+           dummy padding fields (1 in each sub-struct) -- NOT 2*8 -- that
+           previously underflowed parameter_len (a uint32_t) to ~4 billion
+           and caused mesh_evt_msg_sendto()'s memcpy to run wildly out of
+           bounds on every Time Status. */
+        pt_tlv->length = sizeof(mesh_app_mdl_evt_msg_req_t) + sizeof(time_status_msg_t) - 2;
 
         pt_req = (mesh_app_mdl_evt_msg_req_t *)pt_tlv->value;
 
@@ -229,14 +256,23 @@ static void mmdl_time_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mes
         pt_req->opcode_invalid = 0;
 
         pt_req->opcode = BE2LE16(MMDL_TIME_STATUS_OPCODE);
-        pt_req->parameter_len = sizeof(time_status_msg_t) - 2 * 8;          //2: 2*dummy
-        p_time_status_msg = (time_status_msg_t *)pt_req->parameter - 1;   //1: dummy
-        p_time_status_msg->msg_sec0.tai_seconds = p_time_state->tai_seconds;
-        p_time_status_msg->msg_sec0.subsecond = p_time_state->subsecond;
-        p_time_status_msg->msg_sec0.uncertainty = p_time_state->uncertainty;
-        p_time_status_msg->msg_sec1.time_authority = p_time_state->time_authority;
-        p_time_status_msg->msg_sec1.tai_utc_delta = p_time_state->tai_utc_delta - TIME_OFFSET_UTC_TAI_DELTA;
-        p_time_status_msg->msg_sec1.time_zone_offset = p_time_state->time_zone_offset - TIME_OFFSET_ZONE_15MIN;
+        pt_req->parameter_len = sizeof(time_status_msg_t) - 2;
+        /* Build the message in a local scratch struct (dummy fields included)
+           and copy out only the real 10 bytes at offset 1 -- writing
+           pt_req->parameter - 1 directly (as this used to) corrupts the byte
+           immediately before the parameter[] flexible array member, which is
+           the top byte of pt_req->parameter_len itself. */
+        {
+            time_status_msg_t local_msg;
+
+            local_msg.msg_sec0.tai_seconds = p_time_state->tai_seconds;
+            local_msg.msg_sec0.subsecond = p_time_state->subsecond;
+            local_msg.msg_sec0.uncertainty = p_time_state->uncertainty;
+            local_msg.msg_sec1.time_authority = p_time_state->time_authority;
+            local_msg.msg_sec1.tai_utc_delta = p_time_state->tai_utc_delta - TIME_OFFSET_UTC_TAI_DELTA;
+            local_msg.msg_sec1.time_zone_offset = p_time_state->time_zone_offset - TIME_OFFSET_ZONE_15MIN;
+            memcpy(pt_req->parameter, (uint8_t *)&local_msg + 1, sizeof(time_status_msg_t) - 2);
+        }
 
         if (mesh_evt_msg_sendto(pt_tlv) != 0)
         {
@@ -483,7 +519,7 @@ void time_UTC_to_TAI(rtc_time_t *utc_time, time_state_t *p_time_state)
     uint32_t r32;       //remainder;
     uint8_t i, j, leap_offset = 1;
 
-    //rtc_get_time(&current_time);
+    //hosal_rtc_get_time(&current_time);
     //if (current_time.tm_year < (p_time_state->UTC_year % 100))    //Year from xy99 to xz00
     {
         //p_time_state->UTC_year++;
@@ -560,7 +596,7 @@ void rtc_arm_isr(uint32_t rtc_status)
     int        show_time_info = 0;
     static  int  first = 1;
 
-    rtc_get_time(&current_time);
+    hosal_rtc_get_time(&current_time);
 
     /*check status to know why interrupt source*/
     if (rtc_status & RTC_INT_SECOND_BIT)
@@ -583,8 +619,8 @@ void rtc_arm_isr(uint32_t rtc_status)
             /*we hope to get interrupt at
                       XX:XX:00  -- every new second.
                       XX:30:00  -- for every hour
-                      12:00:00  -- for every day   --RTC_MODE_MATCH_HOUR_INTERRUPT
-                      00:00:00 -- for every day    --RTC_MODE_EVERY_DAY_INTERRUPT
+                      12:00:00  -- for every day   --HOSAL_RTC_MODE_MATCH_HOUR_INTERRUPT
+                      00:00:00 -- for every day    --HOSAL_RTC_MODE_EVERY_DAY_INTERRUPT
 
                    01 00:00:00 -- for every month
                 01-01 00:00:00 -- for every year
@@ -592,16 +628,16 @@ void rtc_arm_isr(uint32_t rtc_status)
                       XX:30:48 ... for event interrupt.
              */
 
-            alarm_mode = RTC_MODE_EVERY_SEC_INTERRUPT  | RTC_MODE_EN_SEC_INTERRUPT  |
-                         RTC_MODE_MATCH_MIN_INTERRUPT  | RTC_MODE_EN_MIN_INTERRUPT  |
-                         RTC_MODE_MATCH_HOUR_INTERRUPT | RTC_MODE_EN_HOUR_INTERRUPT |
-                         RTC_MODE_EVERY_DAY_INTERRUPT  | RTC_MODE_EN_DAY_INTERRUPT  |
-                         RTC_MODE_EVERY_MONTH_INTERRUPT | RTC_MODE_EN_MONTH_INTERRUPT |
-                         RTC_MODE_EVERY_YEAR_INTERRUPT | RTC_MODE_EN_YEAR_INTERRUPT |
-                         RTC_MODE_HOUR_EVENT_INTERRUPT | RTC_MODE_EVENT_INTERRUPT ;
+            alarm_mode = HOSAL_RTC_MODE_EVERY_SEC_INTERRUPT  | HOSAL_RTC_MODE_EN_SEC_INTERRUPT  |
+                         HOSAL_RTC_MODE_MATCH_MIN_INTERRUPT  | HOSAL_RTC_MODE_EN_MIN_INTERRUPT  |
+                         HOSAL_RTC_MODE_MATCH_HOUR_INTERRUPT | HOSAL_RTC_MODE_EN_HOUR_INTERRUPT |
+                         HOSAL_RTC_MODE_EVERY_DAY_INTERRUPT  | HOSAL_RTC_MODE_EN_DAY_INTERRUPT  |
+                         HOSAL_RTC_MODE_EVERY_MONTH_INTERRUPT | HOSAL_RTC_MODE_EN_MONTH_INTERRUPT |
+                         HOSAL_RTC_MODE_EVERY_YEAR_INTERRUPT | HOSAL_RTC_MODE_EN_YEAR_INTERRUPT |
+                         HOSAL_RTC_MODE_HOUR_EVENT_INTERRUPT | HOSAL_RTC_MODE_EVENT_INTERRUPT ;
 
 
-            rtc_set_alarm(&alarm_tm, alarm_mode, rtc_arm_isr);
+            hosal_rtc_set_alarm(&alarm_tm, alarm_mode, rtc_arm_isr);
 
         }
         else
@@ -664,12 +700,12 @@ void mmdl_time_sr_init(ble_mesh_element_param_t *p_element, ble_mesh_model_param
         rtc_time_t  current_time, alarm_tm;
         uint32_t    alarm_mode;
 
-        rtc_set_clk(39990);                     //Internal 40khz, related to the HW.
-        rtc_get_time(&current_time);
+        hosal_rtc_set_clk(39990);                     //Internal 40khz, related to the HW.
+        hosal_rtc_get_time(&current_time);
         mmdl_time_UTC_set_user(current_time, 0, p_model);
 
         alarm_mode = 0;
-        rtc_set_alarm(&alarm_tm, alarm_mode, rtc_arm_isr);
+        hosal_rtc_set_alarm(&alarm_tm, alarm_mode, rtc_arm_isr);
     }
 }
 
@@ -683,7 +719,7 @@ void mmdl_time_UTC_set_user(rtc_time_t current_time, int8_t time_zone, ble_mesh_
     time_UTC_to_TAI(&current_time, p_time_state);
     p_time_state->UTC_year = current_time.tm_year;
     current_time.tm_year %= 100;                        //RTC year reg. is 0~99
-    rtc_set_time(&current_time);
+    hosal_rtc_set_time(&current_time);
 }
 
 /** @brief Recompute the TAI seconds state from the current RTC UTC time (handling year rollover). */
@@ -692,7 +728,7 @@ void mmdl_time_UTC_to_TAI_update(ble_mesh_element_param_t *p_element, ble_mesh_m
     time_state_t  *p_time_state = (time_state_t *)p_model->p_state_var;
     rtc_time_t    current_time;
 
-    rtc_get_time(&current_time);
+    hosal_rtc_get_time(&current_time);
     if (current_time.tm_year < (p_time_state->UTC_year % 100))    //Year from xy99 to xz00
     {
         p_time_state->UTC_year++;
@@ -795,7 +831,7 @@ void mmdl_time_TAI_to_UTC_update(ble_mesh_element_param_t *p_element, ble_mesh_m
         }
         current_time.tm_day = (r32 + 1);
     }
-    rtc_set_time(&current_time);
+    hosal_rtc_set_time(&current_time);
 }
 
 

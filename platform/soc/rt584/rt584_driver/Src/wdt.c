@@ -13,7 +13,6 @@
  * Author:          Kc.tseng
  */
 
-#include "mcu.h"
 #include "wdt.h"
 
 static wdt_cb_fn user_wdt_isr = NULL;

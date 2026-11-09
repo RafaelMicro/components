@@ -22,7 +22,9 @@
 
 int hosal_crypto_ecjpake_init(void) {
     int status = STATUS_SUCCESS;
-
+    
+    crypto_init();
+    
     return status;
 }
 

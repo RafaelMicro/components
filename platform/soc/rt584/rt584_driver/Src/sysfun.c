@@ -17,14 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "mcu.h"
-#include "assert_help.h"
-#include "system_mcu.h"
-#include "sysfun.h"
-#include "sysctrl.h"
-#include "wdt.h"
 #include "flashctl.h"
-#include "pmu_reg.h"
 #if defined(CONFIG_FREERTOS)
 #include "FreeRTOS.h"
 #include "task.h"

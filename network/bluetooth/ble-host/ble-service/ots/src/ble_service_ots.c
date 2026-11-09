@@ -12,7 +12,6 @@
  *
  *
  ************************************************************************/
-#include "ble_service_ots.h"
 #include "ble_profile.h"
 
 /** ble_svcs_ots_handler

@@ -9,7 +9,6 @@
 
 #include "fsm.h"
 //#include "util_log.h"
-#include <stddef.h>
 
 /**@brief Invalid transition index value.
  */

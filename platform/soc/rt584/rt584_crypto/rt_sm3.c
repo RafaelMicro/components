@@ -69,6 +69,9 @@ void sm3_init(sm3_context *ctx)
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     crypto_mutex_lock();
 
     crypto_firmware = SM3_FIRMWARE;

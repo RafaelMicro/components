@@ -14,7 +14,6 @@
  * Author: 
  */
 
-#include <stdio.h>
 #include "sysctrl.h"
 #include "gpio.h"
 
@@ -777,7 +776,7 @@ void enable_perclk(uint32_t clock) {
         return;     /*Invalid setting mode.*/
     }
 
-    SYSCTRL->sys_clk_ctrl1.reg |= (1 << clock) ;
+    SYSCTRL->sys_clk_ctrl2.reg |= (1 << clock) ;
 }
 
 void disable_perclk(uint32_t clock) {
@@ -785,7 +784,7 @@ void disable_perclk(uint32_t clock) {
         return;     /*Invalid setting mode.*/
     }
 
-    SYSCTRL->sys_clk_ctrl1.reg  &= ~(1 << clock);
+    SYSCTRL->sys_clk_ctrl2.reg  &= ~(1 << clock);
 }
 
 void pin_set_pullopt(uint32_t pin_number, uint32_t mode) {

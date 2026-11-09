@@ -60,7 +60,7 @@ typedef struct
 #define NUM_LL_LINK                           BLE_SUPPORT_NUM_CONN_MAX
 
 /** Define the minimum queue size for HCI command events. */
-#define NUM_QUEUE_HCI_COMMAND_EVENT           8
+#define NUM_QUEUE_HCI_COMMAND_EVENT           12
 
 /** Define the minimum queue size for HCI ACL data TX. */
 #define NUM_QUEUE_HCI_ACL_DATA_TX             50

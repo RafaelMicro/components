@@ -103,6 +103,7 @@ uint8_t RfMcu_PowerStateCheck(void);
 void RfMcu_SetRtcSlowAon(bool status);
 uint32_t RfMcu_GetRtcFromHost(void);
 void RfMcu_SysInitNotify(void);
+void RfMcu_SysSleepNotify(void);
 void RfMcu_DmaInit(void);
 void RfMcu_SpiSfrSet(uint8_t sfrOffset, uint8_t value);
 uint8_t RfMcu_SpiSfrGet(uint8_t sfrOffset);

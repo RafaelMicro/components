@@ -7,7 +7,6 @@
 
 #include <EnhancedFlashDataset.h>
 #if defined(CONFIG_RT584H) || defined(CONFIG_RT584L) || defined(CONFIG_RT584HA4) || defined(CONFIG_RF1301)
-     #include "flashctl.h"
 #endif
 
 #if !defined(EFD_START_ADDR)

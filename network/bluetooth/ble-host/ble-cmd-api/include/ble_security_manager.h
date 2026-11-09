@@ -25,6 +25,7 @@
 /**************************************************************************************************
  *    INCLUDES
  *************************************************************************************************/
+#include <stdbool.h>
 #include <stdint.h>
 #include "ble_api.h"
 
@@ -416,6 +417,37 @@ ble_err_t ble_cmd_write_identity_resolving_key(ble_sm_irk_param_t *p_param);
  * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
  */
 ble_err_t ble_cmd_lesc_init(void);
+
+
+/** @brief Enable or disable LE Secure Connections Debug Mode.
+ *
+ *  When enabled, future LESC key pair generation (see @ref ble_cmd_lesc_init) uses the
+ *  publicly documented Bluetooth SIG debug key pair instead of a randomly generated one, so
+ *  a protocol analyzer that also knows this key (e.g. Wireshark/Ellisys) can decrypt and
+ *  verify this device's LESC pairing exchanges. Call before @ref ble_cmd_lesc_init (or before
+ *  the next pairing) so the fixed key pair is in place before it's needed; if a key pair
+ *  already exists, enabling it takes effect immediately.
+ *
+ * @ingroup ble_sec
+ *
+ * @warning Never enable this in a production build -- it makes every LESC pairing this
+ *          device performs trivially observable to anyone who also knows the debug key.
+ *
+ * @param[in] enable : true to use the debug key pair, false to return to random key pairs
+ *                     (takes effect on the next LESC key pair generation).
+ *
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
+ */
+ble_err_t ble_cmd_lesc_debug_mode_set(bool enable);
+
+
+/** @brief Query whether LE Secure Connections Debug Mode is currently enabled.
+ *
+ * @ingroup ble_sec
+ *
+ * @return true if debug mode is enabled, false otherwise.
+ */
+bool ble_cmd_lesc_debug_mode_get(void);
 
 
 /** @brief BLE security manager event handler.

@@ -342,7 +342,7 @@ typedef enum {
     QSPI1_CLK,                                  /*!<  */
     I2CM0_CLK = 8,                              /*!<  */
     I2CM1_CLK,                                  /*!<  */
-    I2CS0_CLK,                                  /*!<  */
+    I2S0_CLK,                                   /*!<  */
     CRYPTO_CLK = 12,                            /*!<  */
     XDMA_CLK,                                   /*!<  */
     IRM_CLK,                                    /*!<  */

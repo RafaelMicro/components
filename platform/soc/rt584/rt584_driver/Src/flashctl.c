@@ -13,10 +13,7 @@
  * This file is part of library_name.
  * Author: ives.lee
  */
-#include <stdio.h>
-#include "mcu.h"
 #include "flashctl.h"
-#include "status.h"
 #include "sysctrl.h"
 
 

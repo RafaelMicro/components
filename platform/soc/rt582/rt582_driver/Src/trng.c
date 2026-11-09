@@ -15,7 +15,6 @@
 
 
 #include "trng.h"
-#include "sysctrl.h"
 
 int get_random_number(uint32_t* p_buffer, uint32_t number) {
     /*

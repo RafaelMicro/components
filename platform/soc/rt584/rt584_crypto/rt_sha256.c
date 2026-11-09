@@ -152,6 +152,9 @@ void sha256_flash(uint32_t input_address, uint32_t length, uint8_t *digest)
 void sha256_init(sha256_context *ctx)
 {
     memset(ctx, 0, sizeof(sha256_context));
+
+    /*Enable Crypto Clock*/
+    crypto_init();
 #if 0
     crypto_mutex_lock();
 
@@ -192,6 +195,9 @@ void sha224_init(sha256_context *ctx)
 
     ctx->total[0] = 0;
     ctx->total[1] = 0;
+
+    /*Enable Crypto Clock*/
+    crypto_init();
 
     crypto_mutex_lock();
 

@@ -13,7 +13,6 @@
  * This file is part of library_name.
  * Author: ives.lee
  */
-#include "mcu.h"
 #include "dma.h"
 
 

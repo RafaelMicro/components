@@ -474,6 +474,30 @@ uint32_t aes_ctr_buffer_crypt(struct aes_ctx *ctx,
 }
 
 
+#define CCM_HW_BUFFER_SIZE   512   /* CRYPTO_BASE+0xC00 ~ CRYPTO_BASE+0xDFF, fixed by hardware */
+
+/*
+ * Bytes actually written into the fixed CCM hardware working buffer
+ * (0xC00~0xDFF) by ccm_cbc_mac() / aes_ccm_encryption() / aes_ccm_decryption_verification():
+ *   B0 block (16 bytes)
+ * + AAD block, only when hdr_len>0: roundup16(2 + hdr_len)
+ * + data block: roundup16(data_len)
+ * Exceeding CCM_HW_BUFFER_SIZE overwrites the AES round-key region at 0xE00.
+ */
+static uint32_t ccm_working_buffer_size(uint32_t hdr_len, uint32_t data_len)
+{
+    uint32_t size = AES_BLOCKLEN; /* B0 */
+
+    if (hdr_len > 0)
+    {
+        size += (2 + hdr_len + (AES_BLOCKLEN - 1)) & ~(uint32_t)(AES_BLOCKLEN - 1);
+    }
+
+    size += (data_len + (AES_BLOCKLEN - 1)) & ~(uint32_t)(AES_BLOCKLEN - 1);
+
+    return size;
+}
+
 static void ccm_cbc_mac(struct aes_ccm_encryption_packet  *ccm_packet, uint8_t *mac_buf)
 {
     uint32_t   padding_bytes, cbc_num;
@@ -602,8 +626,10 @@ uint32_t aes_ccm_encryption(struct aes_ccm_encryption_packet  *ccm_packet)
     /*This check can be removed for shrink code performance.*/
     mlen = (ccm_packet->mlen - 2) >> 1;
 
+    /*Reject if the actual (padded) working buffer exceeds the 512-byte hardware window.*/
     if ((ccm_packet->out_buf == NULL) || (*(ccm_packet->out_buf_len) < output_length) ||
-            (output_length > 480) || (mlen == 0) || (mlen > 7))
+            (mlen == 0) || (mlen > 7) ||
+            (ccm_working_buffer_size(ccm_packet->hdr_len, ccm_packet->data_len) > CCM_HW_BUFFER_SIZE))
     {
         return STATUS_INVALID_PARAM;
     }
@@ -702,7 +728,8 @@ uint32_t aes_ccm_decryption_verification(struct aes_ccm_decryption_packet  *ccm_
     mlen = (ccm_packet->mlen - 2) >> 1;
 
     if ((ccm_packet->out_buf == NULL) || (mlen == 0) || (mlen > 7) ||
-            (*(ccm_packet->out_buf_len) < ccm_packet->data_len) || (ccm_packet->payload_buf == NULL) )
+            (*(ccm_packet->out_buf_len) < ccm_packet->data_len) || (ccm_packet->payload_buf == NULL) ||
+            (ccm_working_buffer_size(ccm_packet->hdr_len, ccm_packet->data_len) > CCM_HW_BUFFER_SIZE))
     {
         return STATUS_INVALID_PARAM;
     }

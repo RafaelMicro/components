@@ -77,9 +77,9 @@ uint32_t qspi_init(uint32_t qspi_id, const qspi_transfer_mode_t *spi_mode)
 
     leave_critical_section();
 
-#if 0
+#if 1
     // Enable QSPI Clk
-    enable_perclk((SPI0_CLK_INDEX + qspi_id));
+    enable_perclk((QSPI0_CLK + qspi_id));
 #endif
 
     if (qspi_id == 0)

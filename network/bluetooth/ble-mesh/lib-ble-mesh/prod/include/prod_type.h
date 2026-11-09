@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2022-2025 Rafael Microelectronics Inc. All rights reserved.
- * 
+ *
  * SPDX-License-Identifier: LicenseRef-RafaelMicro-Proprietary-1.0
  *
  */
 
-
+#include "mmdl_defs.h"   /* RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX */
 
 typedef struct _product_info_t
 {
@@ -93,7 +93,7 @@ typedef struct __sig_moidel_subscribe_info_entry_tag_
     uint32_t ModelID;
     uint8_t  AddrCount;
     uint8_t  VAddrCount;
-    uint16_t Address[5];
-    uint8_t  UUID[5][16];
-    uint16_t VirAddress[5];
+    uint16_t Address[RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX];
+    uint8_t  UUID[RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX][16];
+    uint16_t VirAddress[RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX];
 } model_subscribe_info_t;

@@ -1,4 +1,9 @@
 sdk_generate_library(ble_mesh_model)
+# Not converted to strict includes (library-boundary rework,
+# docs/internal/architecture/lib-dependencies.md): common/src/mmdl_common.c
+# unconditionally #includes per-example headers (ble_mesh_element.h,
+# mesh_mdl_handler.h) this library doesn't own -- see
+# docs/internal/adr/0003-ble-app-profile-boundary.md.
 sdk_add_include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/common/include
     ${CMAKE_CURRENT_LIST_DIR}/generics/battery/include

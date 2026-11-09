@@ -197,6 +197,11 @@ typedef struct {
 } rtc_time_t;
 
 /**
+ * \brief           Enable RTC 32K clock
+ */
+void rtc_32k_init(void);
+
+/**
  * \brief           Get current rtc time value
  * \param[out]      tm: save time value you want to get
  * \return          Function status, STATUS_SUCCESS, STATUS_INVALID_PARAM

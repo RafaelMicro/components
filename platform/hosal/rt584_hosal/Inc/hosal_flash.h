@@ -52,6 +52,7 @@ extern "C" {
 #define HOSAL_FLASH_ENABLE_VERIFY            (0x35)  /* Enable write verification    */
 #define HOSAL_FLASH_DISABLE_VERIFY           (0x36)  /* Disable write verification   */
 #define HOSAL_FLASH_LVD_ENABLE               (0x37)  /* low voltage detect           */
+#define HOSAL_FLASH_GET_END_ADDR             (0x38)  /* Get usable flash end address, p_arg = uint32_t* */
 #define HOSAL_FLASH_GET_PROTECTION_INFO      (0x40)  /* Get protection configuration */
 #define HOSAL_FLASH_BP_REMOVE_ALL            (0x41)  
 #define HOSAL_FLASH_SET_ALLOWED_REGION       (0x42)  

@@ -246,7 +246,7 @@ void RfMcu_DmaInit(void)
 {
     NVIC_EnableIRQ(CommSubsystem_IRQn);
     NVIC_SetPriority(CommSubsystem_IRQn, 0x4);
-    RfMcu_InterruptEnSetAhb(COMM_SUBSYSTEM_DMA_INT_ENABLE);
+    // RfMcu_InterruptEnSetAhb(COMM_SUBSYSTEM_DMA_INT_ENABLE);
 }
 
 
@@ -674,6 +674,15 @@ void RfMcu_SysInitNotify(void)
         RfMcu_HostCmdSet(RF_MCU_STATE_INIT_SUCCEED);
         while (RfMcu_McuStateRead() == RF_MCU_STATE_INIT_SUCCEED);
         bFwInitialized = true;
+    }
+}
+
+
+void RfMcu_SysSleepNotify(void)
+{
+    if (RfMcu_PowerStateCheck() == RF_MCU_PWR_STATE_NORMAL)
+    {
+        RfMcu_HostCmdSet(RF_MCU_HOST_STATE_NOTIFY);
     }
 }
 

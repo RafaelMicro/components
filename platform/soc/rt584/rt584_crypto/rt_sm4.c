@@ -223,6 +223,9 @@ uint32_t sm4_acquire(void) {
     /*Not implement yet.. This function is reserved for  Multitasking used*/
     crypto_mutex_lock();
 
+    /*Enable Crypto Clock*/
+    crypto_init();
+
     if (crypto_firmware != SM4_FIRMWARE) {
         sm4_fw_init();   /*reload SM4 firmware */
         crypto_firmware = SM4_FIRMWARE;

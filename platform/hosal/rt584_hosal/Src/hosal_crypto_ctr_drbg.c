@@ -60,6 +60,8 @@ int hosal_crypto_curve25519_operation(hosal_crypto_curve25519_t* curve25519) {
     if (curve25519->crypto_operation == HOSAL_CURVE_C25519_MUL) {
         curve25519_point_mul(curve25519->blind_zr, curve25519->public_key,
                              curve25519->secret_key, curve25519->base_point);
+    } else if (curve25519->crypto_operation == HOSAL_CURVE_C25519_RELEASE) {
+        status = curve25519_release();
     } else {
         status = STATUS_INVALID_PARAM;
     }

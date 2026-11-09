@@ -301,6 +301,22 @@ ble_err_t ble_cmd_lesc_init(void)
 }
 
 
+/** BLE LESC debug mode set
+ */
+ble_err_t ble_cmd_lesc_debug_mode_set(bool enable)
+{
+    return ble_lesc_debug_mode_set(enable);
+}
+
+
+/** BLE LESC debug mode get
+ */
+bool ble_cmd_lesc_debug_mode_get(void)
+{
+    return ble_lesc_debug_mode_get();
+}
+
+
 /** BLE security module event handler.
  *
  */

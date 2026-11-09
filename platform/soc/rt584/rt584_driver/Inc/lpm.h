@@ -154,6 +154,7 @@ typedef enum {
     LOW_POWER_LEVEL_SLEEP3,                     /*!< platform system: deep sleep, communication system: run */
 } low_power_level_cfg_t;
 
+#define LPM_NORMAL            LOW_POWER_LEVEL_NORMAL
 #define LPM_SLEEP             LOW_POWER_LEVEL_SLEEP0
 #define LPM_DEEP_SLEEP        LOW_POWER_LEVEL_SLEEP2
 #define LPM_POWER_DOWN        LOW_POWER_LEVEL_SLEEP3

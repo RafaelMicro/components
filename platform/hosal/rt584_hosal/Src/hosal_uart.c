@@ -115,6 +115,9 @@ int hosal_uart_init(hosal_uart_dev_t* uart_dev) {
 
     uart = g_uart_handle[cfg->uart_id].uart;
     
+    /*Enable UART clock*/
+    enable_perclk((UART0_CLK + cfg->uart_id));
+
     pin_set_mode(cfg->rx_pin, MODE_GPIO);
     gpio_cfg(cfg->rx_pin, GPIO_PIN_DIR_INPUT, GPIO_PIN_NOINT);
     gpio_debounce_disable(cfg->rx_pin);

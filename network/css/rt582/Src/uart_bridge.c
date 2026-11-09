@@ -8,9 +8,7 @@
 /**************************************************************************************************
  *    INCLUDES
  *************************************************************************************************/
-#include <stdio.h>
 
-#include "mcu.h"
 #include "string.h"
 //#include "project_config.h"
 
@@ -20,17 +18,13 @@
 
 #include "FreeRTOS.h"
 #include "queue.h"
-#include "task.h"
-#include "timers.h"
 
 #include "rf_common_init.h"
 #include "rf_mcu.h"
 
-#include "rf_tx_comp.h"
 #include "rfb_sf.h"
 #include "ruci.h"
 
-#include "lpm.h"
 #include "uart_bridge.h"
 
 //include ble fw header

@@ -13,7 +13,6 @@
  * Author:          Kc.tseng
  */
 
-#include "i2s.h"
 #include "mcu.h"
 
 

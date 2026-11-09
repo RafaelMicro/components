@@ -58,6 +58,19 @@ extern volatile uint32_t  crypto_finish;
 
 #define   SHA_FIRMWARE              (0x00005A00)      /*!< SHA */
 
+/**
+ * \brief           Initialize the Crypto hardware.
+ * \details
+ *                  This function enables the Crypto peripheral clock.
+ *                  It must be called before accessing the Crypto hardware
+ *                  registers or executing any hardware cryptographic
+ *                  algorithm, including AES, SHA, ECC, and SM4.
+ *
+ *                  This function can be called repeatedly without affecting
+ *                  an ongoing Crypto configuration.
+ */
+void crypto_init(void);
+
 /*@}*/ /* end of RT584_DRIVER CRYPTO */
 
 #endif /* End of _RT584_CRYPTO_H_ */

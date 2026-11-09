@@ -8,25 +8,17 @@
 /**************************************************************************************************
  *    INCLUDES
  *************************************************************************************************/
-#include <stdio.h>
 
-#include "string.h"
 
-#include "mcu.h"
 #include "hosal_uart.h"
 #include "gpio.h"
 #include "lpm.h"
-#include "sysctrl.h"
 
 #include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
 #include "queue.h"
 
-#include "rf_mcu.h"
 #include "rf_common_init.h"
 #include "rf_mcu.h"
-#include "rf_tx_comp.h"
 #include "rfb_sf.h"
 #include "uart_bridge.h"
 #include "ruci.h"

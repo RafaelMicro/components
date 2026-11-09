@@ -80,6 +80,7 @@ static void mmdl_generic_onoff_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
 /** @brief Apply a Generic OnOff Set request, notify the callback/extended model, publish, and optionally acknowledge. */
 static void mmdl_generic_onoff_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
+    static mmdl_tid_track_t  s_tid_track;
     gen_on_off_set_msg_t  *p_gen_on_off_set_msg = (gen_on_off_set_msg_t *)p_evt_msg->parameter;
     gen_on_off_state_t    *p_gen_on_off_state = (gen_on_off_state_t *)p_model->p_state_var;
 
@@ -87,13 +88,9 @@ static void mmdl_generic_onoff_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
 
     do
     {
-        if (tid == p_gen_on_off_set_msg->tid)
+        if (mmdl_tid_is_duplicate(&s_tid_track, p_evt_msg->src_addr, p_gen_on_off_set_msg->tid))
         {
             return;
-        }
-        else
-        {
-            tid = p_gen_on_off_set_msg->tid;
         }
 
         //check the state change

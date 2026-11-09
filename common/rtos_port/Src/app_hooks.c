@@ -6,20 +6,10 @@
  */
 
 #include <FreeRTOS.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <task.h>
-#include <timers.h>
-#include "hosal_uart.h"
-#include "mcu.h"
-#include "uart_stdio.h"
-#include "app_hooks.h"
 #include "hosal_timer.h"
 #include "hosal_slow_timer.h"
 #include "hosal_lpm.h"
 #include "hosal_sysctrl.h"
-#include "FreeRTOSConfig.h"
 
 extern uint8_t _heap_start;
 extern uint8_t _heap_size;
@@ -293,7 +283,24 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime_ms) {
         } else {
             RTOS_PreSleepProcessing(xExpectedIdleTime_ms);
 
+            /* Stop the SysTick counter before sleeping. Otherwise it keeps
+             * ticking at its normal (short) period and its interrupt goes
+             * pending on every tick, which wakes the WFI below immediately
+             * regardless of the slow-timer wakeup we just armed above -
+             * defeating the whole point of sleeping for xExpectedIdleTime_ms. */
+            SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+            SCB->ICSR   = SCB_ICSR_PENDSTCLR_Msk;
+
             hosal_lpm_ioctrl(HOSAL_LPM_ENTER_LOW_POWER, HOSAL_LPM_PARAM_NONE);
+
+            /* Resume SysTick immediately after waking, before anything else
+             * (including the tick-count fixup below) runs. Reset VAL first -
+             * otherwise it resumes from the leftover (short) count frozen
+             * above, which would elapse almost immediately and fire a stale
+             * tick that double-counts with the vTaskStepTick() fixup below. */
+            SysTick->VAL   = 0;
+            SCB->ICSR      = SCB_ICSR_PENDSTCLR_Msk;
+            SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 
             RTOS_PostSleepProcessing(&now_v);
 

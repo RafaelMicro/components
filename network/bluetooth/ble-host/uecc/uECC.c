@@ -409,8 +409,6 @@ static void vli_modSquare_fast(uECC_word_t *result, const uECC_word_t *left);
 /* Windows */
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <wincrypt.h>
 
 static int default_RNG(uint8_t *dest, unsigned size) {
     HCRYPTPROV prov;
@@ -427,9 +425,6 @@ static int default_RNG(uint8_t *dest, unsigned size) {
     (defined(__APPLE__) && defined(__MACH__)) || defined(uECC_POSIX)
 
 /* Some POSIX-like system with /dev/urandom or /dev/random. */
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #ifndef O_CLOEXEC
     #define O_CLOEXEC 0
@@ -476,7 +471,6 @@ void uECC_set_rng(uECC_RNG_Function rng_function) {
 
 #ifdef __GNUC__ /* Only support GCC inline asm for now */
     #if (uECC_ASM && (uECC_PLATFORM == uECC_avr))
-        #include "asm_avr.inc"
     #endif
 
     #if (uECC_ASM && (uECC_PLATFORM == uECC_arm || uECC_PLATFORM == uECC_arm_thumb || \

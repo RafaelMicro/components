@@ -14,6 +14,7 @@
  * Author: 
  */
 #include "irm.h"
+#include "sysctrl.h"
 
 #define TEST_PROTOCOL (_NEC)
 #define _NEC          (0)
@@ -46,6 +47,10 @@ uint32_t ir_carrier_config(uint8_t carrier_high_cnt, uint8_t carrier_low_cnt,
 }
 
 uint32_t irm_open(irm_mode_t* irm_cfg) {
+
+    // Enable IRM Clk
+    enable_perclk((IRM_CLK));
+
     IRM->ir_conf.bit.op_mode = irm_cfg->op_mode;
     IRM->ir_conf.bit.out_mode = irm_cfg->ir_out_mode;
     IRM->int_ena.reg = irm_cfg->irm_int_en;

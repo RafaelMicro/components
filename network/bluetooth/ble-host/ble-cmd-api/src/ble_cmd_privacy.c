@@ -14,11 +14,6 @@
 /**************************************************************************************************
  *    INCLUDES
  *************************************************************************************************/
-#include <string.h>
-#include "FreeRTOS.h"
-#include "ble_api.h"
-#include "ble_advertising.h"
-#include "ble_common.h"
 #include "ble_host_cmd.h"
 #include "ble_privacy.h"
 #include "ble_scan.h"

@@ -12,7 +12,6 @@
  *
  *
  ************************************************************************/
-#include "ble_service_fotas.h"
 #include "ble_profile.h"
 
 /** ble_svcs_fotas_handler

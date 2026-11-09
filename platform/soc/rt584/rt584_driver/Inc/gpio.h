@@ -132,6 +132,11 @@ typedef enum {
 typedef void (*gpio_cb_fn)(uint32_t pin_number, void* isr_param);
 
 /**
+ * \brief           Enable GPIO 32K clock
+ */
+void gpio_32k_init(void);
+
+/**
  * \brief           GPIO pin configuration function
  * \param[in]       pin_number: specifies the pin number
  * \param[in]       dir: pin direction.

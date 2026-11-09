@@ -174,7 +174,7 @@ typedef enum _rf_mcu_state
     RF_MCU_STATE_NULL               = 0,
     RF_MCU_STATE_INIT_SUCCEED       = BIT0,
     RF_MCU_STATE_EVENT_DONE         = BIT1,
-    RF_MCU_STATE_RSVD_BIT2          = BIT2,
+    RF_MCU_HOST_STATE_NOTIFY        = BIT2,
     RF_MCU_STATE_TX_FAIL            = BIT3,
     RF_MCU_STATE_TX_CSMACA_FAIL     = BIT4,
     RF_MCU_STATE_TX_NO_ACK          = BIT5,

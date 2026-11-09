@@ -24,8 +24,34 @@ extern "C" {
 #include "util.h"
 //#include "mmdl_publish.h"
 
-/** @brief Shared transaction identifier (TID) counter used when originating model set/move messages. */
-extern uint8_t tid;
+/** @brief Last (source address, TID) pair accepted by one model's incoming-transaction duplicate check. */
+typedef struct
+{
+    uint16_t  src_addr;
+    uint8_t   tid;
+    uint8_t   valid;
+} mmdl_tid_track_t;
+
+/**
+ * @brief Check whether (src_addr, tid) duplicates the transaction last accepted into *p_track,
+ * and record it as the new last-accepted transaction when it does not.
+ *
+ * Each model instance (or family of Set-type messages sharing one transaction, e.g. Generic
+ * Level's Set/Delta Set/Move Set) must use its own mmdl_tid_track_t -- sharing one across
+ * unrelated models or source addresses causes an unrelated device's or model's message to be
+ * wrongly treated as a duplicate of this one and silently dropped.
+ */
+static inline uint32_t mmdl_tid_is_duplicate(mmdl_tid_track_t *p_track, uint16_t src_addr, uint8_t tid)
+{
+    if (p_track->valid && p_track->src_addr == src_addr && p_track->tid == tid)
+    {
+        return 1;
+    }
+    p_track->valid = 1;
+    p_track->src_addr = src_addr;
+    p_track->tid = tid;
+    return 0;
+}
 
 /** @brief Dispatch an incoming mesh model event message to the addressed element(s) (unicast or group/virtual). */
 void mmdl_evt_msg_cb(mesh_app_mdl_evt_msg_idc_t* pt_msg_idc);

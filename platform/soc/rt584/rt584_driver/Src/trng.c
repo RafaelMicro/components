@@ -14,9 +14,7 @@
  */
 
 
-#include "trng.h"
 #include "sysctrl.h"
-#include "pufs_rt_regs.h"
 
 uint32_t get_random_number(uint32_t *p_buffer, uint32_t number)
 {

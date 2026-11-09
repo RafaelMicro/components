@@ -46,10 +46,14 @@ void mmdl_publish_init(void)
 {
     mmdl_publish_msg_q = xQueueCreate(16, sizeof(uint32_t));
 
-    /* create a device publish timer */
+    /* create a device publish timer -- auto-reload: mmdl_publish_timer_handle()
+       increments each model's publish_current_timer_value on every call and
+       expects to keep being called periodically. A one-shot timer here fires
+       exactly once, ever, silently disabling all periodic Model Publication
+       (and this function's own retransmit logic) after the first 50 ms tick. */
     p_mmdl_publish_timer = xTimerCreate("mmdlpul",
                                             pdMS_TO_TICKS(MMLDL_PUBLISH_UINT),
-                                            pdFALSE,
+                                            pdTRUE,
                                             (void *)NULL,
                                             mmdl_publish_timer_handle);
 

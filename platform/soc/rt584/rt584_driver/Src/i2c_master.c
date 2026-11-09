@@ -13,7 +13,6 @@
  * Author:          Kc.tseng
  */
 
-#include "gpio.h"
 #include "i2c_master.h"
 #include "sysctrl.h"
 
@@ -135,6 +134,14 @@ uint32_t i2c_preinit(uint32_t master_id) {
     i2c_handle = &m_i2c_master_handle[master_id];
     i2c_master = i2c_handle->i2c_hw_dev_master;
 
+    /*
+     * RT584 hardware workaround:
+     * Both I2CM0 and I2CM1 require the I2CM0 clock gate to be enabled.
+     * Enabling I2CM1_CLK does not provide a functional clock to I2CM1.
+     * Therefore, always enable I2CM0_CLK regardless of master_id.
+    */
+    enable_perclk(I2CM0_CLK);
+    //enable_perclk((I2CM0_CLK + master_id));
 
     i2c_master->slck_gen = NORMAL_SPEED_DIV;     /* Bit15: Select APB clock (0) */
     i2c_master->control  = I2CM_CONTROL_ENABLE;
@@ -161,6 +168,15 @@ uint32_t i2c_master_init(uint32_t master_id, uint32_t i2c_speed) {
     if (master_id >= I2C_MASTER_NUMBER_MAX) {
         return STATUS_INVALID_PARAM;
     }
+
+    /*
+     * RT584 hardware workaround:
+     * Both I2CM0 and I2CM1 require the I2CM0 clock gate to be enabled.
+     * Enabling I2CM1_CLK does not provide a functional clock to I2CM1.
+     * Therefore, always enable I2CM0_CLK regardless of master_id.
+    */
+    enable_perclk(I2CM0_CLK);
+    //enable_perclk((I2CM0_CLK + master_id));
 
     i2c_handle = &m_i2c_master_handle[master_id];
 

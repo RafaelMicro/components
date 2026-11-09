@@ -93,7 +93,7 @@ static void mmdl_generic_battery_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_m
         pt_req->ttl = ttl;
 
         pt_req->opcode_invalid = 0;
-        pt_req->opcode = BE2LE16(MMDL_GEN_DEFAULT_TRANS_STATUS_OPCODE);
+        pt_req->opcode = BE2LE16(MMDL_GEN_BATTERY_STATUS_OPCODE);
         pt_req->parameter_len = sizeof(gen_battery_status_msg_t);
         p_msg = (gen_battery_status_msg_t *)pt_req->parameter;
         p_msg->level = p_gen_battery_state->battery_level;
@@ -151,7 +151,7 @@ void mmdl_generic_battery_publish_state(ble_mesh_element_param_t *p_element, ble
 
         gen_battery_status_msg_t *p_msg = (gen_battery_status_msg_t *)pt_req->parameter;
         pt_req->opcode_invalid = 0;
-        pt_req->opcode = BE2LE16(MMDL_GEN_DEFAULT_TRANS_STATUS_OPCODE);
+        pt_req->opcode = BE2LE16(MMDL_GEN_BATTERY_STATUS_OPCODE);
         p_msg->level = p_gen_battery_state->battery_level;
         p_msg->time_to_discharge = p_gen_battery_state->battery_time_to_discharge;
         p_msg->time_to_charge = p_gen_battery_state->battery_time_to_charge;

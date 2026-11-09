@@ -10,12 +10,9 @@
  * @license
  * @description
  */
-#include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "cli.h"
-#include "shell.h"
 
 //=============================================================================
 //                  Constant Definition

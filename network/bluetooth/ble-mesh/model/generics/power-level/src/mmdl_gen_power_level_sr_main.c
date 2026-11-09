@@ -259,7 +259,7 @@ void mmdl_generic_power_level_publish_state(ble_mesh_element_param_t *p_element,
 
         gen_power_level_status_msg_t *p_msg = (gen_power_level_status_msg_t *)pt_req->parameter;
         pt_req->opcode_invalid = 0;
-        pt_req->opcode = BE2LE16(MMDL_GEN_ONPOWERUP_STATUS_OPCODE);
+        pt_req->opcode = BE2LE16(MMDL_GEN_POWER_LEVEL_STATUS_OPCODE);
         p_msg->present_power = p_generic_power_level_state->power_actual_state;
         p_msg->target_power = p_generic_power_level_state->power_actual_state;
         p_msg->remaining_time = 0;

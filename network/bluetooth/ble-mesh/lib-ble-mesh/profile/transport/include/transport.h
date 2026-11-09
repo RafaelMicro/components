@@ -33,8 +33,15 @@ extern "C" {
 #define TRANSPORT_SAR_SEGACK_TTL_DEFAULT (20)
 #endif
 
-/** Default RX timeout. */
-#define TRANSPORT_SAR_RX_TIMEOUT_DEFAULT_MS                (10ul * 1000ul)
+/** Default RX timeout. Must stay comfortably above the TX side's own first-round retry
+ *  timeout (see TRANSPORT_SAR_TX_RETRY_*_DEFAULT_MS) for a full-size (32 segment) message,
+ *  otherwise the receiver can abandon an in-progress reassembly before the sender's own retry
+ *  ever arrives -- and since that abandonment doesn't get cached, the retried segments would
+ *  start a brand new (and permanently incomplete) RX session instead of completing the old one.
+ *  At TTL 32 that TX retry window is ~15.54s (13.94s base + 50ms/hop * 32), which already
+ *  exceeds the previous 15s value here -- 17s restores a positive margin (~1.46s) instead of
+ *  the receiver's patience running out before the sender's own first retry lands. */
+#define TRANSPORT_SAR_RX_TIMEOUT_DEFAULT_MS                (17ul * 1000ul)
 
 /** Default base RX acknowledgement timeout. */
 #define TRANSPORT_SAR_RX_ACK_BASE_TIMEOUT_DEFAULT_MS        (150ul)
@@ -42,14 +49,26 @@ extern "C" {
 /** Default per hop RX acknowledgement timeout addition. */
 #define TRANSPORT_SAR_RX_ACK_PER_HOP_ADDITION_DEFAULT_MS    (50ul)
 
-/** Default base TX retry timeout. */
-#define TRANSPORT_SAR_TX_RETRY_BASE_TIMEOUT_DEFAULT_MS      (200ul)
+/** Default base TX retry timeout. On top of the original 200ms, this adds two multiples of
+ *  TRANSPORT_SAR_RX_ACK_BASE_TIMEOUT_DEFAULT_MS worth of margin so the retry timer doesn't
+ *  expire before the peer's own (non-hop-scaled) SEGACK delay has had a chance to elapse --
+ *  that delay is otherwise unaccounted for, since it isn't a function of segment count. The
+ *  second multiple covers the peer's ack timer being reset once more by a trailing duplicate/
+ *  repeated segment before it actually fires. */
+#define TRANSPORT_SAR_TX_RETRY_BASE_TIMEOUT_DEFAULT_MS      (200ul + (2ul * TRANSPORT_SAR_RX_ACK_BASE_TIMEOUT_DEFAULT_MS))
 
 /** Default per hop TX retry timeout addition. */
 #define TRANSPORT_SAR_TX_RETRY_PER_HOP_ADDITION_DEFAULT_MS  (50ul)
 
+/** Default per segment TX retry timeout addition (accounts for the time needed to transmit
+ *  the whole burst of not-yet-acked segments, each repeated at the network layer). Raised from
+ *  140 to 200 alongside the a_adv_tx_disable() ADV-disable delay going from 50ms to 150ms
+ *  (bar_tx_fsm.c) -- that delay alone, per segment, now exceeds the old 140ms budget before
+ *  any actual airtime/HCI enable-disable overhead is even added. */
+#define TRANSPORT_SAR_TX_RETRY_PER_SEG_ADDITION_DEFAULT_MS  (200ul)
+
 /** Default number of retries before cancelling SAR TX session. */
-#define TRANSPORT_SAR_TX_RETRIES_DEFAULT (4)
+#define TRANSPORT_SAR_TX_RETRIES_DEFAULT (6)
 
 /** Maximum number of control packet consumers. Heartbeat + LPN_SM + LPN FSM + Friend. */
 #if MESH_FEATURE_LPN_ENABLED && MESH_FEATURE_FRIEND_ENABLED

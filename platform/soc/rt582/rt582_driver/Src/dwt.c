@@ -14,11 +14,8 @@
  * This file is part of library_name.
  * Author:     
  */
-#include <stdio.h>
-#include <stdint.h>
 #include "mcu.h"
 #include "dwt.h"
-#include "status.h"
 
 
 /* Reference counter to manage shared hardware access */

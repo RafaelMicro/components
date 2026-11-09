@@ -21,15 +21,15 @@
 #include "mmdl_common.h"
 #include "mmdl_scene_sr.h"
 #include "mmdl_scene_common.h"
-#include "flashctl.h"
+#include "hosal_flash.h"
 
 //=============================================================================
 //                Private Definitions of const value
 //=============================================================================
 
 //flash information
-#define SCENE_DATA_START_ADDRESS       0xF0000
-#define SCENE_DATA_END_ADDRESS         0xF2000
+#define SCENE_DATA_START_ADDRESS       ((FLASH_END_ADDR(( (flash_get_deviceinfo() >> FLASH_SIZE_ID_SHIFT) & 0xFF )) - 0x2000/*8K reserved for BLE bonding*/) - 0x7000) //0xF0000 
+#define SCENE_DATA_END_ADDRESS         ((FLASH_END_ADDR(( (flash_get_deviceinfo() >> FLASH_SIZE_ID_SHIFT) & 0xFF )) - 0x2000/*8K reserved for BLE bonding*/) - 0x5000) //0xF2000 
 #define SCENE_DATA_FLASH_SECTOR_SIZE   0x1000
 #define SCENE_DATA_FLASH_PAGE_SIZE     0x100
 //scene data header
@@ -67,6 +67,11 @@ static void mmdl_scene_delete(uint32_t is_ack, mesh_app_mdl_evt_msg_idc_t *p_evt
 static void mmdl_scene_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code);
 static void mmdl_scene_send_register_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t status_code);
 
+static uint32_t prv_flash_write_byte(uint32_t addr, uint8_t data)
+{
+    return (uint32_t)hosal_flash_write(HOSAL_FLASH_WRITE_BYTE, addr, &data);
+}
+
 /** @brief Compute the CRC32 checksum over a buffer, used to validate persisted scene records. */
 static uint32_t scene_data_crc32( uint8_t *p_data, uint32_t data_len)
 {
@@ -90,9 +95,7 @@ static uint32_t scene_data_remove_all(void)
     uint32_t i;
     for (i = SCENE_DATA_START_ADDRESS; i < SCENE_DATA_END_ADDRESS; i+= SCENE_DATA_FLASH_SECTOR_SIZE)
     {
-        while(flash_check_busy());
-        flash_erase(FLASH_ERASE_SECTOR, i);
-        while(flash_check_busy());
+        hosal_flash_erase(HOSAL_FLASH_ERASE_SECTOR, i);
     }
 }
 
@@ -114,21 +117,23 @@ static uint32_t scene_data_read(uint16_t element_address, uint8_t *p_data, uint8
     p_buff = pvPortMalloc(SCENE_DATA_FLASH_PAGE_SIZE << 1);
     if (p_buff != NULL)
     {
-        for (read_addr = SCENE_DATA_END_ADDRESS; read_addr >= SCENE_DATA_START_ADDRESS; read_addr-= SCENE_DATA_FLASH_PAGE_SIZE)
+        /* Start one page below SCENE_DATA_END_ADDRESS: that address itself is
+           the exclusive upper bound of the region (scene_data_update()'s
+           write-side scan uses "< SCENE_DATA_END_ADDRESS"), so starting the
+           backward scan AT it read a page that was never part of the region
+           at all, skipping the real last page on every call. */
+        for (read_addr = SCENE_DATA_END_ADDRESS - SCENE_DATA_FLASH_PAGE_SIZE; read_addr >= SCENE_DATA_START_ADDRESS; read_addr-= SCENE_DATA_FLASH_PAGE_SIZE)
         {
             //read two pages at a time because we may find the "header" at the end of first page
-            while(flash_check_busy());
-            flash_read_page((uint32_t)p_buff, read_addr);
-            while(flash_check_busy());
-            flash_read_page((uint32_t)(p_buff+SCENE_DATA_FLASH_PAGE_SIZE), read_addr+SCENE_DATA_FLASH_PAGE_SIZE);
-            while(flash_check_busy());
+            hosal_flash_read(HOSAL_FLASH_READ_PAGE, read_addr, p_buff);
+            hosal_flash_read(HOSAL_FLASH_READ_PAGE, read_addr+SCENE_DATA_FLASH_PAGE_SIZE, p_buff+SCENE_DATA_FLASH_PAGE_SIZE);
             //check one page only
             for(i = 0; i < SCENE_DATA_FLASH_PAGE_SIZE; i++)
             {
                 p_scene_data = (scene_flash_data_t*)(p_buff + SCENE_DATA_FLASH_PAGE_SIZE - 1 - i);
                 if ((p_scene_data->header == SCENE_DATA_HEADER) && (p_scene_data->element_idx == read_idx))
                 {
-                    if (p_scene_data->crc32 == scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t)))         
+                    if (p_scene_data->crc32 == scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t)))
                     {
                         //valid data
                         *p_data_length = sizeof(scene_state_t);
@@ -139,7 +144,7 @@ static uint32_t scene_data_read(uint16_t element_address, uint8_t *p_data, uint8
             }
             if (*p_data_length != 0)
             {
-                break;                
+                break;
             }
         }
         vPortFree(p_buff);
@@ -166,11 +171,8 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
         for (read_addr = SCENE_DATA_START_ADDRESS; read_addr < SCENE_DATA_END_ADDRESS; read_addr += SCENE_DATA_FLASH_PAGE_SIZE)
         {
             //read two pages at a time because we may find the "header" at the end of first page
-            while(flash_check_busy());
-            flash_read_page((uint32_t)p_buff, read_addr);
-            while(flash_check_busy());
-            flash_read_page((uint32_t)(p_buff+SCENE_DATA_FLASH_PAGE_SIZE), read_addr + SCENE_DATA_FLASH_PAGE_SIZE);
-            while(flash_check_busy());
+            hosal_flash_read(HOSAL_FLASH_READ_PAGE, read_addr, p_buff);
+            hosal_flash_read(HOSAL_FLASH_READ_PAGE, read_addr + SCENE_DATA_FLASH_PAGE_SIZE, p_buff+SCENE_DATA_FLASH_PAGE_SIZE);
 
             //check one page only
             for(i = 0; i < SCENE_DATA_FLASH_PAGE_SIZE; i++)
@@ -178,7 +180,7 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
                 p_scene_data = (scene_flash_data_t*)(p_buff + i);
                 if ((p_scene_data->header == SCENE_DATA_HEADER))
                 {
-                    if (p_scene_data->crc32 != scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t)))         
+                    if (p_scene_data->crc32 != scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t)))
                     {
                         printf("crc fail 0x%08x, 0x%08xd\n", p_scene_data->crc32, scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t)));
                         //invalid data
@@ -217,9 +219,8 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
                         p_scene_data->element_idx = GET_SCENE_FALSH_INDEX(i);
                         p_scene_data->crc32 = scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t));
                         p_scene_data = (scene_flash_data_t*)(p_buff+(backup_element_cnt*sizeof(scene_flash_data_t)));
-                        p_scene_data += sizeof(scene_flash_data_t);
                     }
-                }     
+                }
             }
             scene_data_remove_all();
             updata_addr = SCENE_DATA_START_ADDRESS;
@@ -228,11 +229,8 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
             {
                 for(j = 0; j < sizeof(scene_flash_data_t); j++)
                 {
-                    while(flash_check_busy());
-                    flash_write_byte(updata_addr + j, p_buff[i*sizeof(scene_flash_data_t)+j]);
+                    prv_flash_write_byte(updata_addr + j, p_buff[i*sizeof(scene_flash_data_t)+j]);
                     //printf("%02x ",p_buff[i*sizeof(scene_flash_data_t)+j]);
-                    while(flash_check_busy());
-                    
                 }
                 //printf("\n");
                 updata_addr += sizeof(scene_flash_data_t);
@@ -253,12 +251,9 @@ static uint32_t scene_data_update(uint32_t element_address, uint8_t *p_updata_da
         p_scene_data->crc32 = scene_data_crc32((uint8_t*)&p_scene_data->data, sizeof(scene_state_t));
         for(i = 0; i < sizeof(scene_flash_data_t); i++)
         {
-            while(flash_check_busy());
-            flash_write_byte(updata_addr + i, p_buff[i]);
-            while(flash_check_busy());
+            prv_flash_write_byte(updata_addr + i, p_buff[i]);
         }
         vPortFree(p_buff);
-        //printf("updata_addr 0x%08x, len %d\n", updata_addr, sizeof(scene_state_t));
     }
 }
 
@@ -331,6 +326,8 @@ static void mmdl_scene_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_eleme
     mmdl_scene_send_status(p_evt_msg, p_element, p_model, MMDL_SCENE_SUCCESS);
 }
 
+static mmdl_tid_track_t s_scene_recall_tid_track;
+
 /** @brief Handle a Scene Recall(/Unacknowledged) request: look up the scene number, apply it via the user callback, and optionally reply with status. */
 static void mmdl_scene_recall(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
@@ -339,7 +336,7 @@ static void mmdl_scene_recall(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_e
     void                *p_extend_set_func = NULL;
     uint8_t             status = MMDL_SCENE_NOT_FOUND, i;
 
-    if (tid == p_scene_recall_msg->tid)
+    if (mmdl_tid_is_duplicate(&s_scene_recall_tid_track, p_evt_msg->src_addr, p_scene_recall_msg->tid))
     {
         return;
     }

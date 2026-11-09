@@ -172,6 +172,16 @@ int hosal_flash_ioctrl(int ctl, void *p_arg)
         *(hosal_flash_size_t *)p_arg = (hosal_flash_size_t)flash_size();
         return STATUS_SUCCESS;
 
+    case HOSAL_FLASH_GET_END_ADDR:
+    {
+        uint32_t size_id;
+
+        if (!p_arg) return STATUS_INVALID_PARAM;
+        size_id = (uint32_t)flash_size();
+        *(uint32_t *)p_arg = FLASH_END_ADDR(size_id);
+        return STATUS_SUCCESS;
+    }
+
     default:
         return HOSAL_STATUS_UNSUPPORTED;
     }

@@ -823,18 +823,17 @@ private:
     // Number of Parent Requests in first and next attach cycles
 
 #if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_3
-    // First attach cycle includes two Parent Requests to routers, followed by four to routers and REEDs.
+    // Stock 2/1: raising the first cycle to 4/3 did not improve echo, so it was reverted.
     static constexpr uint8_t kFirstAttachCycleTotalParentRequests       = 2;
     static constexpr uint8_t kFirstAttachCycleNumParentRequestToRouters = 1;
 #else
-    // First attach cycle in Thread 1.1/1.2 includes a Parent Requests to routers, followed by one to routers and REEDs.
     static constexpr uint8_t kFirstAttachCycleTotalParentRequests       = 2;
     static constexpr uint8_t kFirstAttachCycleNumParentRequestToRouters = 1;
 #endif
 
-    // Next attach cycles includes one Parent Request to routers, followed by one to routers and REEDs.
-    static constexpr uint8_t kNextAttachCycleTotalParentRequests       = 6;//2;
-    static constexpr uint8_t kNextAttachCycleNumParentRequestToRouters = 3;//2;
+    // 6/1 (stock 2/2): only one strict round, so a reattach settles ~12 s sooner.
+    static constexpr uint8_t kNextAttachCycleTotalParentRequests       = 6;
+    static constexpr uint8_t kNextAttachCycleNumParentRequestToRouters = 1;
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1164,6 +1163,7 @@ private:
 #if OPENTHREAD_FTD
         void ScheduleParentResponse(const ParentResponseInfo &aInfo, uint16_t aDelay);
         void ScheduleMulticastDataResponse(uint16_t aDelay);
+        void ScheduleAdvertisement(uint16_t aDelay);
         Error ScheduleLinkRequest(const Router &aRouter, uint16_t aDelay);
         void ScheduleLinkAccept(const LinkAcceptInfo &aInfo, uint16_t aDelay);
         void ScheduleDiscoveryResponse(const Ip6::Address          &aDestination,

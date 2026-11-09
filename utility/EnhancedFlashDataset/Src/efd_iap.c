@@ -6,7 +6,6 @@
  */
 
 
-#include <EnhancedFlashDataset.h>
 
 #ifdef EFD_USING_IAP
 

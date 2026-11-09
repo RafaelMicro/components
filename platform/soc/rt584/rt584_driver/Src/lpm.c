@@ -15,13 +15,12 @@
  */
 
 
-#include "mcu.h"
 #include "lpm.h"
 #include "sysctrl.h"
 #include "gpio.h"
-#include "aux_comp.h"
+#include "rtc.h"
 #include "dpd.h"
-#include "dwt.h"
+#include "rf_mcu.h"
 
 static volatile  uint32_t low_power_mask_status = LOW_POWER_NO_MASK;
 static volatile  uint32_t comm_subsystem_wakeup_mask_status = COMM_SUBSYS_WAKEUP_NO_MASK;
@@ -355,6 +354,7 @@ void lpm_sub_system_low_power_mode(commumication_subsystem_pwr_mode_cfg_t mode) 
     } else if (mode == COMMUMICATION_SUBSYSTEM_PWR_STATE_DEEP_SLEEP) {
         if( (COMM_SUBSYSTEM_AHB->COMM_SUBSYSTEM_TX_INFO >> 16) & 0xFFF ) {
             //have fw
+            RfMcu_SysSleepNotify();
         } else {
             lpm_sub_system_low_power_mode(COMMUMICATION_SUBSYSTEM_PWR_STATE_SLEEP);
         }
@@ -411,7 +411,12 @@ void lpm_deep_sleep_set_rco_settle_time()
 void lpm_enter_low_power_mode(void) {
 
     if (low_power_mask_status == LOW_POWER_NO_MASK) {
+        
+        /* Enable GPIO 32K clock */
+        gpio_32k_init();
+
         if (low_power_level == LPM_SLEEP) {
+            RfMcu_SysSleepNotify();
             /* set platform system wakeup source when entering sleep mode*/
             lpm_set_platform_low_power_wakeup(LOW_POWER_PLATFORM_ENTER_SLEEP);
             /* platform system enter sleep mode */
@@ -436,6 +441,22 @@ void lpm_enter_low_power_mode(void) {
             SYSCTRL->sys_power_state.bit.cfg_set_lowpower = LOW_POWER_PLATFORM_ENTER_POWER_DOWN_MODE;
             __WFI();
         }
-        SYSCTRL->sys_power_state.bit.cfg_set_lowpower  = LOW_POWER_PLATFORM_NORMAL;
+        else if (low_power_level == LPM_NORMAL) {
+            /* set platform system wakeup source when entering sleep mode*/
+            lpm_set_platform_low_power_wakeup(LOW_POWER_PLATFORM_ENTER_SLEEP);
+            SYSCTRL->sys_clk_ctrl.bit.hclk_sel = MCU_HCLK_SEL_32M; //switch to 32MHz clock
+            __NOP();
+            __NOP();
+            __NOP();
+            __NOP();
+            __WFI();
+            __NOP();
+            SYSCTRL->sys_clk_ctrl.bit.hclk_sel = MCU_HCLK_SEL_PLL; //switch to PLL clock
+            __NOP();
+            __NOP();
+            __NOP();
+            __NOP();
+        }
+        SYSCTRL->sys_power_state.bit.cfg_set_lowpower = LOW_POWER_PLATFORM_NORMAL;
     }
 }

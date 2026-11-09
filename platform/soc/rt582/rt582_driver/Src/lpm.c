@@ -16,9 +16,7 @@
  */
 
 #include "comm_subsystem_drv.h"
-#include "mcu.h"
 #include "rf_mcu_ahb.h"
-#include "lpm.h"
 
 static volatile uint32_t low_power_mask_status;
 static volatile uint32_t comm_subsystem_wakeup_mask_status;

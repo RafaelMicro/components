@@ -8,13 +8,9 @@
 /**************************************************************************************************
 *    INCLUDES
 *************************************************************************************************/
-#include "stdio.h"
-#include "string.h"
 
-#include "mcu.h"
 //#include "project_config.h"
 
-#include "hosal_gpio.h"
 #include "hosal_uart.h"
 //#include "uart_drv.h"
 //#include "retarget.h"
@@ -23,15 +19,12 @@
 #include "sysctrl.h"
 
 #include "FreeRTOS.h"
-#include "queue.h"
-#include "task.h"
 #include "timers.h"
 
 #include "rf_common_init.h"
 #include "rf_mcu.h"
 
 #include "ruci.h"
-#include "uart_bridge.h"
 
 #include "dtm_mode.h"
 /**************************************************************************************************

@@ -44,6 +44,15 @@ extern "C"
 #define RAF_BLE_MESH_SUBSCRIPTION_LIST_SIZE           16
 #endif
 
+/* Real per-(element, model) subscription-list capacity enforced by
+   dsm_subscribe_add()/dsm_subscribe_del() (dsm_sur.c) against
+   model_subscribe_info_t.Address[]/VirAddress[]/UUID[] (prod_type.h) --
+   distinct from RAF_BLE_MESH_SUBSCRIPTION_LIST_SIZE above, which only sizes
+   the raw ble_mesh_model_param_t.subscribe_list[] arrays used elsewhere. */
+#ifndef RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX
+#define RAF_BLE_MESH_MODEL_SUBSCRIBE_ADDR_MAX         5
+#endif
+
 #ifndef RAF_BLE_MESH_MODEL_BIND_LIST_SIZE
 #define RAF_BLE_MESH_MODEL_BIND_LIST_SIZE             4
 #endif

@@ -43,6 +43,7 @@ typedef enum
  *************************************************************************************************/
 bool rf_ble_init_direct(void);
 bool rf_set_rf_freq_direct(uint32_t freq);
+bool rf_set_rf_sleep_direct(uint8_t enable);
 bool rf_set_ble_modem_direct(ble_data_rate_t rate);
 bool rf_set_ble_mac_direct(void);
 bool rf_set_rfe_tx_enable_direct(rfe_tx_data_type_t type, uint16_t pkt_count);

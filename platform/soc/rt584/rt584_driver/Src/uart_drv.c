@@ -191,9 +191,9 @@ uint32_t uart_init(uint32_t uart_id,
     // Clear UART IRQ
     NVIC_ClearPendingIRQ(uart_dev->irq_num);
 
-#if 0
+#if 1
     // Enable UART peripheral clock
-    enable_perclk((UART0_BASE_CLK + uart_dev->uart_id));
+    enable_perclk((UART0_CLK + uart_dev->uart_id));
 #endif
 
     /*RT584: Disable uart enable first */

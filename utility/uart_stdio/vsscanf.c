@@ -18,11 +18,9 @@
 
 #include <ctype.h>
 #include <stdarg.h>
-#include <stddef.h>
 #include <inttypes.h>
 #include <string.h>
 #include <limits.h>
-#include <stdio.h>
 //#include <wmlibc.h>
 #include "compat_attribute.h"
 

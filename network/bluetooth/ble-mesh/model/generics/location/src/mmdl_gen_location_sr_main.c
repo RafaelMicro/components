@@ -114,7 +114,7 @@ static void mmdl_generic_location_global_set(uint32_t ack_flag, mesh_app_mdl_evt
         p_gen_location_state->global_latitude = p_gen_location_global_set_msg->global_latitude;
         p_gen_location_state->global_longitude = p_gen_location_global_set_msg->global_longitude;
         p_gen_location_state->global_altitude = p_gen_location_global_set_msg->global_altitude;
-
+        state_changed = 1;
 
     } while (0);
 
@@ -239,7 +239,7 @@ void mmdl_generic_location_global_publish_state(ble_mesh_element_param_t *p_elem
 /** @brief Handle a Generic Location Local Get request by replying with the current location status. */
 static void mmdl_generic_location_local_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
-    mmdl_generic_location_global_send_status(p_evt_msg, p_element, p_model);
+    mmdl_generic_location_local_send_status(p_evt_msg, p_element, p_model);
 }
 
 
@@ -268,7 +268,7 @@ static void mmdl_generic_location_local_set(uint32_t ack_flag, mesh_app_mdl_evt_
         p_gen_location_state->local_altitude = p_gen_location_local_set_msg->local_altitude;
         p_gen_location_state->floor_number = p_gen_location_local_set_msg->floor_number;
         p_gen_location_state->uncertainty = p_gen_location_local_set_msg->uncertainty;
-
+        state_changed = 1;
 
     } while (0);
 

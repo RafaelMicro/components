@@ -464,6 +464,30 @@ ble_err_t bhc_irk_key_exist_check(uint8_t host_id);
 ble_err_t ble_lesc_init(void);
 
 
+/** @brief Enable or disable LE Secure Connections Debug Mode.
+ *
+ * @ingroup ble_host_api
+ *
+ * @warning Never enable this in a production build -- see @ref ble_lesc_debug_mode_set for why.
+ *
+ * @param[in] enable : true to use the well-known Bluetooth SIG debug key pair, false to
+ *                     return to random key pairs (takes effect on the next LESC key pair
+ *                     generation).
+ *
+ * @return @ref BLE_ERR_OK is success or an @ref ble_err_t "error".
+ */
+ble_err_t ble_lesc_debug_mode_set(bool enable);
+
+
+/** @brief Query whether LE Secure Connections Debug Mode is currently enabled.
+ *
+ * @ingroup ble_host_api
+ *
+ * @return true if debug mode is enabled, false otherwise.
+ */
+bool ble_lesc_debug_mode_get(void);
+
+
 /** @brief Initial Resolvable address related parameter.
  *
  * @ingroup ble_host_api

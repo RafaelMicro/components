@@ -101,6 +101,12 @@ bool rf_set_rf_freq_direct(uint32_t freq)
     return RUCI_SEND_CMD(cmd);
 }
 
+bool rf_set_rf_sleep_direct(uint8_t enable)
+{
+    uint8_t cmd[] = {0x10, 0x0D, 0x01, enable};
+    return RUCI_SEND_CMD(cmd);
+}
+
 bool rf_set_ble_modem_direct(ble_data_rate_t rate)
 {
     uint8_t cmd[] = {0x12, 0x02, 0x02, 0x00, 0x00};

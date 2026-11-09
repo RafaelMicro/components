@@ -245,7 +245,10 @@ __STATIC_INLINE void TZ_SAU_Setup (void)
      *  For bootrom we set all SRAM (192KB as secure).
      * NO NSC in SRAM.  so SEC_RAM_NSC_START = SEC_RAM_NSC_STOP
      */
-    extern unsigned int _comm_subsys_reserved_ram;
+
+    /* weak: prevents the compiler from assuming &_comm_subsys_reserved_ram
+     * is non-null and optimizing away the null check. */
+    extern unsigned int _comm_subsys_reserved_ram __attribute__((weak));
     if ((unsigned int)&_comm_subsys_reserved_ram != 0) /* size is larger than zero */
     {
         SEC_CTRL->sec_ram_sec_size = 0x2C00;    /* COMM subsys release some RAM for heap2 use */

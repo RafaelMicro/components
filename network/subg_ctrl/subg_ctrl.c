@@ -14,7 +14,6 @@
  *
  *
  */
-#include <stdio.h>
 #include "hosal_rf.h"
 #include "subg_ctrl.h"
 static uint32_t g_now_frequency = 0xFFFFFFFF;

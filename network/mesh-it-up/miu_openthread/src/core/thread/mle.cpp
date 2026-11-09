@@ -4576,6 +4576,24 @@ void Mle::DelayedSender::ScheduleMulticastDataResponse(uint16_t aDelay)
     IgnoreError(AddSchedule(kTypeDataResponse, destination, aDelay, nullptr, 0));
 }
 
+void Mle::DelayedSender::ScheduleAdvertisement(uint16_t aDelay)
+{
+    // Schedule a second copy of the MLE Advertisement a short random time
+    // after the trickle-timer one. A router that misses every
+    // Advertisement for kMaxNeighborAge drops the link even though its
+    // radio is otherwise healthy; sending each Advertisement twice with an
+    // independent random offset removes that single point of failure
+    // without touching the trickle interval. Any copy still pending is
+    // dropped first so a reset interval cannot pile schedules up.
+
+    Ip6::Address destination;
+
+    destination.SetToLinkLocalAllNodesMulticast();
+
+    RemoveMatchingSchedules(kTypeAdvertisement, destination);
+    IgnoreError(AddSchedule(kTypeAdvertisement, destination, aDelay, nullptr, 0));
+}
+
 Error Mle::DelayedSender::ScheduleLinkRequest(const Router &aRouter, uint16_t aDelay)
 {
     Ip6::Address destination;
@@ -4716,6 +4734,15 @@ void Mle::DelayedSender::Execute(const Schedule &aSchedule)
 
     case kTypeDataResponse:
         Get<MleRouter>().SendMulticastDataResponse();
+        break;
+
+    case kTypeAdvertisement:
+        // The schedule can outlive the role that created it, and
+        // SendAdvertisement() asserts when detached or disabled.
+        if (Get<Mle>().IsAttached())
+        {
+            Get<MleRouter>().SendAdvertisement();
+        }
         break;
 
     case kTypeLinkAccept:

@@ -101,6 +101,8 @@ static void mmdl_generic_level_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_me
 
 
 /** @brief Apply a Generic Level Set request (absolute level), notify the callback/extended model, and optionally acknowledge. */
+static mmdl_tid_track_t s_level_tid_track;
+
 static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
     gen_level_set_msg_t  *p_gen_level_set_msg = (gen_level_set_msg_t *)p_evt_msg->parameter;
@@ -109,13 +111,9 @@ static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
     do
     {
 
-        if (tid == p_gen_level_set_msg->tid)
+        if (mmdl_tid_is_duplicate(&s_level_tid_track, p_evt_msg->src_addr, p_gen_level_set_msg->tid))
         {
             return;
-        }
-        else
-        {
-            tid = p_gen_level_set_msg->tid;
         }
 
         //check the state change
@@ -139,7 +137,6 @@ static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
         mmdl_generic_level_send_status(p_evt_msg, p_element, p_model);
     }
 
-    /* publish the state if publish is avaliable */
     if (state_changed)
     {
         if (p_model->is_extended)
@@ -153,13 +150,18 @@ static void mmdl_generic_level_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t
         {
             ((model_level_user_call_back)(p_model->p_user_call_back))(p_element->element_address, p_gen_level_state->target_level);
         }
-
     }
-    else if (state_changed)
+    /* publish the state if publish is avaliable -- independent of the
+       notify above, not an alternative to it (the previous "else if
+       (state_changed)" here could never be true, since state_changed
+       is already required true by the enclosing if). */
+    if (state_changed)
     {
         mmdl_generic_level_publish_state(p_element, p_model);
     }
 }
+
+static mmdl_tid_track_t s_level_delta_tid_track;
 
 /** @brief Apply a Generic Delta Set request (relative level change), notify the callback/extended model, and optionally acknowledge. */
 static void mmdl_generic_level_delta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
@@ -171,13 +173,9 @@ static void mmdl_generic_level_delta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg
     do
     {
 
-        if (tid == p_gen_level_delta_set_msg->tid)
+        if (mmdl_tid_is_duplicate(&s_level_delta_tid_track, p_evt_msg->src_addr, p_gen_level_delta_set_msg->tid))
         {
             return;
-        }
-        else
-        {
-            tid = p_gen_level_delta_set_msg->tid;
         }
 
         p_gen_level_state->delta_level = p_gen_level_delta_set_msg->delta_level;
@@ -211,13 +209,16 @@ static void mmdl_generic_level_delta_set(uint32_t ack_flag, mesh_app_mdl_evt_msg
         }
 
     }
-    /* publish the state if publish is avaliable */
-    else if (state_changed)
+    /* publish the state if publish is avaliable -- independent of the
+       notify above, not an alternative to it (see mmdl_generic_level_set). */
+    if (state_changed)
     {
         mmdl_generic_level_publish_state(p_element, p_model);
     }
 
 }
+
+static mmdl_tid_track_t s_level_move_tid_track;
 
 static void mmdl_generic_level_move_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
@@ -227,13 +228,9 @@ static void mmdl_generic_level_move_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_
 
     do
     {
-        if (tid == p_gen_level_move_set_msg->tid)
+        if (mmdl_tid_is_duplicate(&s_level_move_tid_track, p_evt_msg->src_addr, p_gen_level_move_set_msg->tid))
         {
             return;
-        }
-        else
-        {
-            tid = p_gen_level_move_set_msg->tid;
         }
 
         p_gen_level_state->move_delta_level = p_gen_level_move_set_msg->delta_level;

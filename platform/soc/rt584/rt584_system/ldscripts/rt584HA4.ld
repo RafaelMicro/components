@@ -13,15 +13,23 @@ MEMORY
     /**
     * 4MB Flash Layout (4096KB) - RT584HA4
     * 0x10000000 - 0x1000FFFF : Bootloader      (64KB)
-    * 0x10010000 - 0x103EFFFF : App Code        (3968KB)
-    * 0x103F0000 - 0x103FDFFF : User Data       (56KB)
+    * 0x10010000 - 0x101FFFFF : App Code        (1984KB, capped at the 2MB mark -- see below)
+    * 0x10200000 - 0x103FDFFF : FOTA staging / Zigbee NVRAM / reserved / User Data
     * 0x103FE000 - 0x103FFFFF : Cal / MP Sector (8KB)
+    *
+    * RT584HA4 has a known flash-controller limitation: code above the 2MB mark
+    * (0x10200000) is not reliably executable. LMA_CORE is capped there instead of
+    * running to the top of App Code's old 3968KB size, so the link step fails
+    * ("region LMA_CORE overflowed") if an application ever grows past 1984KB,
+    * instead of silently placing code where the flash controller cannot run it.
+    * Do not raise this limit without confirming the real erratum boundary with
+    * the hardware/firmware team.
     */
-    
-    LMA_BOOT (rx)    : ORIGIN = 0x10000000, LENGTH = 64K
-    LMA_CORE (rx)    : ORIGIN = 0x10010000, LENGTH = 3968K
-    LMA_USER (r)     : ORIGIN = 0x103F0000, LENGTH = 56K
-    LMA_MPSC (r)     : ORIGIN = 0x103FE000, LENGTH = 8K
+
+    LMA_BOOT (rx) : ORIGIN = 0x10000000, LENGTH = 64K
+    LMA_CORE (rx) : ORIGIN = 0x10010000, LENGTH = 1984K
+    LMA_USER (r)  : ORIGIN = 0x103F0000, LENGTH = 56K
+    LMA_MPSC (r)  : ORIGIN = 0x103FE000, LENGTH = 8K
 
 	/* VMA (RAM) */
     VMA_DATA  (rwx) : ORIGIN = 0x30000000, LENGTH = __DATA_SIZE

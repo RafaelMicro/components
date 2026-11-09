@@ -13,7 +13,6 @@
  * Author:          ives.lee
  */
 
-#include <stdio.h>
 #include "mcu.h"
 #include "swi.h"
 

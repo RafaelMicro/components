@@ -43,7 +43,7 @@ static void mmdl_scheduler_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
 static void mmdl_scheduler_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_scheduler_action_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
 static void mmdl_scheduler_action_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
-static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model);
+static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint16_t index);
 
 /** @brief Dispatch an incoming Scheduler model message (Get/Action Get) to the appropriate opcode handler. */
 void mmdl_scheduler_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint8_t in_is_broadcast)
@@ -55,11 +55,11 @@ void mmdl_scheduler_sr_handler(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_e
     /* process the message by different opcode */
     switch (LE2BE16(p_evt_msg->opcode))
     {
-    case MMDL_SCHEDULER_ACTION_GET_OPCODE:
+    case MMDL_SCHEDULER_GET_OPCODE:
         mmdl_scheduler_get(p_evt_msg, p_element, p_model);
         break;
 
-    case MMDL_SCHEDULER_GET_OPCODE:
+    case MMDL_SCHEDULER_ACTION_GET_OPCODE:
         mmdl_scheduler_action_get(p_evt_msg, p_element, p_model);
         break;
 
@@ -149,11 +149,11 @@ static void mmdl_scheduler_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, bl
 /** @brief Handle a Scheduler Action Get request: validate the requested register index and reply with its status. */
 static void mmdl_scheduler_action_get(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
 {
-    scheduler_action_get_msg_t  *p_scheduler_action_get_msg = (scheduler_action_get_msg_t *)p_model->p_state_var;
+    scheduler_action_get_msg_t  *p_scheduler_action_get_msg = (scheduler_action_get_msg_t *)p_evt_msg->parameter;
 
     if (p_scheduler_action_get_msg->index < MMDL_SCHEDULE_REG_ENTRY_NUM)
     {
-        mmdl_scheduler_action_send_status(p_evt_msg, p_element, p_model);
+        mmdl_scheduler_action_send_status(p_evt_msg, p_element, p_model, p_scheduler_action_get_msg->index);
     }
 }
 
@@ -163,47 +163,51 @@ static void mmdl_scheduler_action_set(uint32_t ack_flag, mesh_app_mdl_evt_msg_id
 {
     scheduler_state_t           *p_scheduler_state = (scheduler_state_t *)p_model->p_state_var;
     scheduler_action_set_msg_t  *p_scheduler_action_set_msg = (scheduler_action_set_msg_t *)p_evt_msg->parameter;
-    uint16_t index;
+    uint16_t index = p_scheduler_action_set_msg->time_reg.index;
+    uint16_t schedule_bit;
 
-    do
+    /* time_reg.index is a 4-bit field (0-15) but schedule_reg_state[] only has
+       MMDL_SCHEDULE_REG_ENTRY_NUM entries -- reject out-of-range indices
+       instead of writing/reading past the array. */
+    if (index >= MMDL_SCHEDULE_REG_ENTRY_NUM)
     {
-        index = p_scheduler_action_set_msg->time_reg.index;
-        p_scheduler_state->schedule_reg_state[index].year = p_scheduler_action_set_msg->time_reg.year;
-        p_scheduler_state->schedule_reg_state[index].months = p_scheduler_action_set_msg->time_reg.months;
-        p_scheduler_state->schedule_reg_state[index].day = p_scheduler_action_set_msg->time_reg.day;
-        p_scheduler_state->schedule_reg_state[index].hour = p_scheduler_action_set_msg->time_reg.hour;
-        p_scheduler_state->schedule_reg_state[index].minute = p_scheduler_action_set_msg->time_reg.minute;
-        p_scheduler_state->schedule_reg_state[index].second = p_scheduler_action_set_msg->time_reg.second;
-        p_scheduler_state->schedule_reg_state[index].days_of_week = p_scheduler_action_set_msg->time_reg.days_of_week;
-        p_scheduler_state->schedule_reg_state[index].action = p_scheduler_action_set_msg->time_reg.action;
-        p_scheduler_state->schedule_reg_state[index].trans_time = p_scheduler_action_set_msg->time_reg.trans_time;
-        p_scheduler_state->schedule_reg_state[index].scene_number = p_scheduler_action_set_msg->scene_number;
+        return;
+    }
 
-        index = (0x0001 << index);
-        if (p_scheduler_state->schedule_reg_state[index].action != MMDL_SCHEDULE_REG_ACTION_NO_ACTION)
-        {
-            p_scheduler_state->schedules |= index;
-        }
-        else
-        {
-            p_scheduler_state->schedules &= (~index);
-        }
-    } while (0);
+    p_scheduler_state->schedule_reg_state[index].year = p_scheduler_action_set_msg->time_reg.year;
+    p_scheduler_state->schedule_reg_state[index].months = p_scheduler_action_set_msg->time_reg.months;
+    p_scheduler_state->schedule_reg_state[index].day = p_scheduler_action_set_msg->time_reg.day;
+    p_scheduler_state->schedule_reg_state[index].hour = p_scheduler_action_set_msg->time_reg.hour;
+    p_scheduler_state->schedule_reg_state[index].minute = p_scheduler_action_set_msg->time_reg.minute;
+    p_scheduler_state->schedule_reg_state[index].second = p_scheduler_action_set_msg->time_reg.second;
+    p_scheduler_state->schedule_reg_state[index].days_of_week = p_scheduler_action_set_msg->time_reg.days_of_week;
+    p_scheduler_state->schedule_reg_state[index].action = p_scheduler_action_set_msg->time_reg.action;
+    p_scheduler_state->schedule_reg_state[index].trans_time = p_scheduler_action_set_msg->time_reg.trans_time;
+    p_scheduler_state->schedule_reg_state[index].scene_number = p_scheduler_action_set_msg->scene_number;
+
+    schedule_bit = (uint16_t)(0x0001 << index);
+    if (p_scheduler_state->schedule_reg_state[index].action != MMDL_SCHEDULE_REG_ACTION_NO_ACTION)
+    {
+        p_scheduler_state->schedules |= schedule_bit;
+    }
+    else
+    {
+        p_scheduler_state->schedules &= (~schedule_bit);
+    }
 
     if (ack_flag)
     {
-        mmdl_scheduler_action_send_status(p_evt_msg, p_element, p_model);
+        mmdl_scheduler_action_send_status(p_evt_msg, p_element, p_model, index);
     }
 }
 
 /** @brief Build and send a Scheduler Action Status message for one schedule register entry. */
-static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model)
+static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_msg, ble_mesh_element_param_t *p_element, ble_mesh_model_param_t *p_model, uint16_t index)
 {
     mesh_app_mdl_evt_msg_req_t     *pt_req;
     mesh_tlv_t                     *pt_tlv;
     scheduler_state_t              *p_scheduler_state = (scheduler_state_t *)p_model->p_state_var;
     scheduler_action_status_msg_t  *p_scheduler_action_status_msg;
-    uint8_t                        index;
 
     do
     {
@@ -227,7 +231,7 @@ static void mmdl_scheduler_action_send_status(mesh_app_mdl_evt_msg_idc_t *p_evt_
         pt_req->opcode = BE2LE16(MMDL_SCHEDULER_ACTION_STATUS_OPCODE);
         pt_req->parameter_len = sizeof(scheduler_action_status_msg_t);
         p_scheduler_action_status_msg = (scheduler_action_status_msg_t *)pt_req->parameter;
-        index = p_scheduler_action_status_msg->time_reg.index;
+        p_scheduler_action_status_msg->time_reg.index = index;
         p_scheduler_action_status_msg->time_reg.year = p_scheduler_state->schedule_reg_state[index].year;
         p_scheduler_action_status_msg->time_reg.months = p_scheduler_state->schedule_reg_state[index].months;
         p_scheduler_action_status_msg->time_reg.day = p_scheduler_state->schedule_reg_state[index].day;

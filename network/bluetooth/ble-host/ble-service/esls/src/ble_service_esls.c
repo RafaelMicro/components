@@ -12,7 +12,6 @@
  *
  *
  ************************************************************************/
-#include "ble_service_esls.h"
 #include "ble_profile.h"
 
 /** ble_svcs_esls_handler

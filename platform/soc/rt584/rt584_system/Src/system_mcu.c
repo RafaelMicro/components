@@ -910,6 +910,26 @@ void systeminit(void) {
     set_ext32k_pin(GPIO5);
     set_slow_clock_source(EXT_GPIO_RCO32K);
 #endif
+
+    /*Disable all peripheral clocks*/
+    disable_perclk(UART1_CLK);
+    disable_perclk(UART2_CLK);
+    disable_perclk(QSPI0_CLK);
+    disable_perclk(QSPI1_CLK);
+    disable_perclk(I2CM0_CLK);
+    disable_perclk(I2CM1_CLK);
+    disable_perclk(I2S0_CLK);
+    disable_perclk(CRYPTO_CLK);
+    disable_perclk(XDMA_CLK);
+    disable_perclk(IRM_CLK);
+    disable_perclk(TIMER0_CLK);
+    disable_perclk(TIMER1_CLK);
+    disable_perclk(TIMER2_CLK);
+    disable_perclk(TIMER3_32K_CLK);
+    disable_perclk(TIMER4_32K_CLK);
+    disable_perclk(RTC_32K_CLK);
+    disable_perclk(GPIO_32K_CLK);
+
 }
 
 //#if  (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)

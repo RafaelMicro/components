@@ -22,7 +22,7 @@
 #include "ble_event.h"
 #include "ble_host_cmd.h"
 #include "ble_scan.h"
-#include "flashctl.h"
+#include "hosal_flash.h"
 #include "hci_cmd_vendor.h"
 #include "hci_cmd_controller.h"
 #include "log.h"
@@ -99,8 +99,7 @@ ble_err_t ble_cmd_read_unique_code(ble_unique_code_format_t *p_param)
             p_cmp = pvPortMalloc(sizeof(ble_unique_code_format_t));
             if (p_cmp != NULL)
             {
-                flash_read_sec_register((uint32_t)p_read_param, SEC_BLE_MAC_REG);
-                while (flash_check_busy());
+                hosal_flash_read(HOSAL_FLASH_SECURITY_READ, SEC_BLE_MAC_REG, p_read_param);
 
                 memset(p_cmp, 0, sizeof(ble_unique_code_format_t));
                 if (memcmp(p_read_param, p_cmp, sizeof(ble_unique_code_format_t)) == 0)

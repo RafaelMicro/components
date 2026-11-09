@@ -29,6 +29,8 @@ void bar_adv_tx_fsm_init(void);
 void bar_adv_tx_start(mesh_tlv_t *pt_tlv);
 void bar_adv_enabled(void);
 void bar_adv_disabled(void);
+void bar_adv_enable_failed(void);
+void bar_adv_disable_failed(void);
 void bar_gatt_adv_enable(void);
 void bar_gatt_adv_disable(void);
 void bar_gatt_connected(void);

@@ -14,7 +14,6 @@
  * This file is part of library_name.
  * Author: ives.lee
  */
-#include "mcu.h"
 #include "flashctl.h"
 /** 
  * \brief           Flash unlock patter

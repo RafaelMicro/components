@@ -54,38 +54,39 @@ extern "C" {
 /**
 * \brief flash read command
  */
-#define HOSAL_FLASH_READ_BYTE				(0x00)
-#define HOSAL_FLASH_READ_PAGE				(0x01)
-#define HOSAL_FLASH_SECURITY_READ			(0x02)
-#define HOSAL_FLASH_READ_STATUS				(0x03)
-#define HOSAL_FLASH_READ_ID					(0x04)
+#define HOSAL_FLASH_READ_BYTE               (0x00)
+#define HOSAL_FLASH_READ_PAGE               (0x01)
+#define HOSAL_FLASH_SECURITY_READ           (0x02)
+#define HOSAL_FLASH_READ_STATUS             (0x03)
+#define HOSAL_FLASH_READ_ID                 (0x04)
 
 /**
 * \brief flash write command
  */
-#define HOSAL_FLASH_WRITE_BYTE				(0x10)
-#define HOSAL_FLASH_WRITE_PAGE				(0x11)
-#define HOSAL_FLASH_SECURITY_WRITE			(0x12)
-#define HOSAL_FLASH_WRITE_STATUS			(0x13)
+#define HOSAL_FLASH_WRITE_BYTE              (0x10)
+#define HOSAL_FLASH_WRITE_PAGE              (0x11)
+#define HOSAL_FLASH_SECURITY_WRITE          (0x12)
+#define HOSAL_FLASH_WRITE_STATUS            (0x13)
 
 /**
  * \brief flash erase command 
  */
-#define HOSAL_FLASH_ERASE_PAGE				(0x20)
-#define HOSAL_FLASH_ERASE_SECTOR			(0x21)
-#define HOSAL_FLASH_ERASE_32K_SECTOR		(0x22)
-#define HOSAL_FLASH_ERASE_64K_SECTOR		(0x23)
-#define HOSAL_FLASH_ERASE_CHIP				(0x24)
-#define HOSAL_FLASH_ERASE_SECURITY_PAGE		(0x25)
+#define HOSAL_FLASH_ERASE_PAGE              (0x20)
+#define HOSAL_FLASH_ERASE_SECTOR            (0x21)
+#define HOSAL_FLASH_ERASE_32K_SECTOR        (0x22)
+#define HOSAL_FLASH_ERASE_64K_SECTOR        (0x23)
+#define HOSAL_FLASH_ERASE_CHIP              (0x24)
+#define HOSAL_FLASH_ERASE_SECURITY_PAGE     (0x25)
 
 /**
  * \brief flash io control command 
  */
-#define HOSAL_FLASH_ENABLE_SUSPEND			(0x30)
-#define HOSAL_FLASH_DISABLE_SUSPEND			(0x31)
-#define HOSAL_FLASH_CACHE					(0x32)
-#define HOSAL_FLASH_BUSY            		(0x33)
-#define HOSAL_FLASH_GET_INFO				(0x34)
+#define HOSAL_FLASH_ENABLE_SUSPEND          (0x30)
+#define HOSAL_FLASH_DISABLE_SUSPEND         (0x31)
+#define HOSAL_FLASH_CACHE                   (0x32)
+#define HOSAL_FLASH_BUSY                    (0x33)
+#define HOSAL_FLASH_GET_INFO                (0x34)
+#define HOSAL_FLASH_GET_END_ADDR            (0x38)  /* Get usable flash end address, p_arg = uint32_t* */
 
 
 /* ================= HOSAL Flash BP Control Commands ================= */
@@ -146,9 +147,9 @@ typedef enum {
  *                      related stuff
  */
 typedef struct {
-	uint32_t address;							 /*!< flash address */
-	uint32_t length;							 /*!< flash data length  */	
-	uint32_t buf_address;						 /*!< flash data buffer address  */
+	uint32_t address;                            /*!< flash address */
+	uint32_t length;                             /*!< flash data length  */	
+	uint32_t buf_address;                        /*!< flash data buffer address  */
 }hosal_flash_config_t;	
 
 /**

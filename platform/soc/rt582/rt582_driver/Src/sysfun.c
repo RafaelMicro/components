@@ -12,9 +12,7 @@
 /*
  * Author:          ives.lee
  */
-#include "assert_help.h"
 #include "mcu.h"
-#include "system_mcu.h"
 #if defined(CONFIG_FREERTOS)
 #include "FreeRTOS.h"
 #include "task.h"

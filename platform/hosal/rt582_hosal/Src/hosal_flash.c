@@ -169,10 +169,27 @@ int hosal_flash_ioctrl(int ctl, void *p_arg) {
 
     case HOSAL_FLASH_GET_INFO:
 
-        *(hosal_flash_size_t*)p_arg = flash_get_deviceinfo();
+        /* flash_get_deviceinfo() is the raw 24-bit JEDEC info (size id in
+         * bits 16..23); truncating it into hosal_flash_size_t kept the
+         * manufacturer id instead. flash_size() extracts the size id. */
+        *(hosal_flash_size_t*)p_arg = (hosal_flash_size_t)flash_size();
 
         return HOSAL_STATUS_SUCCESS;
         break;
+
+    case HOSAL_FLASH_GET_END_ADDR:
+    {
+        uint32_t size_id;
+
+        if (p_arg == NULL) {
+            return HOSAL_STATUS_INVALID_PARAM;
+        }
+
+        size_id = (uint32_t)flash_size();
+        *(uint32_t*)p_arg = FLASH_END_ADDR(size_id);
+
+        return HOSAL_STATUS_SUCCESS;
+    }
     default :
         HOSAL_STATUS_INVALID_REQUEST;
 

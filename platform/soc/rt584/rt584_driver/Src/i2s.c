@@ -14,6 +14,7 @@
  * Author: 
  */
 #include "i2s.h"
+#include "xdma.h"
 
 static i2s_cb_fn i2s_reg_handler = NULL;
 
@@ -34,6 +35,12 @@ uint32_t i2s_init(i2s_para_set_t *i2s_para) {
         //Fail Cases
         return STATUS_INVALID_PARAM;
     }
+
+    // Enable I2S Clk
+    enable_perclk((I2S0_CLK));
+    
+    /*Enable XDMA Clk*/
+    xdma_init();
 
     // Make I2S reset
     i2s->ms_ctl1.bit.cfg_i2s_rst = 1;

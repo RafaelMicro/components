@@ -34,6 +34,8 @@ if(MIU_PORT_SRC_FILES)
     sdk_add_include_directories(
         include
     )
+    sdk_library_add_public_include_directories(include)
+    sdk_add_private_include_directories(include)
 
     # === Source Files (hidden after build) ===
     sdk_library_add_sources(
@@ -61,6 +63,40 @@ if(MIU_PORT_SRC_FILES)
         crypto/ecjpake_alt.c
         crypto/sha256_alt.c
     )
+
+    # Continuing the library-boundary rework (docs/internal/architecture/lib-dependencies.md).
+    # mbedtls's own include path is injected via a plain (non-sdk_*)
+    # add_compile_options() in components/network/thread/CMakeLists.txt, so it
+    # bypasses sdk_intf_includes entirely and needs no declaration here.
+    #
+    # miu_openthread's own include paths, and the generated miu_bin_version.h,
+    # are published bare/unowned by the parent components/network/mesh-it-up/
+    # CMakeLists.txt (same pattern as OpenThread's bare paths for
+    # openthread_port) -- no real CMake target to depend on, so declared
+    # directly. miu_port is a direct subdirectory of mesh-it-up, so its own
+    # binary dir is one level below mesh-it-up's.
+    sdk_add_private_include_directories(
+        ${CMAKE_CURRENT_LIST_DIR}/../miu_openthread/include/openthread
+        ${CMAKE_CURRENT_LIST_DIR}/../miu_openthread/include/openthread/platform
+        ${CMAKE_CURRENT_LIST_DIR}/../miu_openthread/src/core
+        ${CMAKE_CURRENT_LIST_DIR}/../miu_openthread/src/core/config
+        ${CMAKE_CURRENT_LIST_DIR}/../miu_openthread/src
+        ${CMAKE_CURRENT_BINARY_DIR}/..
+    )
+    if(CONFIG_FREERTOS)
+        sdk_library_depends_on(sdk::freertos)
+    endif()
+    sdk_library_depends_on(sdk::soc_driver sdk::hosal log lmac15p4 utility)
+    if(CONFIG_BUILD_COMPONENT_SUBG_CTRL)
+        sdk_library_depends_on(subg_ctrl)
+    endif()
+    if(CONFIG_BUILD_COMPONENT_ENHANCED_FLASH_DATASET)
+        sdk_library_depends_on(EnhancedFlashDataset)
+    endif()
+    if(CONFIG_BUILD_COMPONENT_CLI)
+        sdk_library_depends_on(cli)
+    endif()
+    sdk_library_strict_includes()
 
 else()
     if(EXISTS ${MIU_PORT_LIB_FILE})

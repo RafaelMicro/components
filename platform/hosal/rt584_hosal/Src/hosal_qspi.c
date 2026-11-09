@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include "mcu.h"
 #include "qspi.h"
+#include "sysctrl.h"
 #include "hosal_qspi.h"
 #include "hosal_sysctrl.h"
 
@@ -376,6 +377,9 @@ hosal_qspi_status_t hosal_qspi_init(hosal_qspi_dev_t* qspi_dev) {
         memcpy(ptr, qspi_dev, sizeof(hosal_qspi_dev_t));
 
         hosal_qspi_pin_init(qspi_dev);
+
+        /* Enable QSPI peripheral clock before accessing QSPI registers. */
+        enable_perclk(QSPI0_CLK + qspi_id);
 
         ptr->qspi_state = HOSAL_QSPI_STATE_SETUP;
 

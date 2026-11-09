@@ -23,7 +23,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-
+#include "sysctrl.h"
 
 /**
  * \defgroup        XDMA XDma
@@ -51,7 +51,14 @@ __STATIC_INLINE void xdma_disable(void) {
  * \brief           Xdma_reset
  */
 __STATIC_INLINE void xdma_reset(void) {
-    XDMA->XDMA_CTL1 |= XDMA_RESET;
+    XDMA->xdma_ctl1 |= XDMA_RESET;
+}
+
+/**
+ * \brief           Xdma_init
+ */
+__STATIC_INLINE void xdma_init(void) {
+    enable_perclk(XDMA_CLK);
 }
 
 /*@}*/ /* end of RT584_DRIVER XDMA */

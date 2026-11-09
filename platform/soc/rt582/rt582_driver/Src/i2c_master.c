@@ -13,9 +13,7 @@
  * Author:          Kc.tseng
  */
 #include <stdio.h>
-#include <string.h>
 #include "mcu.h"
-#include "uart_stdio.h"
 
 /**
  * \brief           I2C software state definitions

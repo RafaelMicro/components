@@ -13,7 +13,6 @@
  * Author:          ives.lee
  */
 
-#include "swi.h"
 #include "mcu.h"
 
 static swi_isr_handler_t swi_reg_handler[MAX_NUMBER_OF_SWI];

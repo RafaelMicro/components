@@ -26,6 +26,10 @@ typedef struct {
 
 static gpio_cb user_isr[MAX_NUMBER_OF_PINS];
 
+void gpio_32k_init(void) {
+    enable_perclk(GPIO_32K_CLK);
+}
+
 uint32_t gpio_cfg(uint32_t pin_number, gpio_pin_dir_t dir, gpio_pin_int_mode_t int_mode) {
     uint32_t  MASK;
 
@@ -36,6 +40,8 @@ uint32_t gpio_cfg(uint32_t pin_number, gpio_pin_dir_t dir, gpio_pin_int_mode_t i
     if( dir >= GPIO_PIN_DIR_INVALID ) {
         return STATUS_INVALID_PARAM;
     }
+
+    gpio_32k_init();
 
     MASK = (1 << pin_number);
 
