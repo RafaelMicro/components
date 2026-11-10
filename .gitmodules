@@ -1,0 +1,3 @@
+[submodule "network/thread"]
+	path = network/thread
+	url = git@github.com:RafaelMicro/openthread.git
